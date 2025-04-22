@@ -10,6 +10,24 @@ import vn.truongngo.lib.dynamicquery.core.support.Predicates;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * A mixin interface that provides utility methods for dynamic query construction,
+ * especially useful when building expressions such as columns or functions within the
+ * fluent API of a query builder implementation.
+ *
+ * <p>Implementing this interface allows query builder classes to access static-like helper
+ * methods without coupling tightly to utility classes. It promotes better readability
+ * and a fluent coding style when constructing queries dynamically.
+ *
+ * <p><strong>Example usage:</strong>
+ * <blockquote><pre>
+ * QuerydslQueryBuilder&lt;Employee&gt; query = new QuerydslQueryBuilder&lt;&gt;(entityManager);
+ * query.select(column("name", Employee.class));
+ * </pre></blockquote>
+ *
+ * @author Truong Ngo
+ * @version 1.0
+ */
 public interface QueryBuilderMixIn {
 
     /**
