@@ -1,10 +1,10 @@
-package vn.truongngo.lib.dynamicquery.sample.querydsl;
+package vn.truongngo.lib.dynamicquery.sample.jooq;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class SampleApplicationTests {
+class SampleJooqApplicationTests {
 
     @Test
     void contextLoads() {

@@ -1,13 +1,13 @@
-package vn.truongngo.lib.dynamicquery.sample.querydsl;
+package vn.truongngo.lib.dynamicquery.sample.jooq;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SampleApplication {
+public class SampleJooqApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SampleApplication.class, args);
+        SpringApplication.run(SampleJooqApplication.class, args);
     }
 
 }
