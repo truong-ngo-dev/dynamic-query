@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>vn.truongngo.lib.dynamicquery</groupId>
-    <artifactId>sample</artifactId>
+    <artifactId>sample-querydsl</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>sample</name>
-    <description>sample</description>
+    <name>sample-querydsl</name>
+    <description>sample-querydsl</description>
 
     <properties>
         <java.version>17</java.version>

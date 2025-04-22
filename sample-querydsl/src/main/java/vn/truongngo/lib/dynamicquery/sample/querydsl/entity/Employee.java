@@ -1,4 +1,4 @@
-package vn.truongngo.lib.dynamicquery.sample.entity;
+package vn.truongngo.lib.dynamicquery.sample.querydsl.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

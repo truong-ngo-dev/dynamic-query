@@ -1,4 +1,4 @@
-package vn.truongngo.lib.dynamicquery.sample.service;
+package vn.truongngo.lib.dynamicquery.sample.querydsl.service;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import vn.truongngo.lib.dynamicquery.core.expression.SubqueryExpression;
 import vn.truongngo.lib.dynamicquery.querydsl.builder.QuerydslQueryBuilder;
-import vn.truongngo.lib.dynamicquery.sample.entity.Company;
-import vn.truongngo.lib.dynamicquery.sample.entity.Employee;
+import vn.truongngo.lib.dynamicquery.sample.querydsl.entity.Company;
+import vn.truongngo.lib.dynamicquery.sample.querydsl.entity.Employee;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

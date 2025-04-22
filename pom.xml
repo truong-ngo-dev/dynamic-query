@@ -18,6 +18,7 @@
 	<modules>
 		<module>core</module>
 		<module>querydsl-adapter</module>
+		<module>jooq-adapter</module>
 	</modules>
 
 	<packaging>pom</packaging>
@@ -49,10 +50,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jdbc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-jooq</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
