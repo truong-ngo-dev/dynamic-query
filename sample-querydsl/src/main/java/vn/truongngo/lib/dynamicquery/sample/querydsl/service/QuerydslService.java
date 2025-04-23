@@ -5,7 +5,6 @@ import com.querydsl.jpa.impl.JPAQuery;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import vn.truongngo.lib.dynamicquery.core.builder.QueryBuilder;
 import vn.truongngo.lib.dynamicquery.core.expression.SubqueryExpression;
 import vn.truongngo.lib.dynamicquery.querydsl.builder.QuerydslQueryBuilder;
 import vn.truongngo.lib.dynamicquery.sample.querydsl.entity.Company;
@@ -19,14 +18,14 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class TestService {
+public class QuerydslService {
 
     private final EntityManager em;
 
     public List<LinkedHashMap<String, Object>> testJoinQuery() {
         QuerydslQueryBuilder<Tuple> qb = new QuerydslQueryBuilder<>(em);
 
-        QueryBuilder<Tuple> select = qb
+        qb
                 .from(Employee.class)
                 .join(b -> b
                         .join(entity(Company.class))
@@ -87,12 +86,12 @@ public class TestService {
         qb
                 .from(Company.class)
                 .select("id", "name")
-                .where(qb.in(
-                qb.column("id", Company.class),
-                (SubqueryExpression) qb.subquery(b -> b
-                        .from(Employee.class)
-                        .select(qb.column("companyId", Employee.class))
-                        .where(qb.equal(qb.column("id", Employee.class), 1))
+                .where(in(
+                        column("id", Company.class),
+                        (SubqueryExpression) subquery(b -> b
+                                .from(Employee.class)
+                                .select(column("companyId", Employee.class))
+                                .where(equal(column("id", Employee.class), 1))
                 )
         ));
 

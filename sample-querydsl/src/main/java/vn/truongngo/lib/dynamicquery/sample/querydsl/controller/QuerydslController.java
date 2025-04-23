@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import vn.truongngo.lib.dynamicquery.sample.querydsl.service.TestService;
+import vn.truongngo.lib.dynamicquery.sample.querydsl.service.QuerydslService;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -12,12 +12,12 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-public class TestController {
+public class QuerydslController {
 
-    private final TestService testService;
+    private final QuerydslService querydslService;
 
     @GetMapping("/test")
     private List<LinkedHashMap<String, Object>> test() {
-        return testService.testCountQuery();
+        return querydslService.testCountQuery();
     }
 }
