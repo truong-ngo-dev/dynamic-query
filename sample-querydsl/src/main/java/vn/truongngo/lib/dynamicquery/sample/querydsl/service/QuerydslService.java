@@ -62,7 +62,7 @@ public class QuerydslService {
                         ))
                         .as(Employee.class.getSimpleName()))
                 .select("id", "name")
-                .select(function("count", "totalEmployee", column("id", Employee.class)))
+                .select(count("totalEmployee", column("id", Employee.class)))
                 .groupBy(
                         column("id", Company.class),
                         column("name", Company.class));
