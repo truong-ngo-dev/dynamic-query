@@ -5,10 +5,13 @@ import com.querydsl.jpa.impl.JPAQuery;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import vn.truongngo.lib.dynamicquery.core.builder.QueryBuilder;
 import vn.truongngo.lib.dynamicquery.core.expression.SubqueryExpression;
 import vn.truongngo.lib.dynamicquery.querydsl.builder.QuerydslQueryBuilder;
 import vn.truongngo.lib.dynamicquery.sample.querydsl.entity.Company;
 import vn.truongngo.lib.dynamicquery.sample.querydsl.entity.Employee;
+import static vn.truongngo.lib.dynamicquery.core.support.Expressions.*;
+import static vn.truongngo.lib.dynamicquery.core.support.Predicates.*;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -23,17 +26,17 @@ public class TestService {
     public List<LinkedHashMap<String, Object>> testJoinQuery() {
         QuerydslQueryBuilder<Tuple> qb = new QuerydslQueryBuilder<>(em);
 
-        qb
+        QueryBuilder<Tuple> select = qb
                 .from(Employee.class)
                 .join(b -> b
-                        .join(qb.entity(Company.class))
-                        .on(qb.equal(
-                                qb.column("companyId", Employee.class),
-                                qb.column("id", Company.class)))
+                        .join(entity(Company.class))
+                        .on(equal(
+                                column("companyId", Employee.class),
+                                column("id", Company.class)))
                         .as(Company.class.getSimpleName()
-                ))
+                        ))
                 .select("firstName", "lastName")
-                .select(qb.column("name", Company.class));
+                .select(column("name", Company.class));
 
         JPAQuery<Tuple> jpaQuery = qb.build();
         List<Tuple> tuples = jpaQuery.fetch();
@@ -53,15 +56,17 @@ public class TestService {
         qb
                 .from(Company.class)
                 .join(b -> b
-                        .join(qb.entity(Employee.class))
-                        .on(qb.equal(
-                                qb.column("companyId", Employee.class),
-                                qb.column("id", Company.class)
+                        .join(entity(Employee.class))
+                        .on(equal(
+                                column("companyId", Employee.class),
+                                column("id", Company.class)
                         ))
                         .as(Employee.class.getSimpleName()))
                 .select("id", "name")
-                .select(qb.function("count", "totalEmployee", qb.column("id", Employee.class)))
-                .groupBy(qb.column("id", Company.class), qb.column("name", Company.class));
+                .select(function("count", "totalEmployee", column("id", Employee.class)))
+                .groupBy(
+                        column("id", Company.class),
+                        column("name", Company.class));
 
         JPAQuery<Tuple> jpaQuery = qb.build();
         List<Tuple> tuples = jpaQuery.fetch();
