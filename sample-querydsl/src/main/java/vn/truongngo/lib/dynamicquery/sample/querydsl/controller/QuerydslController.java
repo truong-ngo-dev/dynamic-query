@@ -18,6 +18,6 @@ public class QuerydslController {
 
     @GetMapping("/test")
     private List<LinkedHashMap<String, Object>> test() {
-        return querydslService.testCountQuery();
+        return querydslService.testSubQuery();
     }
 }
