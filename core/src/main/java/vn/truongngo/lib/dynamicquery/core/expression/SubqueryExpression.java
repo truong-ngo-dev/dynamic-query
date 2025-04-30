@@ -110,8 +110,8 @@ public class SubqueryExpression extends AbstractAlias<SubqueryExpression> implem
          * @param expressions expressions to select
          * @return this builder instance
          */
-        public SubqueryExpression.Builder select(Expression... expressions) {
-            for (Expression expression : expressions) {
+        public SubqueryExpression.Builder select(Selection... expressions) {
+            for (Selection expression : expressions) {
                 metadata.addSelect(expression);
             }
             return this;
@@ -149,8 +149,8 @@ public class SubqueryExpression extends AbstractAlias<SubqueryExpression> implem
          * @param expressions expressions to group by
          * @return this builder instance
          */
-        public SubqueryExpression.Builder groupBy(Expression... expressions) {
-            for (Expression expression : expressions) {
+        public SubqueryExpression.Builder groupBy(Selection... expressions) {
+            for (Selection expression : expressions) {
                 metadata.addGroupBy(expression);
             }
             return this;
