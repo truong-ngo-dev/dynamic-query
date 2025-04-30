@@ -1,6 +1,9 @@
 package vn.truongngo.lib.dynamicquery.core.builder;
 
 import lombok.Getter;
+import vn.truongngo.lib.dynamicquery.core.expression.JoinExpression;
+import vn.truongngo.lib.dynamicquery.core.expression.Predicate;
+import vn.truongngo.lib.dynamicquery.core.expression.Selection;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
 import vn.truongngo.lib.dynamicquery.core.support.Expressions;
@@ -18,15 +21,20 @@ import java.util.function.Consumer;
  * the concrete logic for handling the query building process.
  * </p>
  *
- * @param <T> The type of the result object returned by the query.
+ * @param <Q> The type of the result object returned by the query.
  *
  * @author Truong Ngo
  * @version 1.0
  */
 @Getter
-public abstract class AbstractQueryBuilder<T> implements QueryBuilder<T>, QueryBuilderMixIn {
+public class DefaultQueryBuilder<Q> implements QueryBuilder<Q> {
 
-    private QueryMetadata queryMetadata;
+    private QueryMetadata queryMetadata = new DefaultQueryMetadata();
+    private final QueryBuilderStrategy<Q> strategy;
+
+    public DefaultQueryBuilder(QueryBuilderStrategy<Q> strategy) {
+        this.strategy = strategy;
+    }
 
     /**
      * Specifies the entity class for the query.
@@ -35,7 +43,7 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder<T>, QueryB
      * @return The current {@link QueryBuilder} instance.
      */
     @Override
-    public QueryBuilder<T> from(Class<?> entityClass) {
+    public QueryBuilder<Q> from(Class<?> entityClass) {
         this.queryMetadata = new DefaultQueryMetadata(entityClass);
         return this;
     }
@@ -48,7 +56,7 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder<T>, QueryB
      * @return The current {@link QueryBuilder} instance.
      */
     @Override
-    public QueryBuilder<T> from(Class<?> entityClass, String alias) {
+    public QueryBuilder<Q> from(Class<?> entityClass, String alias) {
         this.queryMetadata = new DefaultQueryMetadata(entityClass, alias);
         return this;
     }
@@ -60,10 +68,20 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder<T>, QueryB
      * @return The current {@link QueryBuilder} instance.
      */
     @Override
-    public QueryBuilder<T> select(Expression... expressions) {
-        for (Expression expression : expressions) {
+    public QueryBuilder<Q> select(Selection... expressions) {
+        for (Selection expression : expressions) {
             queryMetadata.addSelect(expression);
         }
+        return this;
+    }
+
+    /**
+     * Set distinct to query
+     * @return The current {@link QueryBuilder} instance.
+     * */
+    @Override
+    public QueryBuilder<Q> distinct() {
+        queryMetadata.setDistinct(true);
         return this;
     }
 
@@ -74,9 +92,9 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder<T>, QueryB
      * @return The current {@link QueryBuilder} instance.
      */
     @Override
-    public QueryBuilder<T> select(String... columns) {
+    public QueryBuilder<Q> select(String... columns) {
         for (String c : columns) {
-            Expression expression = Expressions.column(c, queryMetadata.getEntityClass());
+            Selection expression = Expressions.column(c, queryMetadata.getEntityClass());
             queryMetadata.addSelect(expression);
         }
         return this;
@@ -91,7 +109,7 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder<T>, QueryB
      * @return The current {@link QueryBuilder} instance.
      */
     @Override
-    public QueryBuilder<T> join(Class<?> entityClass, Predicate condition, String alias) {
+    public QueryBuilder<Q> join(Class<?> entityClass, Predicate condition, String alias) {
         JoinExpression joinExpression = Expressions.join(b -> b
                 .join(Expressions.entity(entityClass))
                 .as(alias)
@@ -107,7 +125,7 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder<T>, QueryB
      * @return The current {@link QueryBuilder} instance.
      */
     @Override
-    public QueryBuilder<T> join(Consumer<JoinExpression.Builder> builder) {
+    public QueryBuilder<Q> join(Consumer<JoinExpression.Builder> builder) {
         JoinExpression joinExpression = Expressions.join(builder);
         queryMetadata.addJoin(joinExpression);
         return this;
@@ -120,7 +138,7 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder<T>, QueryB
      * @return The current {@link QueryBuilder} instance.
      */
     @Override
-    public QueryBuilder<T> where(Predicate... predicates) {
+    public QueryBuilder<Q> where(Predicate... predicates) {
         for (Predicate p : predicates) {
             queryMetadata.addWhere(p);
         }
@@ -134,8 +152,8 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder<T>, QueryB
      * @return The current {@link QueryBuilder} instance.
      */
     @Override
-    public QueryBuilder<T> groupBy(Expression... expressions) {
-        for (Expression e : expressions) {
+    public QueryBuilder<Q> groupBy(Selection... expressions) {
+        for (Selection e : expressions) {
             queryMetadata.addGroupBy(e);
         }
         return this;
@@ -148,7 +166,7 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder<T>, QueryB
      * @return The current {@link QueryBuilder} instance.
      */
     @Override
-    public QueryBuilder<T> having(Predicate... predicates) {
+    public QueryBuilder<Q> having(Predicate... predicates) {
         for (Predicate p : predicates) {
             queryMetadata.addHaving(p);
         }
@@ -162,7 +180,7 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder<T>, QueryB
      * @return The current {@link QueryBuilder} instance.
      */
     @Override
-    public QueryBuilder<T> orderBy(OrderSpecifier... orderSpecifiers) {
+    public QueryBuilder<Q> orderBy(OrderSpecifier... orderSpecifiers) {
         for (OrderSpecifier o : orderSpecifiers) {
             queryMetadata.addOrderBy(o);
         }
@@ -176,8 +194,22 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder<T>, QueryB
      * @return The current {@link QueryBuilder} instance.
      */
     @Override
-    public QueryBuilder<T> restriction(Restriction restriction) {
+    public QueryBuilder<Q> restriction(Restriction restriction) {
         queryMetadata.setRestriction(restriction);
         return this;
+    }
+
+    /**
+     * Builds the final query object using the configured {@link QueryBuilderStrategy}.
+     * <p>
+     * This method delegates the construction of the final query object (e.g., a QueryDSL or jOOQ query)
+     * to the strategy implementation provided at construction time. It uses the current state of the
+     * {@link QueryMetadata} that has been configured via the fluent API.
+     *
+     * @return The built query object of type {@code Q}, as produced by the underlying strategy.
+     */
+    @Override
+    public Q build() {
+        return strategy.accept(queryMetadata);
     }
 }
