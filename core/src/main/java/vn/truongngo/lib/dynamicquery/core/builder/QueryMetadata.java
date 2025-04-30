@@ -1,5 +1,9 @@
 package vn.truongngo.lib.dynamicquery.core.builder;
 
+import vn.truongngo.lib.dynamicquery.core.expression.JoinExpression;
+import vn.truongngo.lib.dynamicquery.core.expression.Predicate;
+import vn.truongngo.lib.dynamicquery.core.expression.QuerySource;
+import vn.truongngo.lib.dynamicquery.core.expression.Selection;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
 
@@ -30,7 +34,7 @@ public interface QueryMetadata {
      *
      * @return the FROM expression
      */
-    Expression getFrom();
+    QuerySource getFrom();
 
     /**
      * Returns the alias associated with the FROM expression, if any.
@@ -66,14 +70,14 @@ public interface QueryMetadata {
      * @param fromExpression the FROM target
      * @param alias          the alias name
      */
-    void setFrom(Expression fromExpression, String alias);
+    void setFrom(QuerySource fromExpression, String alias);
 
     /**
      * Adds an expression to the SELECT clause.
      *
      * @param selectClauses the SELECT expression
      */
-    void addSelect(Expression selectClauses);
+    void addSelect(Selection selectClauses);
 
     /**
      * Sets the flag to indicate whether the query requires the use of the <code>DISTINCT</code> keyword.
@@ -102,7 +106,7 @@ public interface QueryMetadata {
      *
      * @param groupByClauses the GROUP BY expression
      */
-    void addGroupBy(Expression groupByClauses);
+    void addGroupBy(Selection groupByClauses);
 
     /**
      * Adds a predicate to the HAVING clause.
@@ -124,13 +128,6 @@ public interface QueryMetadata {
      * @param restriction the query modifiers
      */
     void setRestriction(Restriction restriction);
-
-    /**
-     * Determine if query return a single result or not.
-     *
-     * @param isUnique isUnique value
-     */
-    void setUnique(boolean isUnique);
 
     /**
      * Resets all query metadata — clearing all previously added clauses.
@@ -169,7 +166,7 @@ public interface QueryMetadata {
      *
      * @return the list of SELECT clauses
      */
-    List<Expression> getSelectClauses();
+    List<Selection> getSelectClauses();
 
     /**
      * Returns the list of JOIN expressions.
@@ -190,7 +187,7 @@ public interface QueryMetadata {
      *
      * @return the list of GROUP BY clauses
      */
-    List<Expression> getGroupByClauses();
+    List<Selection> getGroupByClauses();
 
     /**
      * Returns the list of HAVING predicates.
@@ -213,10 +210,4 @@ public interface QueryMetadata {
      */
     Restriction getRestriction();
 
-    /**
-     * Get whether the result is unique
-     *
-     * @return unique
-     */
-    boolean isUnique();
 }
