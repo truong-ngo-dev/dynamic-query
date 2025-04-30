@@ -1,9 +1,7 @@
 package vn.truongngo.lib.dynamicquery.core.builder;
 
-import vn.truongngo.lib.dynamicquery.core.expression.*;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
-import vn.truongngo.lib.dynamicquery.core.expression.predicate.Predicate;
 
 import java.util.List;
 
@@ -78,6 +76,14 @@ public interface QueryMetadata {
     void addSelect(Expression selectClauses);
 
     /**
+     * Sets the flag to indicate whether the query requires the use of the <code>DISTINCT</code> keyword.
+     *
+     * @param distinct <code>true</code> to indicate the query requires <code>DISTINCT</code>;
+     *                 <code>false</code> otherwise.
+     */
+    void setDistinct(boolean distinct);
+
+    /**
      * Adds a JOIN expression.
      *
      * @param joinClauses the JOIN expression
@@ -150,6 +156,13 @@ public interface QueryMetadata {
      * Clears all order specifiers in the ORDER BY clause.
      */
     void resetOrderByClauses();
+
+    /**
+     * Checks if the query requires the use of the <code>DISTINCT</code> keyword.
+     *
+     * @return <code>true</code> if the query requires <code>DISTINCT</code>; <code>false</code> otherwise.
+     */
+    boolean isDistinct();
 
     /**
      * Returns the list of SELECT expressions.

@@ -1,10 +1,7 @@
 package vn.truongngo.lib.dynamicquery.core.builder;
 
-import vn.truongngo.lib.dynamicquery.core.expression.Expression;
-import vn.truongngo.lib.dynamicquery.core.expression.JoinExpression;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
-import vn.truongngo.lib.dynamicquery.core.expression.predicate.Predicate;
 
 import java.util.function.Consumer;
 

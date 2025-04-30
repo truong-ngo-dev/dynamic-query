@@ -1,7 +1,6 @@
-package vn.truongngo.lib.dynamicquery.core.expression.predicate;
+package vn.truongngo.lib.dynamicquery.core.expression;
 
 import vn.truongngo.lib.dynamicquery.core.enumerate.LogicalOperator;
-import vn.truongngo.lib.dynamicquery.core.expression.Expression;
 
 import java.util.List;
 
@@ -13,7 +12,7 @@ import java.util.List;
  * predicates and applying logical operations. It simplifies the creation of complex predicates by providing
  * utility methods like {@link #and(Predicate)}, {@link #or(Predicate)}, and {@link #not()}.</p>
  *
- * @version 1.0
+ * @version 2.0.0
  * @author Truong Ngo
  */
 public abstract class AbstractPredicate implements Predicate {
@@ -30,6 +29,7 @@ public abstract class AbstractPredicate implements Predicate {
         return negate;
     }
 
+
     /**
      * Sets whether this predicate should be negated.
      *
@@ -40,27 +40,6 @@ public abstract class AbstractPredicate implements Predicate {
         this.negate = negated;
     }
 
-    /**
-     * Returns the predicate as an expression with a given alias.
-     *
-     * @param alias the alias to assign to the predicate
-     * @return the current predicate as an expression
-     */
-    @Override
-    public Expression as(String alias) {
-        return this;
-    }
-
-    /**
-     * Returns the alias for this predicate. This default implementation returns {@code null},
-     * because predicate no need alias on itself
-     *
-     * @return {@code null}
-     */
-    @Override
-    public String getAlias() {
-        return null;
-    }
 
     /**
      * Combines this predicate with another predicate using the AND operator.
@@ -76,6 +55,7 @@ public abstract class AbstractPredicate implements Predicate {
         return new LogicalPredicate(List.of(this, other), LogicalOperator.AND);
     }
 
+
     /**
      * Combines this predicate with another predicate using the OR operator.
      *
@@ -89,6 +69,7 @@ public abstract class AbstractPredicate implements Predicate {
     public Predicate or(Predicate other) {
         return new LogicalPredicate(List.of(this, other), LogicalOperator.OR);
     }
+
 
     /**
      * Negates this predicate.

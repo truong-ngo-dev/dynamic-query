@@ -2,11 +2,6 @@ package vn.truongngo.lib.dynamicquery.core.support;
 
 import vn.truongngo.lib.dynamicquery.core.enumerate.LogicalOperator;
 import vn.truongngo.lib.dynamicquery.core.enumerate.Operator;
-import vn.truongngo.lib.dynamicquery.core.expression.Expression;
-import vn.truongngo.lib.dynamicquery.core.expression.SubqueryExpression;
-import vn.truongngo.lib.dynamicquery.core.expression.predicate.ComparisonPredicate;
-import vn.truongngo.lib.dynamicquery.core.expression.predicate.LogicalPredicate;
-import vn.truongngo.lib.dynamicquery.core.expression.predicate.Predicate;
 
 import java.util.List;
 

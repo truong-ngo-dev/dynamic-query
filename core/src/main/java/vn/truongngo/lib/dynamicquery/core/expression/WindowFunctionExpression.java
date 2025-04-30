@@ -1,7 +1,8 @@
-package vn.truongngo.lib.dynamicquery.core.expression.v2;
+package vn.truongngo.lib.dynamicquery.core.expression;
 
 import lombok.Getter;
 import vn.truongngo.lib.dynamicquery.core.builder.v2.Visitor;
+import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
 
 import java.util.ArrayList;
 import java.util.List;

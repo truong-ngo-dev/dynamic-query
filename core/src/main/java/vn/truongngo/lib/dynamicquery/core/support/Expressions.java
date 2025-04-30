@@ -3,9 +3,7 @@ package vn.truongngo.lib.dynamicquery.core.support;
 import vn.truongngo.lib.dynamicquery.core.enumerate.Function;
 import vn.truongngo.lib.dynamicquery.core.enumerate.JoinType;
 import vn.truongngo.lib.dynamicquery.core.enumerate.Order;
-import vn.truongngo.lib.dynamicquery.core.expression.*;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
-import vn.truongngo.lib.dynamicquery.core.expression.predicate.Predicate;
 
 import java.util.function.Consumer;
 

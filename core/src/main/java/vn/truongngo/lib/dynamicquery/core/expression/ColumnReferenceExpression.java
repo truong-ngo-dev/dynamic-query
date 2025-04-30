@@ -1,93 +1,61 @@
 package vn.truongngo.lib.dynamicquery.core.expression;
 
 import lombok.Getter;
-import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
-import vn.truongngo.lib.dynamicquery.core.support.Expressions;
+import vn.truongngo.lib.dynamicquery.core.builder.v2.Visitor;
 
 /**
- * Represents a reference to a column of an entity in a dynamic query expression.
+ * Represents a column reference expression in a query.
  * <p>
- * This class is used to refer to entity attributes, typically for constructing
- * WHERE conditions, SELECT clauses, or ORDER BY parts in a type-safe manner.
- * It supports optional aliasing for disambiguating table references in joined queries.
+ * This expression can be used to reference a column from a particular source (table, alias, etc.).
+ * It is typically used in the <b>SELECT</b> clause or <b>WHERE</b> clause to refer to a specific column
+ * from a query source.
  * </p>
  *
+ * <p>
+ * Example usage:
  * <blockquote><pre>
- *     // Example usage:
- *     new ColumnReferenceExpression(User.class, "name");
- *     new ColumnReferenceExpression("u", User.class, "name");
+ * new ColumnReferenceExpression(table, "columnName").as("alias")
  * </pre></blockquote>
+ * </p>
  *
- * @author Truong
- * @version 1.0
+ * @author Truong Ngo
+ * @version 2.0.0
  */
 @Getter
-public class ColumnReferenceExpression extends AbstractExpression {
+public class ColumnReferenceExpression extends AbstractAlias<ColumnReferenceExpression> implements Selection {
 
-    /** The source where the column is declared. */
-    private final Expression source;
+    /**
+     * The source from which the column is referenced (can be a table or an alias).
+     */
+    private final QuerySource source;
 
-    /** The name of the column being referenced. */
+    /**
+     * The name of the column to reference.
+     */
     private final String columnName;
 
+
     /**
-     * Constructs a column reference expression without an alias.
+     * Constructs a column reference expression from a given source and column name.
      *
-     * @param entityClass the entity class
-     * @param columnName  the name of the column in the entity
+     * @param source the query source (e.g., table, alias) from which the column is referenced
+     * @param columnName the name of the column to reference
      */
-    public ColumnReferenceExpression(EntityReferenceExpression entityRef, String columnName) {
-        super(null);
-        this.source = entityRef;
+    public ColumnReferenceExpression(QuerySource source, String columnName) {
+        this.source = source;
         this.columnName = columnName;
     }
 
-    /**
-     * Constructs a column reference expression with an alias.
-     *
-     * @param alias       the alias for column
-     * @param entityRef   the entity reference expression
-     * @param columnName  the name of the column in the entity
-     */
-    public ColumnReferenceExpression(String alias, EntityReferenceExpression entityRef, String columnName) {
-        super(alias);
-        this.source = entityRef;
-        this.columnName = columnName;
-    }
-
-    /**
-     * Constructs a subquery's column reference expression without an alias.
-     *
-     * @param subquery the subquery expression
-     * @param columnName  the name of the column in the subquery
-     */
-    public ColumnReferenceExpression(SubqueryExpression subquery, String columnName) {
-        super(null);
-        this.source = subquery;
-        this.columnName = columnName;
-    }
-
-    /**
-     * Constructs a subquery's column reference expression with an alias.
-     *
-     * @param alias       the alias for column
-     * @param subquery    the subquery expression
-     * @param columnName  the name of the column in the subquery
-     */
-    public ColumnReferenceExpression(String alias, SubqueryExpression subquery, String columnName) {
-        super(alias);
-        this.source = subquery;
-        this.columnName = columnName;
-    }
 
     /**
      * Accepts a visitor to process this expression.
+     * This method allows the expression to be visited by different types of visitors (e.g., SQL builder, parameter binder).
      *
      * @param visitor the visitor to accept
-     * @param context the additional context for the visitor
-     * @param <R>     the return type of the visitor
-     * @param <C>     the type of the visitor context
-     * @return the result of the visitor operation
+     * @param context the context to pass along to the visitor
+     * @param <R>     the result type of the visitor
+     * @param <C>     the context type
+     * @return the result of visiting this expression
      */
     @Override
     public <R, C> R accept(Visitor<R, C> visitor, C context) {

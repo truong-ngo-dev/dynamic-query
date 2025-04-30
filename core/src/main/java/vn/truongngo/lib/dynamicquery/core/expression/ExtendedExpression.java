@@ -1,4 +1,4 @@
-package vn.truongngo.lib.dynamicquery.core.expression.v2;
+package vn.truongngo.lib.dynamicquery.core.expression;
 
 import java.util.Map;
 

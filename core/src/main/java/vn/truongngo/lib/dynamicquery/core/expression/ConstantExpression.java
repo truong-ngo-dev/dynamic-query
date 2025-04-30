@@ -1,52 +1,59 @@
 package vn.truongngo.lib.dynamicquery.core.expression;
 
 import lombok.Getter;
-import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
+import vn.truongngo.lib.dynamicquery.core.builder.v2.Visitor;
+
+import java.sql.PreparedStatement;
 
 /**
- * Represents a constant (literal) value in a query expression.
+ * Represents a constant value in a query expression.
  * <p>
- * A {@code ConstantExpression} is used to embed fixed values into queries,
- * such as numbers, strings, or booleans. It does not refer to any entity or column.
+ * This expression can be used in various parts of a query such as
+ * <ul>
+ *     <li><b>SELECT</b>: {@code SELECT ? AS status}</li>
+ *     <li><b>WHERE</b>: {@code WHERE status = ?}</li>
+ *     <li><b>VALUES</b>: {@code VALUES (?)} </li>
+ *     <li><b>CASE</b>: {@code CASE WHEN is_active THEN ? ELSE ? END}</li>
+ * </ul>
+ * When used with a SQL builder, the constant value will be treated as a parameter
+ * and a placeholder will be used in the SQL string. The actual value will be bound
+ * at runtime via the {@link PreparedStatement} or similar.
+ * </p>
  *
- * <p>Example usage:
+ * <p>
+ * Example usage:
  * <blockquote><pre>
- * Expression expr = new ConstantExpression(42);
- * // Represents a constant value of 42 in the query
+ * new ConstantExpression("active").as("status")
  * </pre></blockquote>
+ * </p>
  *
- * @see Expression
- * @see Visitor
  * @author Truong Ngo
- * @version 1.0
+ * @version 2.0.0
  */
 @Getter
-public class ConstantExpression extends AbstractExpression {
+public class ConstantExpression extends AbstractAlias<ConstantExpression> implements Selection {
 
-    /**
-     * The constant value represented by this expression.
-     */
     private final Object value;
 
-
     /**
-     * Constructs a new constant expression.
+     * Constructs a constant expression holding the specified value.
+     * The value will be treated as a parameter in the SQL query.
      *
-     * @param value the literal value (e.g., String, Integer, Boolean)
+     * @param value the constant value, which will be used as a parameter in the query.
      */
-    public ConstantExpression(final Object value) {
-        super(null);
+    public ConstantExpression(Object value) {
         this.value = value;
     }
 
 
     /**
-     * Accepts a visitor to process this constant expression.
+     * Accepts a visitor to process this expression.
+     * The visitor can be used to build SQL query strings or bind parameters.
      *
-     * @param visitor the visitor instance
-     * @param context the context for the visitor
-     * @param <R>     the return type of the visitor
-     * @param <C>     the type of the context
+     * @param visitor the visitor
+     * @param context the context object passed along the visit chain
+     * @param <R>     the result type of the visitor
+     * @param <C>     the context type
      * @return the result from the visitor
      */
     @Override

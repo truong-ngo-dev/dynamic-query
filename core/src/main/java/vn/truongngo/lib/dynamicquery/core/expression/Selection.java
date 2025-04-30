@@ -1,4 +1,4 @@
-package vn.truongngo.lib.dynamicquery.core.expression.v2;
+package vn.truongngo.lib.dynamicquery.core.expression;
 
 /**
  * Represents a selectable expression in a query, typically used in the {@code SELECT} clause.

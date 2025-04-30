@@ -7,9 +7,6 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryMetadata;
 import vn.truongngo.lib.dynamicquery.core.enumerate.Operator;
-import vn.truongngo.lib.dynamicquery.core.expression.EntityReferenceExpression;
-import vn.truongngo.lib.dynamicquery.core.expression.JoinExpression;
-import vn.truongngo.lib.dynamicquery.core.expression.predicate.ComparisonPredicate;
 import vn.truongngo.lib.dynamicquery.querydsl.converter.QuerydslVisitor;
 
 import java.util.LinkedHashMap;

@@ -3,10 +3,9 @@ package vn.truongngo.lib.dynamicquery.core.expression;
 import lombok.Getter;
 import vn.truongngo.lib.dynamicquery.core.builder.DefaultQueryMetadata;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryMetadata;
-import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
+import vn.truongngo.lib.dynamicquery.core.builder.v2.Visitor;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
-import vn.truongngo.lib.dynamicquery.core.expression.predicate.Predicate;
 
 import java.util.function.Consumer;
 
@@ -17,16 +16,41 @@ import java.util.function.Consumer;
  * and is backed by its own {@link QueryMetadata}.
  *
  * @author Truong Ngo
- * @version 1.0
+ * @version 2.0.0
  */
 @Getter
-public class SubqueryExpression extends AbstractExpression {
+public class SubqueryExpression extends AbstractAlias<SubqueryExpression> implements Selection, QuerySource {
 
     private final QueryMetadata queryMetadata;
 
-    public SubqueryExpression(String alias, QueryMetadata queryMetadata) {
-        super(alias);
-        this.queryMetadata = queryMetadata;
+    /**
+     * Constructs a new {@link SubqueryExpression} with the given query metadata.
+     * <p>
+     * The metadata represents the underlying query that will be used as the subquery.
+     * </p>
+     *
+     * @param metadata the query metadata for the subquery
+     * @throws IllegalArgumentException if the provided metadata is {@code null}
+     */
+    public SubqueryExpression(QueryMetadata metadata) {
+        this.queryMetadata = metadata;
+    }
+
+    /**
+     * Accepts a visitor to allow processing or transformation of the subquery expression.
+     * <p>
+     * This method is part of the visitor pattern. The visitor will perform actions based on the type of the expression.
+     * </p>
+     *
+     * @param visitor the visitor that will process the subquery expression
+     * @param context additional context to be passed to the visitor
+     * @param <R> the return type of the visitor's {@link Visitor#visit(SubqueryExpression, Object)} method
+     * @param <C> the type of the context passed to the visitor
+     * @return the result of the visitor's processing
+     */
+    @Override
+    public <R, C> R accept(Visitor<R, C> visitor, C context) {
+        return visitor.visit(this, context);
     }
 
     /**
@@ -53,7 +77,7 @@ public class SubqueryExpression extends AbstractExpression {
          * @param alias the alias to assign
          * @return this builder instance
          */
-        public Builder alias(String alias) {
+        public Builder as(String alias) {
             this.alias = alias;
             return this;
         }
@@ -86,7 +110,7 @@ public class SubqueryExpression extends AbstractExpression {
          * @param expressions expressions to select
          * @return this builder instance
          */
-        public Builder select(Expression... expressions) {
+        public SubqueryExpression.Builder select(Expression... expressions) {
             for (Expression expression : expressions) {
                 metadata.addSelect(expression);
             }
@@ -99,7 +123,7 @@ public class SubqueryExpression extends AbstractExpression {
          * @param predicates filter conditions
          * @return this builder instance
          */
-        public Builder where(Predicate... predicates) {
+        public SubqueryExpression.Builder where(Predicate... predicates) {
             for (Predicate predicate : predicates) {
                 metadata.addWhere(predicate);
             }
@@ -112,7 +136,7 @@ public class SubqueryExpression extends AbstractExpression {
          * @param joinBuilder a consumer that configures the join
          * @return this builder instance
          */
-        public Builder join(Consumer<JoinExpression.Builder> joinBuilder) {
+        public SubqueryExpression.Builder join(Consumer<JoinExpression.Builder> joinBuilder) {
             JoinExpression.Builder builder = JoinExpression.builder();
             joinBuilder.accept(builder);
             metadata.addJoin(builder.build());
@@ -125,7 +149,7 @@ public class SubqueryExpression extends AbstractExpression {
          * @param expressions expressions to group by
          * @return this builder instance
          */
-        public Builder groupBy(Expression... expressions) {
+        public SubqueryExpression.Builder groupBy(Expression... expressions) {
             for (Expression expression : expressions) {
                 metadata.addGroupBy(expression);
             }
@@ -138,7 +162,7 @@ public class SubqueryExpression extends AbstractExpression {
          * @param predicates filter conditions on groups
          * @return this builder instance
          */
-        public Builder having(Predicate... predicates) {
+        public SubqueryExpression.Builder having(Predicate... predicates) {
             for (Predicate predicate : predicates) {
                 metadata.addHaving(predicate);
             }
@@ -151,7 +175,7 @@ public class SubqueryExpression extends AbstractExpression {
          * @param orderSpecifiers one or more order specifiers
          * @return this builder instance
          */
-        public Builder orderBy(OrderSpecifier... orderSpecifiers) {
+        public SubqueryExpression.Builder orderBy(OrderSpecifier... orderSpecifiers) {
             for (OrderSpecifier orderSpecifier : orderSpecifiers) {
                 metadata.addOrderBy(orderSpecifier);
             }
@@ -164,7 +188,7 @@ public class SubqueryExpression extends AbstractExpression {
          * @param restriction the restriction
          * @return this builder instance
          */
-        public Builder restriction(Restriction restriction) {
+        public SubqueryExpression.Builder restriction(Restriction restriction) {
             metadata.setRestriction(restriction);
             return this;
         }
@@ -175,21 +199,9 @@ public class SubqueryExpression extends AbstractExpression {
          * @return the subquery expression instance
          */
         public SubqueryExpression build() {
-            return new SubqueryExpression(alias, metadata);
+            SubqueryExpression sq = new SubqueryExpression(metadata);
+            if (alias != null) sq = sq.as(alias);
+            return sq;
         }
-    }
-
-    /**
-     * Accepts a visitor to handle the traversal or transformation of this expression.
-     *
-     * @param visitor the visitor instance
-     * @param context the traversal context
-     * @param <R>     the return type of the visitor
-     * @param <C>     the type of the context
-     * @return the result from the visitor
-     */
-    @Override
-    public <R, C> R accept(Visitor<R, C> visitor, C context) {
-        return visitor.visit(this, context);
     }
 }

@@ -2,7 +2,7 @@ package vn.truongngo.lib.dynamicquery.core.expression.modifier;
 
 import lombok.Getter;
 import vn.truongngo.lib.dynamicquery.core.enumerate.Order;
-import vn.truongngo.lib.dynamicquery.core.expression.Expression;
+import vn.truongngo.lib.dynamicquery.core.expression.Selection;
 
 /**
  * Represents an ordering specification in a query, including the target expression and sort direction.
@@ -19,7 +19,7 @@ import vn.truongngo.lib.dynamicquery.core.expression.Expression;
  * </pre></blockquote>
  *
  * @author Truong Ngo
- * @version 1.0
+ * @version 2.0.0
  */
 @Getter
 public class OrderSpecifier {
@@ -27,7 +27,7 @@ public class OrderSpecifier {
     /**
      * The expression that will be used as the target of ordering.
      */
-    private final Expression target;
+    private final Selection target;
 
     /**
      * The direction of sorting (ASC or DESC).
@@ -40,7 +40,7 @@ public class OrderSpecifier {
      * @param target the expression to order by
      * @param order the sort direction (ascending or descending)
      */
-    public OrderSpecifier(Expression target, Order order) {
+    public OrderSpecifier(Selection target, Order order) {
         this.target = target;
         this.order = order;
     }
@@ -50,7 +50,7 @@ public class OrderSpecifier {
      *
      * @param target the expression to order by
      */
-    public OrderSpecifier(Expression target) {
+    public OrderSpecifier(Selection target) {
         this.target = target;
         this.order = Order.ASC;
     }

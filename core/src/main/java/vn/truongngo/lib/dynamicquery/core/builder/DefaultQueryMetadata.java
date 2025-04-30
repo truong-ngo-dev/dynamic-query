@@ -1,11 +1,7 @@
 package vn.truongngo.lib.dynamicquery.core.builder;
 
-import vn.truongngo.lib.dynamicquery.core.expression.Expression;
-import vn.truongngo.lib.dynamicquery.core.expression.JoinExpression;
-import vn.truongngo.lib.dynamicquery.core.expression.EntityReferenceExpression;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
-import vn.truongngo.lib.dynamicquery.core.expression.predicate.Predicate;
 import vn.truongngo.lib.dynamicquery.core.support.Expressions;
 
 import java.util.ArrayList;
@@ -35,6 +31,7 @@ import java.util.List;
 public class DefaultQueryMetadata implements QueryMetadata {
 
     private Expression from;
+    private boolean distinct = false;
     private List<Expression> select = new ArrayList<>();
     private List<JoinExpression> join = new ArrayList<>();
     private List<Predicate> where = new ArrayList<>();
@@ -94,6 +91,11 @@ public class DefaultQueryMetadata implements QueryMetadata {
     @Override
     public void addSelect(Expression selectClauses) {
         select.add(selectClauses);
+    }
+
+    @Override
+    public void setDistinct(boolean distinct) {
+        this.distinct = distinct;
     }
 
     @Override
@@ -160,6 +162,11 @@ public class DefaultQueryMetadata implements QueryMetadata {
     @Override
     public void resetOrderByClauses() {
         orderBy = new ArrayList<>();
+    }
+
+    @Override
+    public boolean isDistinct() {
+        return distinct;
     }
 
     @Override

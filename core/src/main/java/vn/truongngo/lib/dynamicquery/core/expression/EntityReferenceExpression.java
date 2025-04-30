@@ -1,69 +1,56 @@
 package vn.truongngo.lib.dynamicquery.core.expression;
 
 import lombok.Getter;
-import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
+import vn.truongngo.lib.dynamicquery.core.builder.v2.Visitor;
 
 /**
- * Represents a reference to an entity in a query expression.
+ * Represents an entity reference expression, typically used to refer to a specific entity class in a query.
  * <p>
- * An {@code EntityReferenceExpression} is used to represent an entity reference
- * (such as a foreign key or entity join) within a query. It stores the entity class
- * and an optional alias to be used in the query.
- *
- * <p>Example usage:
- * <blockquote><pre>
- * Expression expr = new EntityReferenceExpression(User.class);
- * expr.as("user"); // Sets the alias "user"
- * </pre></blockquote>
- *
- * @see Expression
- * @see Visitor
+ * This class encapsulates the reference to an entity class, allowing it to be used in queries to refer to
+ * the corresponding entity in a database. The class is part of a query source, providing the foundation
+ * for queries that interact with entities.
+ * </p>
  * @author Truong Ngo
- * @version 1.0
+ * @version 2.0.0
  */
 @Getter
-public class EntityReferenceExpression extends AbstractExpression {
+public class EntityReferenceExpression extends AbstractAlias<EntityReferenceExpression> implements QuerySource {
 
-    /**
-     * the class type of the entity referenced by this expression.
-     */
     private final Class<?> entityClass;
 
-
     /**
-     * Constructs an {@code EntityReferenceExpression} using the entity class.
+     * Constructs a new {@link EntityReferenceExpression} for the given entity class.
+     * <p>
+     * The entity class is used to reference a specific entity type in a query. This can be useful for building
+     * queries that refer to specific types of entities in an ORM context or custom query systems.
+     * </p>
      *
-     * @param entityClass the class representing the entity (e.g., {@code User.class})
+     * @param entityClass the class of the entity being referenced in the query
+     * @throws IllegalArgumentException if the provided entity class is {@code null}
      */
     public EntityReferenceExpression(Class<?> entityClass) {
-        super(entityClass.getSimpleName());
+        if (entityClass == null) {
+            throw new IllegalArgumentException("Entity class must not be null");
+        }
         this.entityClass = entityClass;
     }
 
-
     /**
-     * Constructs an {@code EntityReferenceExpression} with the entity class and an alias.
+     * Accepts a visitor to allow processing or transformation of the entity reference expression.
+     * <p>
+     * This method is part of the visitor pattern, where different types of expressions are processed by a visitor
+     * that performs actions or transformations based on the expression type.
+     * </p>
      *
-     * @param entityClass the class representing the entity (e.g., {@code User.class})
-     * @param alias the alias to assign to this expression
-     */
-    public EntityReferenceExpression(Class<?> entityClass, String alias) {
-        super(alias);
-        this.entityClass = entityClass;
-    }
-
-
-    /**
-     * Accepts a visitor to process this entity reference expression.
-     *
-     * @param visitor the visitor instance
-     * @param context the context for the visitor
-     * @param <R>     the return type of the visitor
-     * @param <C>     the type of the context
-     * @return the result from the visitor
+     * @param visitor the visitor that will process the entity reference expression
+     * @param context additional context to be passed to the visitor
+     * @param <R> the return type of the visitor's {@link Visitor#visit(EntityReferenceExpression, Object)} method
+     * @param <C> the type of the context passed to the visitor
+     * @return the result of the visitor's processing
      */
     @Override
     public <R, C> R accept(Visitor<R, C> visitor, C context) {
         return visitor.visit(this, context);
     }
+
 }

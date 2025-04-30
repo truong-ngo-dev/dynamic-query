@@ -1,10 +1,5 @@
 package vn.truongngo.lib.dynamicquery.core.builder;
 
-import vn.truongngo.lib.dynamicquery.core.expression.ConstantExpression;
-import vn.truongngo.lib.dynamicquery.core.expression.*;
-import vn.truongngo.lib.dynamicquery.core.expression.predicate.ComparisonPredicate;
-import vn.truongngo.lib.dynamicquery.core.expression.predicate.LogicalPredicate;
-
 /**
  * The Visitor interface is part of the Visitor design pattern used to traverse and
  * process different types of query expressions. This interface defines methods to
@@ -36,12 +31,24 @@ public interface Visitor<R, C> {
 
     /**
      * Visits a generic expression.
+     * <p>
+     * This method will check for type of expression and delegate to concrete visitor method
      *
      * @param expression The expression to visit.
      * @param context The context to pass during the visit.
      * @return The result after processing the expression.
      */
-    R visit(Expression expression, C context);
+    default R visit(Expression expression, C context) {
+        if (expression instanceof ConstantExpression constant) return visit(constant, context);
+        if (expression instanceof EntityReferenceExpression entityRef) return visit(entityRef, context);
+        if (expression instanceof ColumnReferenceExpression columnRef) return visit(columnRef, context);
+        if (expression instanceof FunctionExpression function) return visit(function, context);
+        if (expression instanceof CaseWhenExpression caseWhen) return visit(caseWhen, context);
+        if (expression instanceof SubqueryExpression subquery) return visit(subquery, context);
+        if (expression instanceof ComparisonPredicate comparison) return visit(comparison, context);
+        if (expression instanceof LogicalPredicate logical) return visit(logical, context);
+        throw new IllegalArgumentException("Unsupported expression type: " + expression.getClass());
+    };
 
     /**
      * Visits a constant expression.

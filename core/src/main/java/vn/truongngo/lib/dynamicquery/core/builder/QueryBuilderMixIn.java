@@ -1,9 +1,7 @@
 package vn.truongngo.lib.dynamicquery.core.builder;
 
 import vn.truongngo.lib.dynamicquery.core.enumerate.*;
-import vn.truongngo.lib.dynamicquery.core.expression.*;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
-import vn.truongngo.lib.dynamicquery.core.expression.predicate.Predicate;
 import vn.truongngo.lib.dynamicquery.core.support.Expressions;
 import vn.truongngo.lib.dynamicquery.core.support.Predicates;
 

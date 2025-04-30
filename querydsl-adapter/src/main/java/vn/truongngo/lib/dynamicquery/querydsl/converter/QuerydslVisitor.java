@@ -3,12 +3,8 @@ package vn.truongngo.lib.dynamicquery.querydsl.converter;
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.dsl.*;
-import vn.truongngo.lib.dynamicquery.core.expression.ConstantExpression;
 import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
 import vn.truongngo.lib.dynamicquery.core.enumerate.LogicalOperator;
-import vn.truongngo.lib.dynamicquery.core.expression.*;
-import vn.truongngo.lib.dynamicquery.core.expression.predicate.ComparisonPredicate;
-import vn.truongngo.lib.dynamicquery.core.expression.predicate.LogicalPredicate;
 import vn.truongngo.lib.dynamicquery.querydsl.support.QuerydslExpressionHelper;
 
 import java.util.List;
@@ -31,27 +27,6 @@ import java.util.Map;
  * @version 1.0
  */
 public class QuerydslVisitor implements Visitor<Expression<?>, Map<String, Path<?>>> {
-
-    /**
-     * Visits the given expression and converts it to a QueryDSL expression.
-     *
-     * @param expression the expression to visit and convert
-     * @param context    the context containing path mappings for aliases
-     * @return the corresponding QueryDSL expression
-     * @throws IllegalArgumentException if the expression type is not supported
-     */
-    @Override
-    public Expression<?> visit(vn.truongngo.lib.dynamicquery.core.expression.Expression expression, Map<String, Path<?>> context) {
-        if (expression instanceof ConstantExpression constant) return visit(constant, context);
-        if (expression instanceof EntityReferenceExpression entityRef) return visit(entityRef, context);
-        if (expression instanceof ColumnReferenceExpression columnRef) return visit(columnRef, context);
-        if (expression instanceof FunctionExpression function) return visit(function, context);
-        if (expression instanceof CaseWhenExpression caseWhen) return visit(caseWhen, context);
-        if (expression instanceof SubqueryExpression subquery) return visit(subquery, context);
-        if (expression instanceof ComparisonPredicate comparison) return visit(comparison, context);
-        if (expression instanceof LogicalPredicate logical) return visit(logical, context);
-        throw new IllegalArgumentException("Unsupported expression type: " + expression.getClass());
-    }
 
     /**
      * Visits a constant expression and converts it to a QueryDSL constant expression.

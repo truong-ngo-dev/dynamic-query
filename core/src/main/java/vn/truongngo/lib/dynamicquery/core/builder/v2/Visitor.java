@@ -1,6 +1,6 @@
 package vn.truongngo.lib.dynamicquery.core.builder.v2;
 
-import vn.truongngo.lib.dynamicquery.core.expression.v2.*;
+import vn.truongngo.lib.dynamicquery.core.expression.*;
 
 /**
  * Visitor interface for traversing and processing different types of expressions.

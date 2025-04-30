@@ -1,7 +1,6 @@
 package vn.truongngo.lib.dynamicquery.core.expression;
 
 import vn.truongngo.lib.dynamicquery.core.enumerate.JoinType;
-import vn.truongngo.lib.dynamicquery.core.expression.predicate.Predicate;
 
 /**
  * Represents a SQL JOIN expression, including the join type, target expression, condition, and alias.

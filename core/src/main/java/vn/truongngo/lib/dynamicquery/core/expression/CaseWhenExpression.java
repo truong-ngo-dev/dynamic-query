@@ -1,8 +1,7 @@
 package vn.truongngo.lib.dynamicquery.core.expression;
 
 import lombok.Getter;
-import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
-import vn.truongngo.lib.dynamicquery.core.expression.predicate.Predicate;
+import vn.truongngo.lib.dynamicquery.core.builder.v2.Visitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,62 +10,37 @@ import java.util.List;
  * Represents a SQL CASE WHEN expression, which is used for conditional logic in SQL queries.
  * <p>
  * This class models a SQL CASE WHEN expression like:
+ * <blockquote>
  * <pre>
- *     CASE
- *         WHEN condition1 THEN result1
- *         WHEN condition2 THEN result2
- *         ELSE defaultResult
- *     END
+ * CASE
+ *     WHEN condition1 THEN result1
+ *     WHEN condition2 THEN result2
+ *     ELSE defaultResult
+ * END
  * </pre>
- * </p>
- *
- * <blockquote><pre>
- *     // Example usage:
- *     new CaseWhenExpression.Builder()
- *         .when(new Predicate(...), new ConstantExpression("result1"))
- *         .when(new Predicate(...), new ConstantExpression("result2"))
- *         .otherwise(new ConstantExpression("default"))
- *         .build();
- * </pre></blockquote>
- *
+ * </blockquote>
  * @author Truong
- * @version 1.0
+ * @version 2.0.0
  */
 @Getter
-public class CaseWhenExpression extends AbstractExpression {
+public class CaseWhenExpression extends AbstractAlias<CaseWhenExpression> implements Selection {
 
     /** List of conditions (WHEN) and their corresponding expressions (THEN). */
     private final List<WhenThen> conditions;
 
     /** The expression used in the ELSE part of the CASE WHEN expression. */
-    private final Expression elseExpression;
+    private final Selection elseExpression;
 
     /**
      * Constructs a CaseWhenExpression with specified conditions, ELSE expression, and alias.
      *
      * @param conditions   the list of WHEN-THEN conditions
      * @param elseExpression the expression to be returned if no conditions match
-     * @param alias        the alias for the resulting expression, may be {@code null}
      */
-    public CaseWhenExpression(List<WhenThen> conditions, Expression elseExpression, String alias) {
-        super(alias);
+    public CaseWhenExpression(List<WhenThen> conditions,Selection elseExpression) {
         this.conditions = conditions;
         this.elseExpression = elseExpression;
     }
-
-
-    /**
-     * Constructs a CaseWhenExpression with specified conditions and ELSE expression (no alias).
-     *
-     * @param conditions   the list of WHEN-THEN conditions
-     * @param elseExpression the expression to be returned if no conditions match
-     */
-    public CaseWhenExpression(List<WhenThen> conditions, Expression elseExpression) {
-        super(null);
-        this.conditions = conditions;
-        this.elseExpression = elseExpression;
-    }
-
 
     /**
      * Creates a new builder for constructing a CaseWhenExpression.
@@ -76,7 +50,6 @@ public class CaseWhenExpression extends AbstractExpression {
     public static Builder builder() {
         return new Builder();
     }
-
 
     /**
      * Accepts a visitor to process this expression.
@@ -92,12 +65,10 @@ public class CaseWhenExpression extends AbstractExpression {
         return visitor.visit(this, context);
     }
 
-
     /**
      * Represents a single WHEN-THEN condition within the CASE WHEN expression.
      */
-    public record WhenThen(Predicate when, Expression then) {}
-
+    public record WhenThen(Predicate when, Selection then) {}
 
     /**
      * Builder for constructing a CaseWhenExpression with flexible conditions and an optional alias.
@@ -109,7 +80,7 @@ public class CaseWhenExpression extends AbstractExpression {
     public static class Builder {
 
         private final List<WhenThen> whens = new ArrayList<>();
-        private Expression elseExpr = null;
+        private Selection elseExpr = null;
         private String alias = null;
 
         /**
@@ -119,11 +90,10 @@ public class CaseWhenExpression extends AbstractExpression {
          * @param thenExpression the result (THEN part)
          * @return the current Builder instance
          */
-        public Builder when(Predicate predicate, Expression thenExpression) {
+        public Builder when(Predicate predicate, Selection thenExpression) {
             whens.add(new WhenThen(predicate, thenExpression));
             return this;
         }
-
 
         /**
          * Specifies the ELSE expression for the CASE WHEN expression.
@@ -131,11 +101,10 @@ public class CaseWhenExpression extends AbstractExpression {
          * @param elseExpression the expression to return if no conditions match
          * @return the current Builder instance
          */
-        public Builder otherwise(Expression elseExpression) {
+        public Builder otherwise(Selection elseExpression) {
             this.elseExpr = elseExpression;
             return this;
         }
-
 
         /**
          * Specifies the alias for the resulting CASE WHEN expression.
@@ -148,14 +117,15 @@ public class CaseWhenExpression extends AbstractExpression {
             return this;
         }
 
-
         /**
          * Builds the final CaseWhenExpression.
          *
          * @return a new CaseWhenExpression instance
          */
         public CaseWhenExpression build() {
-            return new CaseWhenExpression(whens, elseExpr, alias);
+            CaseWhenExpression cw = new CaseWhenExpression(whens, elseExpr);
+            if (alias != null) cw = cw.as(alias);
+            return cw;
         }
     }
 }

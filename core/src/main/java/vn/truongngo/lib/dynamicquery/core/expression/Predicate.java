@@ -1,6 +1,4 @@
-package vn.truongngo.lib.dynamicquery.core.expression.predicate;
-
-import vn.truongngo.lib.dynamicquery.core.expression.Expression;
+package vn.truongngo.lib.dynamicquery.core.expression;
 
 /**
  * Represents a boolean-valued expression used in query conditions.
@@ -9,7 +7,7 @@ import vn.truongngo.lib.dynamicquery.core.expression.Expression;
  * It can be negated using the {@code NOT} operator via the {@code setNegated} method.
  *
  * @see Expression
- * @version 1.0
+ * @version 2.0.0
  * @author Truong Ngo
  */
 public interface Predicate extends Expression {
@@ -54,4 +52,5 @@ public interface Predicate extends Expression {
      * @return a new predicate representing the negation of this predicate
      */
     Predicate not();
+
 }
