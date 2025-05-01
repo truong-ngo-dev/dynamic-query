@@ -1,7 +1,7 @@
 package vn.truongngo.lib.dynamicquery.core.expression;
 
 import lombok.Getter;
-import vn.truongngo.lib.dynamicquery.core.builder.v2.Visitor;
+import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
 
 /**
  * Represents a set operation (e.g., UNION, INTERSECT, EXCEPT, UNION ALL) between two or more subqueries.

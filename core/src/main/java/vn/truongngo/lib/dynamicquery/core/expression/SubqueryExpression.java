@@ -3,7 +3,7 @@ package vn.truongngo.lib.dynamicquery.core.expression;
 import lombok.Getter;
 import vn.truongngo.lib.dynamicquery.core.builder.DefaultQueryMetadata;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryMetadata;
-import vn.truongngo.lib.dynamicquery.core.builder.v2.Visitor;
+import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
 

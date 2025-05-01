@@ -1,6 +1,6 @@
 package vn.truongngo.lib.dynamicquery.core.expression;
 
-import vn.truongngo.lib.dynamicquery.core.builder.v2.Visitor;
+import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
 
 /**
  * Represents a general expression node in a dynamic query model.

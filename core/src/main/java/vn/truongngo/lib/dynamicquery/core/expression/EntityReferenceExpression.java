@@ -1,7 +1,7 @@
 package vn.truongngo.lib.dynamicquery.core.expression;
 
 import lombok.Getter;
-import vn.truongngo.lib.dynamicquery.core.builder.v2.Visitor;
+import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
 
 /**
  * Represents an entity reference expression, typically used to refer to a specific entity class in a query.

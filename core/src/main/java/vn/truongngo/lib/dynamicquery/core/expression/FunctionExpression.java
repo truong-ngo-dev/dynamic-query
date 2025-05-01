@@ -2,7 +2,7 @@ package vn.truongngo.lib.dynamicquery.core.expression;
 
 import lombok.Getter;
 import lombok.Setter;
-import vn.truongngo.lib.dynamicquery.core.builder.v2.Visitor;
+import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
 
 import java.util.*;
 
