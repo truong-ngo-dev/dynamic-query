@@ -2,6 +2,7 @@ package vn.truongngo.lib.dynamicquery.core.support;
 
 import vn.truongngo.lib.dynamicquery.core.enumerate.LogicalOperator;
 import vn.truongngo.lib.dynamicquery.core.enumerate.Operator;
+import vn.truongngo.lib.dynamicquery.core.expression.*;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class Predicates {
      * @param rhs the right-hand side constant value
      * @return the resulting {@link Predicate}
      */
-    private static Predicate binaryPredicate(Expression lhs, Operator operator, Object rhs) {
+    private static Predicate binaryPredicate(Selection lhs, Operator operator, Object rhs) {
         return new ComparisonPredicate(lhs, operator, Expressions.constant(rhs));
     }
 
@@ -45,7 +46,7 @@ public class Predicates {
      * @param rhs the right-hand side expression
      * @return the resulting {@link Predicate}
      */
-    private static Predicate binaryPredicate(Expression lhs, Operator operator, Expression rhs) {
+    private static Predicate binaryPredicate(Selection lhs, Operator operator, Selection rhs) {
         return new ComparisonPredicate(lhs, operator, rhs);
     }
 
@@ -128,7 +129,7 @@ public class Predicates {
      * @param right the right-hand side constant value
      * @return a predicate representing (left = right)
      */
-    public static Predicate equal(Expression left, Object right) {
+    public static Predicate equal(Selection left, Object right) {
         return binaryPredicate(left, Operator.EQUAL, right);
     }
 
@@ -139,7 +140,7 @@ public class Predicates {
      * @param right the right-hand side expression
      * @return a predicate representing (left = right)
      */
-    public static Predicate equal(Expression left, Expression right) {
+    public static Predicate equal(Selection left, Expression right) {
         return binaryPredicate(left, Operator.EQUAL, right);
     }
 
@@ -150,7 +151,7 @@ public class Predicates {
      * @param right the right-hand side constant value
      * @return a predicate representing (left != right)
      */
-    public static Predicate notEqual(Expression left, Object right) {
+    public static Predicate notEqual(Selection left, Object right) {
         return binaryPredicate(left, Operator.NOT_EQUAL, right);
     }
 
@@ -161,7 +162,7 @@ public class Predicates {
      * @param right the right-hand side expression
      * @return a predicate representing (left != right)
      */
-    public static Predicate notEqual(Expression left, Expression right) {
+    public static Predicate notEqual(Selection left, Expression right) {
         return binaryPredicate(left, Operator.NOT_EQUAL, right);
     }
 
@@ -172,7 +173,7 @@ public class Predicates {
      * @param right the right-hand side constant value
      * @return a predicate representing (left > right)
      */
-    public static Predicate greaterThan(Expression left, Object right) {
+    public static Predicate greaterThan(Selection left, Object right) {
         return binaryPredicate(left, Operator.GREATER_THAN, right);
     }
 
@@ -183,7 +184,7 @@ public class Predicates {
      * @param right the right-hand side expression
      * @return a predicate representing (left > right)
      */
-    public static Predicate greaterThan(Expression left, Expression right) {
+    public static Predicate greaterThan(Selection left, Expression right) {
         return binaryPredicate(left, Operator.GREATER_THAN, right);
     }
 
@@ -194,7 +195,7 @@ public class Predicates {
      * @param right the right-hand side constant value
      * @return a predicate representing (left < right)
      */
-    public static Predicate lessThan(Expression left, Object right) {
+    public static Predicate lessThan(Selection left, Object right) {
         return binaryPredicate(left, Operator.LESS_THAN, right);
     }
 
@@ -205,7 +206,7 @@ public class Predicates {
      * @param right the right-hand side expression
      * @return a predicate representing (left < right)
      */
-    public static Predicate lessThan(Expression left, Expression right) {
+    public static Predicate lessThan(Selection left, Expression right) {
         return binaryPredicate(left, Operator.LESS_THAN, right);
     }
 
@@ -216,7 +217,7 @@ public class Predicates {
      * @param right the right-hand side constant value
      * @return a predicate representing (left >= right)
      */
-    public static Predicate greaterThanOrEqual(Expression left, Object right) {
+    public static Predicate greaterThanOrEqual(Selection left, Object right) {
         return binaryPredicate(left, Operator.GREATER_THAN_EQUAL, right);
     }
 
@@ -227,7 +228,7 @@ public class Predicates {
      * @param right the right-hand side expression
      * @return a predicate representing (left >= right)
      */
-    public static Predicate greaterThanOrEqual(Expression left, Expression right) {
+    public static Predicate greaterThanOrEqual(Selection left, Expression right) {
         return binaryPredicate(left, Operator.GREATER_THAN_EQUAL, right);
     }
 
@@ -238,7 +239,7 @@ public class Predicates {
      * @param right the right-hand side constant value
      * @return a predicate representing (left <= right)
      */
-    public static Predicate lessThanOrEqual(Expression left, Object right) {
+    public static Predicate lessThanOrEqual(Selection left, Object right) {
         return binaryPredicate(left, Operator.LESS_THAN_EQUAL, right);
     }
 
@@ -249,7 +250,7 @@ public class Predicates {
      * @param right the right-hand side expression
      * @return a predicate representing (left <= right)
      */
-    public static Predicate lessThanOrEqual(Expression left, Expression right) {
+    public static Predicate lessThanOrEqual(Selection left, Selection right) {
         return binaryPredicate(left, Operator.LESS_THAN_EQUAL, right);
     }
 
@@ -260,7 +261,7 @@ public class Predicates {
      * @param right the pattern string
      * @return a predicate representing (left LIKE right)
      */
-    public static Predicate like(Expression left, String right) {
+    public static Predicate like(Selection left, String right) {
         return binaryPredicate(left, Operator.LIKE, right);
     }
 
@@ -271,7 +272,7 @@ public class Predicates {
      * @param right the pattern string
      * @return a predicate representing (left NOT LIKE right)
      */
-    public static Predicate notLike(Expression left, String right) {
+    public static Predicate notLike(Selection left, String right) {
         return binaryPredicate(left, Operator.NOT_LIKE, right);
     }
 
@@ -281,7 +282,7 @@ public class Predicates {
      * @param left the expression to be checked
      * @return a predicate representing (left IS NULL)
      */
-    public static Predicate isNull(Expression left) {
+    public static Predicate isNull(Selection left) {
         return new ComparisonPredicate(left, Operator.IS_NULL, null);
     }
 
@@ -291,7 +292,7 @@ public class Predicates {
      * @param left the expression to be checked
      * @return a predicate representing (left IS NOT NULL)
      */
-    public static Predicate isNotNull(Expression left) {
+    public static Predicate isNotNull(Selection left) {
         return new ComparisonPredicate(left, Operator.IS_NOT_NULL, null);
     }
 
@@ -301,7 +302,7 @@ public class Predicates {
      * @param left the subquery or expression to be checked
      * @return a predicate representing (EXISTS left)
      */
-    public static Predicate exists(Expression left) {
+    public static Predicate exists(Selection left) {
         return new ComparisonPredicate(left, Operator.EXISTS, null);
     }
 
@@ -311,7 +312,7 @@ public class Predicates {
      * @param left the subquery or expression to be checked
      * @return a predicate representing (NOT EXISTS left)
      */
-    public static Predicate notExists(Expression left) {
+    public static Predicate notExists(Selection left) {
         return new ComparisonPredicate(left, Operator.NOT_EXISTS, null);
     }
 
@@ -322,7 +323,7 @@ public class Predicates {
      * @param subquery the subquery representing the target set
      * @return a predicate representing (left IN subquery)
      */
-    public static Predicate in(Expression left, SubqueryExpression subquery) {
+    public static Predicate in(Selection left, SubqueryExpression subquery) {
         return new ComparisonPredicate(left, Operator.IN, subquery);
     }
 
@@ -333,8 +334,8 @@ public class Predicates {
      * @param values the constant list to compare with
      * @return a predicate representing (left IN values)
      */
-    public static Predicate in(Expression left, List<Object> values) {
-        Expression right = Expressions.constant(values);
+    public static Predicate in(Selection left, List<Object> values) {
+        Selection right = Expressions.constant(values);
         return new ComparisonPredicate(left, Operator.IN, right);
     }
 
@@ -345,7 +346,7 @@ public class Predicates {
      * @param subquery the subquery representing the target set
      * @return a predicate representing (left NOT IN subquery)
      */
-    public static Predicate notIn(Expression left, SubqueryExpression subquery) {
+    public static Predicate notIn(Selection left, SubqueryExpression subquery) {
         return new ComparisonPredicate(left, Operator.NOT_IN, subquery);
     }
 
@@ -356,8 +357,8 @@ public class Predicates {
      * @param values the constant list to compare with
      * @return a predicate representing (left NOT IN values)
      */
-    public static Predicate notIn(Expression left, List<Object> values) {
-        Expression right = Expressions.constant(values);
+    public static Predicate notIn(Selection left, List<Object> values) {
+        Selection right = Expressions.constant(values);
         return new ComparisonPredicate(left, Operator.NOT_IN, right);
     }
 
@@ -369,7 +370,7 @@ public class Predicates {
      * @param max the maximum value as expression
      * @return a predicate representing (expression BETWEEN min AND max)
      */
-    public static Predicate between(Expression expression, Expression min, Expression max) {
+    public static Predicate between(Selection expression, Selection min, Selection max) {
         return and(greaterThanOrEqual(expression, min), lessThanOrEqual(expression, max));
     }
 
@@ -381,7 +382,7 @@ public class Predicates {
      * @param max the maximum constant value
      * @return a predicate representing (expression BETWEEN min AND max)
      */
-    public static Predicate between(Expression expression, Object min, Object max) {
+    public static Predicate between(Selection expression, Object min, Object max) {
         return and(greaterThanOrEqual(expression, min), lessThanOrEqual(expression, max));
     }
 

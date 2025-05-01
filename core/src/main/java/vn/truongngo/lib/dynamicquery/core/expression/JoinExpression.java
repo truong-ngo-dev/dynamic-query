@@ -21,7 +21,7 @@ import vn.truongngo.lib.dynamicquery.core.enumerate.JoinType;
  * @author Truong Ngo
  * @version 1.0
  */
-public record JoinExpression(JoinType joinType, Expression target, Predicate condition, String alias) {
+public record JoinExpression(JoinType joinType, QuerySource target, Predicate condition, String alias) {
 
     /**
      * Creates a new builder for constructing a JoinExpression.
@@ -41,7 +41,7 @@ public record JoinExpression(JoinType joinType, Expression target, Predicate con
      */
     public static class Builder {
         private JoinType joinType;
-        private Expression target;
+        private QuerySource target;
         private Predicate condition;
         private String alias;
 
@@ -53,7 +53,7 @@ public record JoinExpression(JoinType joinType, Expression target, Predicate con
          * @param joinType the type of join (e.g., INNER_JOIN, LEFT_JOIN)
          * @return the current Builder instance
          */
-        public Builder join(Expression target, JoinType joinType) {
+        public Builder join(QuerySource target, JoinType joinType) {
             this.target = target;
             this.joinType = joinType;
             return this;
@@ -66,7 +66,7 @@ public record JoinExpression(JoinType joinType, Expression target, Predicate con
          * @param target the target expression to join with
          * @return the current Builder instance
          */
-        public Builder join(Expression target) {
+        public Builder join(QuerySource target) {
             this.target = target;
             this.joinType = JoinType.INNER_JOIN;
             return this;

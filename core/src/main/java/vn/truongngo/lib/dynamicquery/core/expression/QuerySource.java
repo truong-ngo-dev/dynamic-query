@@ -38,4 +38,5 @@ public interface QuerySource extends Expression {
      * @return the alias string, or {@code null} if no alias is set
      */
     String getAlias();
+
 }
