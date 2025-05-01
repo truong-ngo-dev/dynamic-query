@@ -140,7 +140,7 @@ public class Predicates {
      * @param right the right-hand side expression
      * @return a predicate representing (left = right)
      */
-    public static Predicate equal(Selection left, Expression right) {
+    public static Predicate equal(Selection left, Selection right) {
         return binaryPredicate(left, Operator.EQUAL, right);
     }
 
@@ -162,7 +162,7 @@ public class Predicates {
      * @param right the right-hand side expression
      * @return a predicate representing (left != right)
      */
-    public static Predicate notEqual(Selection left, Expression right) {
+    public static Predicate notEqual(Selection left, Selection right) {
         return binaryPredicate(left, Operator.NOT_EQUAL, right);
     }
 
@@ -184,7 +184,7 @@ public class Predicates {
      * @param right the right-hand side expression
      * @return a predicate representing (left > right)
      */
-    public static Predicate greaterThan(Selection left, Expression right) {
+    public static Predicate greaterThan(Selection left, Selection right) {
         return binaryPredicate(left, Operator.GREATER_THAN, right);
     }
 
@@ -206,7 +206,7 @@ public class Predicates {
      * @param right the right-hand side expression
      * @return a predicate representing (left < right)
      */
-    public static Predicate lessThan(Selection left, Expression right) {
+    public static Predicate lessThan(Selection left, Selection right) {
         return binaryPredicate(left, Operator.LESS_THAN, right);
     }
 
@@ -228,7 +228,7 @@ public class Predicates {
      * @param right the right-hand side expression
      * @return a predicate representing (left >= right)
      */
-    public static Predicate greaterThanOrEqual(Selection left, Expression right) {
+    public static Predicate greaterThanOrEqual(Selection left, Selection right) {
         return binaryPredicate(left, Operator.GREATER_THAN_EQUAL, right);
     }
 
