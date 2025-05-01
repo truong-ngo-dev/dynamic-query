@@ -1,5 +1,8 @@
 package vn.truongngo.lib.dynamicquery.core.builder;
 
+import vn.truongngo.lib.dynamicquery.core.expression.JoinExpression;
+import vn.truongngo.lib.dynamicquery.core.expression.Predicate;
+import vn.truongngo.lib.dynamicquery.core.expression.Selection;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
 
@@ -12,11 +15,11 @@ import java.util.function.Consumer;
  * grouping, ordering, and applying restrictions. The actual query generation is deferred
  * to specific implementations (e.g., QueryDSL, jOOQ).
  *
- * @param <T> the result type of the built query (e.g., Tuple, DTO, etc.)
+ * @param <Q> the result type of the built query (e.g., Tuple, DTO, etc.)
  * @author Truong Ngo
  * @version 1.0
  */
-public interface QueryBuilder<T> {
+public interface QueryBuilder<Q> {
 
     /**
      * Specifies the root entity to select from.
@@ -24,7 +27,7 @@ public interface QueryBuilder<T> {
      * @param entityClass the entity class
      * @return the current builder instance
      */
-    QueryBuilder<T> from(Class<?> entityClass);
+    QueryBuilder<Q> from(Class<?> entityClass);
 
     /**
      * Specifies the root entity with a given alias.
@@ -33,7 +36,7 @@ public interface QueryBuilder<T> {
      * @param alias the alias for the entity
      * @return the current builder instance
      */
-    QueryBuilder<T> from(Class<?> entityClass, String alias);
+    QueryBuilder<Q> from(Class<?> entityClass, String alias);
 
     /**
      * Specifies the selection expressions (columns, functions, etc.)
@@ -41,7 +44,7 @@ public interface QueryBuilder<T> {
      * @param expressions the selection expressions
      * @return the current builder instance
      */
-    QueryBuilder<T> select(Expression... expressions);
+    QueryBuilder<Q> select(Selection... expressions);
 
     /**
      * Specifies columns to select using their string representations.
@@ -49,7 +52,14 @@ public interface QueryBuilder<T> {
      * @param columns the column names or paths
      * @return the current builder instance
      */
-    QueryBuilder<T> select(String... columns);
+    QueryBuilder<Q> select(String... columns);
+
+    /**
+     * Specifies that the query should eliminate duplicate rows using the DISTINCT keyword.
+     *
+     * @return the current builder instance
+     */
+    QueryBuilder<Q> distinct();
 
     /**
      * Adds a join with another entity based on a condition and alias.
@@ -59,7 +69,7 @@ public interface QueryBuilder<T> {
      * @param alias the alias for the joined entity
      * @return the current builder instance
      */
-    QueryBuilder<T> join(Class<?> entityClass, Predicate condition, String alias);
+    QueryBuilder<Q> join(Class<?> entityClass, Predicate condition, String alias);
 
     /**
      * Adds a join using a builder pattern.
@@ -67,7 +77,7 @@ public interface QueryBuilder<T> {
      * @param joinBuilder a consumer of {@link JoinExpression.Builder}
      * @return the current builder instance
      */
-    QueryBuilder<T> join(Consumer<JoinExpression.Builder> joinBuilder);
+    QueryBuilder<Q> join(Consumer<JoinExpression.Builder> joinBuilder);
 
     /**
      * Adds where conditions to the query.
@@ -75,7 +85,7 @@ public interface QueryBuilder<T> {
      * @param predicates one or more conditions to filter results
      * @return the current builder instance
      */
-    QueryBuilder<T> where(Predicate... predicates);
+    QueryBuilder<Q> where(Predicate... predicates);
 
     /**
      * Groups results by the given expressions.
@@ -83,7 +93,7 @@ public interface QueryBuilder<T> {
      * @param expressions expressions to group by
      * @return the current builder instance
      */
-    QueryBuilder<T> groupBy(Expression... expressions);
+    QueryBuilder<Q> groupBy(Selection... expressions);
 
     /**
      * Applies conditions to grouped records (having clause).
@@ -91,7 +101,7 @@ public interface QueryBuilder<T> {
      * @param predicates conditions on grouped results
      * @return the current builder instance
      */
-    QueryBuilder<T> having(Predicate... predicates);
+    QueryBuilder<Q> having(Predicate... predicates);
 
     /**
      * Specifies the ordering of query results.
@@ -99,7 +109,7 @@ public interface QueryBuilder<T> {
      * @param orderSpecifiers one or more order specifiers
      * @return the current builder instance
      */
-    QueryBuilder<T> orderBy(OrderSpecifier... orderSpecifiers);
+    QueryBuilder<Q> orderBy(OrderSpecifier... orderSpecifiers);
 
     /**
      * Adds restrictions (e.g., pagination, security filters).
@@ -107,12 +117,12 @@ public interface QueryBuilder<T> {
      * @param restriction a restriction to apply to the query
      * @return the current builder instance
      */
-    QueryBuilder<T> restriction(Restriction restriction);
+    QueryBuilder<Q> restriction(Restriction restriction);
 
     /**
      * Builds and returns the final query object.
      *
      * @return the constructed query object
      */
-    Object build();
+    Q build();
 }

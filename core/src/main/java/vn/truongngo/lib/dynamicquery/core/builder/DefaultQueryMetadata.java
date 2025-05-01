@@ -1,5 +1,6 @@
 package vn.truongngo.lib.dynamicquery.core.builder;
 
+import vn.truongngo.lib.dynamicquery.core.expression.*;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
 import vn.truongngo.lib.dynamicquery.core.support.Expressions;
@@ -30,22 +31,21 @@ import java.util.List;
  */
 public class DefaultQueryMetadata implements QueryMetadata {
 
-    private Expression from;
+    private QuerySource from;
     private boolean distinct = false;
-    private List<Expression> select = new ArrayList<>();
+    private List<Selection> select = new ArrayList<>();
     private List<JoinExpression> join = new ArrayList<>();
     private List<Predicate> where = new ArrayList<>();
-    private List<Expression> groupBy = new ArrayList<>();
+    private List<Selection> groupBy = new ArrayList<>();
     private List<Predicate> having = new ArrayList<>();
     private List<OrderSpecifier> orderBy = new ArrayList<>();
     private Restriction restriction = Restriction.unPaged();
-    private boolean isUnique = false;
 
     public DefaultQueryMetadata() {
 
     }
 
-    public DefaultQueryMetadata(Expression expression, String alias) {
+    public DefaultQueryMetadata(QuerySource expression, String alias) {
         this.from = expression.as(alias);
     }
 
@@ -58,7 +58,7 @@ public class DefaultQueryMetadata implements QueryMetadata {
     }
 
     @Override
-    public Expression getFrom() {
+    public QuerySource getFrom() {
         return from;
     }
 
@@ -84,12 +84,12 @@ public class DefaultQueryMetadata implements QueryMetadata {
     }
 
     @Override
-    public void setFrom(Expression fromExpression, String alias) {
+    public void setFrom(QuerySource fromExpression, String alias) {
         this.from = fromExpression.as(alias);
     }
 
     @Override
-    public void addSelect(Expression selectClauses) {
+    public void addSelect(Selection selectClauses) {
         select.add(selectClauses);
     }
 
@@ -109,7 +109,7 @@ public class DefaultQueryMetadata implements QueryMetadata {
     }
 
     @Override
-    public void addGroupBy(Expression groupByClauses) {
+    public void addGroupBy(Selection groupByClauses) {
         groupBy.add(groupByClauses);
     }
 
@@ -126,11 +126,6 @@ public class DefaultQueryMetadata implements QueryMetadata {
     @Override
     public void setRestriction(Restriction restriction) {
         this.restriction = restriction;
-    }
-
-    @Override
-    public void setUnique(boolean isUnique) {
-        this.isUnique = isUnique;
     }
 
     @Override
@@ -170,7 +165,7 @@ public class DefaultQueryMetadata implements QueryMetadata {
     }
 
     @Override
-    public List<Expression> getSelectClauses() {
+    public List<Selection> getSelectClauses() {
         return select;
     }
 
@@ -185,7 +180,7 @@ public class DefaultQueryMetadata implements QueryMetadata {
     }
 
     @Override
-    public List<Expression> getGroupByClauses() {
+    public List<Selection> getGroupByClauses() {
         return groupBy;
     }
 
@@ -202,10 +197,5 @@ public class DefaultQueryMetadata implements QueryMetadata {
     @Override
     public Restriction getRestriction() {
         return restriction;
-    }
-
-    @Override
-    public boolean isUnique() {
-        return isUnique;
     }
 }
