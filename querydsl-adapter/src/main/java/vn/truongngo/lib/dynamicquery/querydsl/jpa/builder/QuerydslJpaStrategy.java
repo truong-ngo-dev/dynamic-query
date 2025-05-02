@@ -7,7 +7,6 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryBuilderStrategy;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryMetadata;
-import vn.truongngo.lib.dynamicquery.querydsl.jpa.converter.QuerydslVisitor;
 import vn.truongngo.lib.dynamicquery.querydsl.jpa.support.QuerydslExpressionHelper;
 import vn.truongngo.lib.dynamicquery.querydsl.jpa.support.QuerydslHelper;
 

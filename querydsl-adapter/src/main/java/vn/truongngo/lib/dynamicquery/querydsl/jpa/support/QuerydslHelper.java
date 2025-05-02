@@ -10,7 +10,7 @@ import vn.truongngo.lib.dynamicquery.core.enumerate.Order;
 import vn.truongngo.lib.dynamicquery.core.expression.JoinExpression;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
-import vn.truongngo.lib.dynamicquery.querydsl.jpa.converter.QuerydslVisitor;
+import vn.truongngo.lib.dynamicquery.querydsl.jpa.builder.QuerydslVisitor;
 
 import java.util.Map;
 

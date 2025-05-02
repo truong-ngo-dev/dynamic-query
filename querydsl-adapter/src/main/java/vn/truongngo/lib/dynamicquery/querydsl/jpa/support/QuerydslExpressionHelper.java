@@ -10,7 +10,7 @@ import vn.truongngo.lib.dynamicquery.core.enumerate.Operator;
 import vn.truongngo.lib.dynamicquery.core.expression.ComparisonPredicate;
 import vn.truongngo.lib.dynamicquery.core.expression.EntityReferenceExpression;
 import vn.truongngo.lib.dynamicquery.core.expression.JoinExpression;
-import vn.truongngo.lib.dynamicquery.querydsl.jpa.converter.QuerydslVisitor;
+import vn.truongngo.lib.dynamicquery.querydsl.jpa.builder.QuerydslVisitor;
 
 import java.util.LinkedHashMap;
 import java.util.List;

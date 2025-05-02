@@ -1,4 +1,4 @@
-package vn.truongngo.lib.dynamicquery.querydsl.jpa.converter;
+package vn.truongngo.lib.dynamicquery.querydsl.jpa.builder;
 
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
