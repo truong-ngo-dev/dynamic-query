@@ -24,14 +24,26 @@ import java.util.function.Consumer;
  * @param <Q> The type of the result object returned by the query.
  *
  * @author Truong Ngo
- * @version 1.0
+ * @version 2.0.0
  */
 @Getter
 public class DefaultQueryBuilder<Q> implements QueryBuilder<Q> {
 
+    /**
+     * The metadata representing the components of the query to be built.
+     */
     private QueryMetadata queryMetadata = new DefaultQueryMetadata();
+
+    /**
+     * The strategy used to build the query based on the provided metadata.
+     */
     private final QueryBuilderStrategy<Q> strategy;
 
+    /**
+     * Constructs a {@code DefaultQueryBuilder} with the specified strategy.
+     *
+     * @param strategy the strategy to use for building the query
+     */
     public DefaultQueryBuilder(QueryBuilderStrategy<Q> strategy) {
         this.strategy = strategy;
     }

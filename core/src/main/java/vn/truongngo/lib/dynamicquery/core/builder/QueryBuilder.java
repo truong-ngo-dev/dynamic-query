@@ -17,7 +17,7 @@ import java.util.function.Consumer;
  *
  * @param <Q> the result type of the built query (e.g., Tuple, DTO, etc.)
  * @author Truong Ngo
- * @version 1.0
+ * @version 2.0.0
  */
 public interface QueryBuilder<Q> {
 

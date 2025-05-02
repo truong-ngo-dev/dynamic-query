@@ -14,11 +14,11 @@ import lombok.Getter;
  * Restriction restriction = Restriction.of(2, 20); // Page 2, size 20
  * long offset = restriction.getOffset(); // 40
  *
- * Restriction unpaged = Restriction.unPaged(); // No pagination
+ * Restriction unPaged = Restriction.unPaged(); // No pagination
  * </pre></blockquote>
  *
  * @author Truong Ngo
- * @version 1.0
+ * @version 2.0.0
  */
 @Getter
 public class Restriction {

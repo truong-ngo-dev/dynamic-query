@@ -25,7 +25,7 @@ import java.util.List;
  * </pre></blockquote>
  *
  * @author Truong Ngo
- * @version 1.0
+ * @version 2.0.0
  */
 public interface QueryMetadata {
 

@@ -22,7 +22,7 @@ import java.util.function.Consumer;
  * </pre></blockquote>
  *
  * @author Truong Ngo
- * @version 1.0
+ * @version 2.0.0
  */
 public class Expressions {
 
@@ -184,7 +184,6 @@ public class Expressions {
      * Creates a function expression with custom function name and alias.
      *
      * @param functionName the function name
-     * @param alias the alias for the function result
      * @param args the arguments to the function
      * @return a function expression
      */
@@ -225,7 +224,6 @@ public class Expressions {
     /**
      * Creates a COUNT aggregate function.
      *
-     * @param alias the alias for the result
      * @param args the expressions to count
      * @return a COUNT expression
      */
@@ -236,7 +234,6 @@ public class Expressions {
     /**
      * Creates a SUM aggregate function.
      *
-     * @param alias the alias for the result
      * @param args the expressions to sum
      * @return a SUM expression
      */
@@ -247,7 +244,6 @@ public class Expressions {
     /**
      * Creates an AVG aggregate function.
      *
-     * @param alias the alias for the result
      * @param args the expressions to average
      * @return an AVG expression
      */
@@ -258,7 +254,6 @@ public class Expressions {
     /**
      * Creates a MAX aggregate function.
      *
-     * @param alias the alias for the result
      * @param args the expressions to evaluate
      * @return a MAX expression
      */
@@ -269,7 +264,6 @@ public class Expressions {
     /**
      * Creates a MIN aggregate function.
      *
-     * @param alias the alias for the result
      * @param args the expressions to evaluate
      * @return a MIN expression
      */
@@ -280,7 +274,6 @@ public class Expressions {
     /**
      * Creates a LOWER string function expression.
      *
-     * @param alias the alias for the result
      * @param args the string expression
      * @return a LOWER function expression
      */
@@ -291,7 +284,6 @@ public class Expressions {
     /**
      * Creates an UPPER string function expression.
      *
-     * @param alias the alias for the result
      * @param args the string expression
      * @return an UPPER function expression
      */
