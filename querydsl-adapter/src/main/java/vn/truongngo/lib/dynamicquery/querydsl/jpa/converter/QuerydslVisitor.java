@@ -30,6 +30,27 @@ import java.util.Map;
 public class QuerydslVisitor implements Visitor<Expression<?>, Map<String, Path<?>>> {
 
     /**
+     * Provides access to the singleton instance of {@link QuerydslVisitor}.
+     *
+     * <p>
+     * This implementation is thread-safe and ensures that the instance is
+     * created only when the method is called for the first time.
+     * </p>
+     *
+     * @return the singleton instance of {@code QuerydslVisitor}
+     */
+    public static QuerydslVisitor getInstance() {
+        return Holder.INSTANCE;
+    }
+
+    /**
+     * Holder class for lazy-loaded singleton instance.
+     */
+    private static class Holder {
+        private static final QuerydslVisitor INSTANCE = new QuerydslVisitor();
+    }
+
+    /**
      * Visits a constant expression and converts it to a QueryDSL constant expression.
      *
      * @param expression the constant expression
