@@ -3,6 +3,8 @@ package vn.truongngo.lib.dynamicquery.jooq.converter;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
+import vn.truongngo.lib.dynamicquery.core.expression.*;
+import vn.truongngo.lib.dynamicquery.core.expression.CommonTableExpression;
 
 import java.util.Map;
 
@@ -14,9 +16,24 @@ public class JooqVisitor implements Visitor<QueryPart, Map<String, Table<?>>> {
     }
 
     @Override
+    public QueryPart visit(ArithmeticExpression expression, Map<String, Table<?>> context) {
+        return null;
+    }
+
+    @Override
     public QueryPart visit(EntityReferenceExpression expression, Map<String, Table<?>> context) {
         String key = expression.getAlias() != null ? expression.getAlias() : expression.getEntityClass().getSimpleName();
         return context.get(key);
+    }
+
+    @Override
+    public QueryPart visit(CommonTableExpression expression, Map<String, Table<?>> context) {
+        return null;
+    }
+
+    @Override
+    public QueryPart visit(SetOperationExpression expression, Map<String, Table<?>> context) {
+        return null;
     }
 
     @Override
@@ -71,12 +88,22 @@ public class JooqVisitor implements Visitor<QueryPart, Map<String, Table<?>>> {
     }
 
     @Override
+    public QueryPart visit(WindowFunctionExpression expression, Map<String, Table<?>> context) {
+        return null;
+    }
+
+    @Override
     public QueryPart visit(ComparisonPredicate expression, Map<String, Table<?>> context) {
         return null;
     }
 
     @Override
     public QueryPart visit(LogicalPredicate expression, Map<String, Table<?>> context) {
+        return null;
+    }
+
+    @Override
+    public QueryPart visit(ExtendedExpression expression, Map<String, Table<?>> context) {
         return null;
     }
 
