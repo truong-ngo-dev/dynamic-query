@@ -1,4 +1,4 @@
-package vn.truongngo.lib.dynamicquery.querydsl.support;
+package vn.truongngo.lib.dynamicquery.querydsl.jpa.support;
 
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
@@ -7,9 +7,10 @@ import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.JPQLQuery;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryMetadata;
 import vn.truongngo.lib.dynamicquery.core.enumerate.Order;
+import vn.truongngo.lib.dynamicquery.core.expression.JoinExpression;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
-import vn.truongngo.lib.dynamicquery.querydsl.converter.QuerydslVisitor;
+import vn.truongngo.lib.dynamicquery.querydsl.jpa.converter.QuerydslVisitor;
 
 import java.util.Map;
 
@@ -19,7 +20,7 @@ import java.util.Map;
  * expression models into concrete QueryDSL expressions.
  *
  * @author Truong Ngo
- * @version 1.0
+ * @version 2.0.0
  */
 public class QuerydslHelper {
 
@@ -75,7 +76,7 @@ public class QuerydslHelper {
      */
     public static void where(Map<String, Path<?>> pathBuilders, JPQLQuery<?> query, QueryMetadata metadata, QuerydslVisitor visitor) {
         if (!metadata.getWhereClauses().isEmpty()) {
-            for (vn.truongngo.lib.dynamicquery.core.expression.predicate.Predicate p : metadata.getWhereClauses()) {
+            for (vn.truongngo.lib.dynamicquery.core.expression.Predicate p : metadata.getWhereClauses()) {
                 Predicate predicate = (Predicate) visitor.visit(p, pathBuilders);
                 query.where(predicate);
             }
@@ -109,7 +110,7 @@ public class QuerydslHelper {
      */
     public static void having(Map<String, Path<?>> pathBuilders, JPQLQuery<?> query, QueryMetadata metadata, QuerydslVisitor visitor) {
         if (!metadata.getHavingClauses().isEmpty()) {
-            for (vn.truongngo.lib.dynamicquery.core.expression.predicate.Predicate p : metadata.getHavingClauses()) {
+            for (vn.truongngo.lib.dynamicquery.core.expression.Predicate p : metadata.getHavingClauses()) {
                 Predicate predicate = (Predicate) visitor.visit(p, pathBuilders);
                 query.having(predicate);
             }
@@ -153,4 +154,29 @@ public class QuerydslHelper {
         }
     }
 
+    /**
+     * Constructs a complete {@link JPQLQuery} by sequentially applying various clauses based on the
+     * provided {@link QueryMetadata}. This includes select, join, where, group by, having, and order by
+     * clauses.
+     *
+     * <p>
+     * This method serves as a centralized utility to assemble a dynamic query by delegating to specific
+     * helper methods for each clause. It ensures that all relevant parts of the query are constructed
+     * in the correct order.
+     * </p>
+     *
+     * @param metadata the {@link QueryMetadata} containing all components of the dynamic query
+     * @param sources  a mapping of alias names to {@link Path} objects used for resolving references
+     * @param subquery the {@link JPQLQuery} instance being constructed
+     * @param visitor  the {@link QuerydslVisitor} responsible for converting abstract expressions to
+     *                 concrete QueryDSL expressions
+     */
+    public static void buildQuery(QueryMetadata metadata, Map<String, Path<?>> sources, JPQLQuery<?> subquery, QuerydslVisitor visitor) {
+        QuerydslHelper.select(sources, subquery, metadata, visitor);
+        QuerydslHelper.join(sources, subquery, metadata, visitor);
+        QuerydslHelper.where(sources, subquery, metadata, visitor);
+        QuerydslHelper.groupBy(sources, subquery, metadata, visitor);
+        QuerydslHelper.having(sources, subquery, metadata, visitor);
+        QuerydslHelper.orderBy(sources, subquery, metadata, visitor);
+    }
 }

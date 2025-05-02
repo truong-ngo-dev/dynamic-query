@@ -1,11 +1,12 @@
-package vn.truongngo.lib.dynamicquery.querydsl.converter;
+package vn.truongngo.lib.dynamicquery.querydsl.jpa.converter;
 
-import com.querydsl.core.types.*;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.*;
 import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
 import vn.truongngo.lib.dynamicquery.core.enumerate.LogicalOperator;
-import vn.truongngo.lib.dynamicquery.querydsl.support.QuerydslExpressionHelper;
+import vn.truongngo.lib.dynamicquery.core.expression.*;
+import vn.truongngo.lib.dynamicquery.querydsl.jpa.support.QuerydslExpressionHelper;
 
 import java.util.List;
 import java.util.Map;
@@ -23,8 +24,8 @@ import java.util.Map;
  * </pre></blockquote>
  *
  * @see Visitor
- * @since 1.0
- * @version 1.0
+ * @author Truong Ngo
+ * @version 2.0.0
  */
 public class QuerydslVisitor implements Visitor<Expression<?>, Map<String, Path<?>>> {
 
@@ -41,6 +42,42 @@ public class QuerydslVisitor implements Visitor<Expression<?>, Map<String, Path<
     }
 
     /**
+     * Visits an {@link ArithmeticExpression} and converts it into a corresponding QueryDSL {@link NumberExpression}.
+     * <p>
+     * This method recursively visits the left and right operands of the arithmetic expression,
+     * ensuring that both are instances of {@link NumberExpression}. It then applies the specified
+     * arithmetic operator (addition, subtraction, multiplication, division, or modulo) to these operands.
+     * </p>
+     * <p>
+     * If either operand is not a {@code NumberExpression}, an {@link IllegalArgumentException} is thrown,
+     * as arithmetic operations require numeric expressions.
+     * </p>
+     *
+     * @param expression the {@code ArithmeticExpression} to be visited
+     * @param context    a map of alias-to-path mappings used for resolving references within the expression
+     * @return a {@code NumberExpression} representing the arithmetic operation in QueryDSL
+     * @throws IllegalArgumentException if either operand is not a {@code NumberExpression}
+     */
+    @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public Expression<?> visit(ArithmeticExpression expression, Map<String, Path<?>> context) {
+        Expression<?> left = expression.getLeft().accept(this, context);
+        Expression right = expression.getRight().accept(this, context);
+
+        if (!(left instanceof NumberExpression<?> leftNum) || !(right instanceof NumberExpression<?> rightNum)) {
+            throw new IllegalArgumentException("Arithmetic operations require NumberExpression types");
+        }
+
+        return switch (expression.getOperator()) {
+            case ADD -> leftNum.add(rightNum);
+            case SUBTRACT -> leftNum.subtract(rightNum);
+            case MULTIPLY -> leftNum.multiply(rightNum);
+            case DIVIDE -> leftNum.divide(rightNum);
+            case MODULO -> leftNum.mod(right);
+        };
+    }
+
+    /**
      * Visits an entity reference expression and retrieves the corresponding path from the context.
      *
      * @param expression the entity reference expression
@@ -51,6 +88,43 @@ public class QuerydslVisitor implements Visitor<Expression<?>, Map<String, Path<
     public Expression<?> visit(EntityReferenceExpression expression, Map<String, Path<?>> context) {
         String key = expression.getAlias() == null ? expression.getEntityClass().getSimpleName() : expression.getAlias();
         return context.get(key);
+    }
+
+    /**
+     * Visits a {@link CommonTableExpression} and attempts to convert it into a corresponding QueryDSL expression.
+     * <p>
+     * Currently, this operation is not supported in the JPA context, as JPQL does not natively support Common Table Expressions (CTEs).
+     * This method is intended to be implemented in future versions, potentially leveraging native queries or third-party libraries
+     * that provide CTE support in JPA.
+     * </p>
+     *
+     * @param expression the {@code CommonTableExpression} to be visited
+     * @param context    a map of alias-to-path mappings used for resolving references within the expression
+     * @return a QueryDSL {@link Expression} representing the CTE
+     * @throws UnsupportedOperationException always, as this operation is not yet supported
+     */
+    @Override
+    public Expression<?> visit(CommonTableExpression expression, Map<String, Path<?>> context) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+
+    /**
+     * Visits a {@link SetOperationExpression} and attempts to convert it into a corresponding QueryDSL expression.
+     * <p>
+     * Currently, this operation is not supported in the JPA context, as JPQL does not natively support set operations
+     * such as UNION, INTERSECT, or EXCEPT. This method is intended to be implemented in future versions, potentially
+     * leveraging native queries or third-party libraries that provide support for set operations in JPA.
+     * </p>
+     *
+     * @param expression the {@code SetOperationExpression} to be visited
+     * @param context    a map of alias-to-path mappings used for resolving references within the expression
+     * @return a QueryDSL {@link Expression} representing the set operation
+     * @throws UnsupportedOperationException always, as this operation is not yet supported
+     */
+    @Override
+    public Expression<?> visit(SetOperationExpression expression, Map<String, Path<?>> context) {
+        throw new UnsupportedOperationException("Set operations are not supported in JPA context.");
     }
 
     /**
@@ -112,7 +186,7 @@ public class QuerydslVisitor implements Visitor<Expression<?>, Map<String, Path<
         CaseBuilder.Cases<?, ?> caseExpr = null;
 
         for (CaseWhenExpression.WhenThen whenThen : expression.getConditions()) {
-            Predicate when = (Predicate) whenThen.when().accept(this, context);
+            com.querydsl.core.types.Predicate when = (com.querydsl.core.types.Predicate) whenThen.when().accept(this, context);
             Expression then = whenThen.then().accept(this, context);
             if (caseExpr == null) {
                 caseExpr = builder.when(when).then(then);
@@ -134,7 +208,25 @@ public class QuerydslVisitor implements Visitor<Expression<?>, Map<String, Path<
      */
     @Override
     public Expression<?> visit(SubqueryExpression expression, Map<String, Path<?>> context) {
-        return QuerydslExpressionHelper.convertToQuerydslSubquery(expression.getQueryMetadata());
+        return QuerydslExpressionHelper.buildQuerydslSubquery(expression.getQueryMetadata());
+    }
+
+    /**
+     * Visits a {@link WindowFunctionExpression} and attempts to convert it into a corresponding QueryDSL expression.
+     * <p>
+     * Currently, this operation is not supported in the JPA context, as JPQL does not natively support window functions
+     * such as ROW_NUMBER(), RANK(), or LAG(). This method is intended to be implemented in future versions, potentially
+     * leveraging native queries or third-party libraries that provide support for window functions in JPA.
+     * </p>
+     *
+     * @param expression the {@code WindowFunctionExpression} to be visited
+     * @param context    a map of alias-to-path mappings used for resolving references within the expression
+     * @return a QueryDSL {@link Expression} representing the window function
+     * @throws UnsupportedOperationException always, as this operation is not yet supported
+     */
+    @Override
+    public Expression<?> visit(WindowFunctionExpression expression, Map<String, Path<?>> context) {
+        throw new UnsupportedOperationException("Window functions are not supported in JPA context.");
     }
 
     /**
@@ -145,7 +237,7 @@ public class QuerydslVisitor implements Visitor<Expression<?>, Map<String, Path<
      * @return the corresponding QueryDSL comparison predicate
      */
     @Override
-    public Predicate visit(ComparisonPredicate expression, Map<String, Path<?>> context) {
+    public com.querydsl.core.types.Predicate visit(ComparisonPredicate expression, Map<String, Path<?>> context) {
         Expression<?> left = expression.getLeft().accept(this, context);
         Expression<?> right = expression.getRight() != null ? expression.getRight().accept(this, context) : null;
         return QuerydslExpressionHelper.getComparisionPredicate(expression, left, right);
@@ -159,7 +251,7 @@ public class QuerydslVisitor implements Visitor<Expression<?>, Map<String, Path<
      * @return the corresponding QueryDSL logical predicate
      */
     @Override
-    public Predicate visit(LogicalPredicate expression, Map<String, Path<?>> context) {
+    public com.querydsl.core.types.Predicate visit(LogicalPredicate expression, Map<String, Path<?>> context) {
         LogicalOperator operator = expression.getOperator();
         List<? extends Expression<?>> predicates = expression.getPredicates().stream()
                 .map(p -> p.accept(this, context))
@@ -169,5 +261,21 @@ public class QuerydslVisitor implements Visitor<Expression<?>, Map<String, Path<
             case AND -> Expressions.allOf((BooleanExpression) predicates);
             case OR -> Expressions.anyOf((BooleanExpression) predicates);
         };
+    }
+
+    /**
+     * Visits an {@link ExtendedExpression} and attempts to convert it into a corresponding QueryDSL expression.
+     * <p>
+     * Currently, this operation is not supported. This method is intended to be implemented in future versions.
+     * </p>
+     *
+     * @param expression the {@code ExtendedExpression} to be visited
+     * @param context    a map of alias-to-path mappings used for resolving references within the expression
+     * @return a QueryDSL {@link Expression} representing the extended expression
+     * @throws UnsupportedOperationException always, as this operation is not yet supported
+     */
+    @Override
+    public Expression<?> visit(ExtendedExpression expression, Map<String, Path<?>> context) {
+        throw new UnsupportedOperationException("ExtendedExpression is not supported yet.");
     }
 }
