@@ -5,10 +5,14 @@ import com.querydsl.jpa.impl.JPAQuery;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import vn.truongngo.lib.dynamicquery.core.builder.DefaultQueryBuilder;
+import vn.truongngo.lib.dynamicquery.core.builder.QueryBuilder;
+import vn.truongngo.lib.dynamicquery.core.builder.QueryBuilderStrategy;
 import vn.truongngo.lib.dynamicquery.core.expression.SubqueryExpression;
-import vn.truongngo.lib.dynamicquery.querydsl.builder.QuerydslQueryBuilder;
+import vn.truongngo.lib.dynamicquery.querydsl.jpa.builder.QuerydslJpaStrategy;
 import vn.truongngo.lib.dynamicquery.sample.querydsl.entity.Company;
 import vn.truongngo.lib.dynamicquery.sample.querydsl.entity.Employee;
+
 import static vn.truongngo.lib.dynamicquery.core.support.Expressions.*;
 import static vn.truongngo.lib.dynamicquery.core.support.Predicates.*;
 
@@ -23,7 +27,8 @@ public class QuerydslService {
     private final EntityManager em;
 
     public List<LinkedHashMap<String, Object>> testJoinQuery() {
-        QuerydslQueryBuilder<Tuple> qb = new QuerydslQueryBuilder<>(em);
+        QueryBuilderStrategy<JPAQuery<Tuple>> qbs = new QuerydslJpaStrategy<>(em);
+        QueryBuilder<JPAQuery<Tuple>> qb = new DefaultQueryBuilder<>(qbs);
 
         qb
                 .from(Employee.class)
@@ -51,7 +56,8 @@ public class QuerydslService {
     }
 
     public List<LinkedHashMap<String, Object>> testCountQuery() {
-        QuerydslQueryBuilder<Tuple> qb = new QuerydslQueryBuilder<>(em);
+        QueryBuilderStrategy<JPAQuery<Tuple>> qbs = new QuerydslJpaStrategy<>(em);
+        QueryBuilder<JPAQuery<Tuple>> qb = new DefaultQueryBuilder<>(qbs);
         qb
                 .from(Company.class)
                 .join(b -> b
@@ -62,7 +68,7 @@ public class QuerydslService {
                         ))
                         .as(Employee.class.getSimpleName()))
                 .select("id", "name")
-                .select(count("totalEmployee", column("id", Employee.class)))
+                .select(count(column("id", Employee.class)).as("totalEmployee"))
                 .groupBy(
                         column("id", Company.class),
                         column("name", Company.class));
@@ -81,7 +87,8 @@ public class QuerydslService {
     }
 
     public List<LinkedHashMap<String, Object>> testSubQuery() {
-        QuerydslQueryBuilder<Tuple> qb = new QuerydslQueryBuilder<>(em);
+        QueryBuilderStrategy<JPAQuery<Tuple>> qbs = new QuerydslJpaStrategy<>(em);
+        QueryBuilder<JPAQuery<Tuple>> qb = new DefaultQueryBuilder<>(qbs);
 
         qb
                 .from(Company.class)
