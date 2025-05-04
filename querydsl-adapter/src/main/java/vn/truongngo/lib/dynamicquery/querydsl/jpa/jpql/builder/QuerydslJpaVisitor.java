@@ -1,4 +1,4 @@
-package vn.truongngo.lib.dynamicquery.querydsl.jpa.builder;
+package vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.builder;
 
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
@@ -6,7 +6,7 @@ import com.querydsl.core.types.dsl.*;
 import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
 import vn.truongngo.lib.dynamicquery.core.enumerate.LogicalOperator;
 import vn.truongngo.lib.dynamicquery.core.expression.*;
-import vn.truongngo.lib.dynamicquery.querydsl.jpa.support.QuerydslExpressionHelper;
+import vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.support.QuerydslJpaExpressionHelper;
 
 import java.util.List;
 import java.util.Map;
@@ -27,10 +27,10 @@ import java.util.Map;
  * @author Truong Ngo
  * @version 2.0.0
  */
-public class QuerydslVisitor implements Visitor<Expression<?>, Map<String, Path<?>>> {
+public class QuerydslJpaVisitor implements Visitor<Expression<?>, Map<String, Path<?>>> {
 
     /**
-     * Provides access to the singleton instance of {@link QuerydslVisitor}.
+     * Provides access to the singleton instance of {@link QuerydslJpaVisitor}.
      *
      * <p>
      * This implementation is thread-safe and ensures that the instance is
@@ -39,7 +39,7 @@ public class QuerydslVisitor implements Visitor<Expression<?>, Map<String, Path<
      *
      * @return the singleton instance of {@code QuerydslVisitor}
      */
-    public static QuerydslVisitor getInstance() {
+    public static QuerydslJpaVisitor getInstance() {
         return Holder.INSTANCE;
     }
 
@@ -47,7 +47,7 @@ public class QuerydslVisitor implements Visitor<Expression<?>, Map<String, Path<
      * Holder class for lazy-loaded singleton instance.
      */
     private static class Holder {
-        private static final QuerydslVisitor INSTANCE = new QuerydslVisitor();
+        private static final QuerydslJpaVisitor INSTANCE = new QuerydslJpaVisitor();
     }
 
     /**
@@ -125,8 +125,6 @@ public class QuerydslVisitor implements Visitor<Expression<?>, Map<String, Path<
      * @throws UnsupportedOperationException always, as this operation is not yet supported
      */
     @Override
-
-
 
     public Expression<?> visit(CommonTableExpression expression, Map<String, Path<?>> context) {
         throw new UnsupportedOperationException("Not supported yet.");
@@ -232,7 +230,7 @@ public class QuerydslVisitor implements Visitor<Expression<?>, Map<String, Path<
      */
     @Override
     public Expression<?> visit(SubqueryExpression expression, Map<String, Path<?>> context) {
-        return QuerydslExpressionHelper.buildQuerydslSubquery(expression.getQueryMetadata());
+        return QuerydslJpaExpressionHelper.buildQuerydslSubquery(expression.getQueryMetadata());
     }
 
     /**
@@ -264,7 +262,7 @@ public class QuerydslVisitor implements Visitor<Expression<?>, Map<String, Path<
     public com.querydsl.core.types.Predicate visit(ComparisonPredicate expression, Map<String, Path<?>> context) {
         Expression<?> left = expression.getLeft().accept(this, context);
         Expression<?> right = expression.getRight() != null ? expression.getRight().accept(this, context) : null;
-        return QuerydslExpressionHelper.getComparisionPredicate(expression, left, right);
+        return QuerydslJpaExpressionHelper.getComparisionPredicate(expression, left, right);
     }
 
     /**

@@ -1,4 +1,4 @@
-package vn.truongngo.lib.dynamicquery.querydsl.jpa.builder;
+package vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.builder;
 
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.PathBuilder;
@@ -7,8 +7,8 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryBuilderStrategy;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryMetadata;
-import vn.truongngo.lib.dynamicquery.querydsl.jpa.support.QuerydslExpressionHelper;
-import vn.truongngo.lib.dynamicquery.querydsl.jpa.support.QuerydslHelper;
+import vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.support.QuerydslJpaExpressionHelper;
+import vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.support.QuerydslJpaHelper;
 
 import java.util.Map;
 
@@ -17,7 +17,7 @@ import java.util.Map;
  *
  * <p>This class implements {@link QueryBuilderStrategy} for building dynamic JPQL queries
  * using QueryDSL's {@link JPAQuery}. It converts abstract {@link QueryMetadata} into concrete
- * QueryDSL query components by leveraging {@link QuerydslVisitor} and utility helpers.</p>
+ * QueryDSL query components by leveraging {@link QuerydslJpaVisitor} and utility helpers.</p>
  *
  * <p>Internally, this strategy performs the following:
  * <ul>
@@ -41,30 +41,30 @@ public class QuerydslJpaStrategy<T> implements QueryBuilderStrategy<JPAQuery<T>>
     private final EntityManager em;
 
     /**
-     * The singleton instance of the {@link QuerydslVisitor}, used to convert expression models into QueryDSL expressions.
+     * The singleton instance of the {@link QuerydslJpaVisitor}, used to convert expression models into QueryDSL expressions.
      */
-    private final QuerydslVisitor visitor = QuerydslVisitor.getInstance();
+    private final QuerydslJpaVisitor visitor = QuerydslJpaVisitor.getInstance();
 
     /**
      * Builds a {@link JPAQuery} based on the given {@link QueryMetadata}.
      *
      * <p>This method resolves the root path from metadata, creates a JPAQuery with the provided
      * {@link EntityManager}, sets the root entity source, and applies all dynamic clauses
-     * using {@link QuerydslHelper} utilities.</p>
+     * using {@link QuerydslJpaHelper} utilities.</p>
      *
      * @param queryMetadata the query metadata containing select, join, filter, and other clauses
      * @return a fully constructed {@link JPAQuery} object ready for execution
      */
     @Override
     public JPAQuery<T> accept(QueryMetadata queryMetadata) {
-        Map<String, Path<?>> pathBuilders = QuerydslExpressionHelper.getSources(queryMetadata);
+        Map<String, Path<?>> pathBuilders = QuerydslJpaExpressionHelper.getSources(queryMetadata);
         String key = queryMetadata.getAlias() == null
                 ? queryMetadata.getEntityClass().getSimpleName()
                 : queryMetadata.getAlias();
         PathBuilder<?> root = (PathBuilder<?>) pathBuilders.get(key);
         JPAQuery<T> query = new JPAQuery<>(em);
         query.from(root);
-        QuerydslHelper.buildQuery(queryMetadata, pathBuilders, query, visitor);
+        QuerydslJpaHelper.buildQuery(queryMetadata, pathBuilders, query, visitor);
         return query;
     }
 }

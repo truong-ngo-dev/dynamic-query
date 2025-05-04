@@ -1,4 +1,4 @@
-package vn.truongngo.lib.dynamicquery.querydsl.jpa.support;
+package vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.support;
 
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
@@ -10,19 +10,19 @@ import vn.truongngo.lib.dynamicquery.core.enumerate.Order;
 import vn.truongngo.lib.dynamicquery.core.expression.JoinExpression;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
-import vn.truongngo.lib.dynamicquery.querydsl.jpa.builder.QuerydslVisitor;
+import vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.builder.QuerydslJpaVisitor;
 
 import java.util.Map;
 
 /**
  * Utility class that provides static helper methods to apply metadata-driven dynamic queries
- * to Querydsl's {@link JPQLQuery} object using a {@link QuerydslVisitor} to convert abstract
+ * to Querydsl's {@link JPQLQuery} object using a {@link QuerydslJpaVisitor} to convert abstract
  * expression models into concrete QueryDSL expressions.
  *
  * @author Truong Ngo
  * @version 2.0.0
  */
-public class QuerydslHelper {
+public class QuerydslJpaHelper {
 
     /**
      * Applies select clauses from metadata to the query.
@@ -32,7 +32,7 @@ public class QuerydslHelper {
      * @param metadata  dynamic query metadata
      * @param visitor   visitor to convert expression model to QueryDSL
      */
-    public static void select(Map<String, Path<?>> paths, JPQLQuery<?> query, QueryMetadata metadata, QuerydslVisitor visitor) {
+    public static void select(Map<String, Path<?>> paths, JPQLQuery<?> query, QueryMetadata metadata, QuerydslJpaVisitor visitor) {
         Expression<?>[] selects = metadata
                 .getSelectClauses()
                 .stream()
@@ -49,7 +49,7 @@ public class QuerydslHelper {
      * @param metadata      dynamic query metadata
      * @param visitor       visitor to convert expression model to QueryDSL
      */
-    public static void join(Map<String, Path<?>> pathBuilders, JPQLQuery<?> query, QueryMetadata metadata, QuerydslVisitor visitor) {
+    public static void join(Map<String, Path<?>> pathBuilders, JPQLQuery<?> query, QueryMetadata metadata, QuerydslJpaVisitor visitor) {
         if (!metadata.getJoinClauses().isEmpty()) {
             for (JoinExpression joinExpression : metadata.getJoinClauses()) {
                 Predicate onCondition = (Predicate) visitor.visit(joinExpression.condition(), pathBuilders);
@@ -74,7 +74,7 @@ public class QuerydslHelper {
      * @param metadata      dynamic query metadata
      * @param visitor       visitor to convert expression model to QueryDSL
      */
-    public static void where(Map<String, Path<?>> pathBuilders, JPQLQuery<?> query, QueryMetadata metadata, QuerydslVisitor visitor) {
+    public static void where(Map<String, Path<?>> pathBuilders, JPQLQuery<?> query, QueryMetadata metadata, QuerydslJpaVisitor visitor) {
         if (!metadata.getWhereClauses().isEmpty()) {
             for (vn.truongngo.lib.dynamicquery.core.expression.Predicate p : metadata.getWhereClauses()) {
                 Predicate predicate = (Predicate) visitor.visit(p, pathBuilders);
@@ -91,7 +91,7 @@ public class QuerydslHelper {
      * @param metadata      dynamic query metadata
      * @param visitor       visitor to convert expression model to QueryDSL
      */
-    public static void groupBy(Map<String, Path<?>> pathBuilders, JPQLQuery<?> query, QueryMetadata metadata, QuerydslVisitor visitor) {
+    public static void groupBy(Map<String, Path<?>> pathBuilders, JPQLQuery<?> query, QueryMetadata metadata, QuerydslJpaVisitor visitor) {
         if (!metadata.getGroupByClauses().isEmpty()) {
             for (vn.truongngo.lib.dynamicquery.core.expression.Expression g : metadata.getGroupByClauses()) {
                 Expression<?> expression = visitor.visit(g, pathBuilders);
@@ -108,7 +108,7 @@ public class QuerydslHelper {
      * @param metadata      dynamic query metadata
      * @param visitor       visitor to convert expression model to QueryDSL
      */
-    public static void having(Map<String, Path<?>> pathBuilders, JPQLQuery<?> query, QueryMetadata metadata, QuerydslVisitor visitor) {
+    public static void having(Map<String, Path<?>> pathBuilders, JPQLQuery<?> query, QueryMetadata metadata, QuerydslJpaVisitor visitor) {
         if (!metadata.getHavingClauses().isEmpty()) {
             for (vn.truongngo.lib.dynamicquery.core.expression.Predicate p : metadata.getHavingClauses()) {
                 Predicate predicate = (Predicate) visitor.visit(p, pathBuilders);
@@ -125,7 +125,7 @@ public class QuerydslHelper {
      * @param metadata      dynamic query metadata
      * @param visitor       visitor to convert expression model to QueryDSL
      */
-    public static void orderBy(Map<String, Path<?>> pathBuilders, JPQLQuery<?> query, QueryMetadata metadata, QuerydslVisitor visitor) {
+    public static void orderBy(Map<String, Path<?>> pathBuilders, JPQLQuery<?> query, QueryMetadata metadata, QuerydslJpaVisitor visitor) {
         if (!metadata.getOrderByClauses().isEmpty()) {
             for (OrderSpecifier o : metadata.getOrderByClauses()) {
                 vn.truongngo.lib.dynamicquery.core.expression.Expression e = o.getTarget();
@@ -168,15 +168,15 @@ public class QuerydslHelper {
      * @param metadata the {@link QueryMetadata} containing all components of the dynamic query
      * @param sources  a mapping of alias names to {@link Path} objects used for resolving references
      * @param subquery the {@link JPQLQuery} instance being constructed
-     * @param visitor  the {@link QuerydslVisitor} responsible for converting abstract expressions to
+     * @param visitor  the {@link QuerydslJpaVisitor} responsible for converting abstract expressions to
      *                 concrete QueryDSL expressions
      */
-    public static void buildQuery(QueryMetadata metadata, Map<String, Path<?>> sources, JPQLQuery<?> subquery, QuerydslVisitor visitor) {
-        QuerydslHelper.select(sources, subquery, metadata, visitor);
-        QuerydslHelper.join(sources, subquery, metadata, visitor);
-        QuerydslHelper.where(sources, subquery, metadata, visitor);
-        QuerydslHelper.groupBy(sources, subquery, metadata, visitor);
-        QuerydslHelper.having(sources, subquery, metadata, visitor);
-        QuerydslHelper.orderBy(sources, subquery, metadata, visitor);
+    public static void buildQuery(QueryMetadata metadata, Map<String, Path<?>> sources, JPQLQuery<?> subquery, QuerydslJpaVisitor visitor) {
+        QuerydslJpaHelper.select(sources, subquery, metadata, visitor);
+        QuerydslJpaHelper.join(sources, subquery, metadata, visitor);
+        QuerydslJpaHelper.where(sources, subquery, metadata, visitor);
+        QuerydslJpaHelper.groupBy(sources, subquery, metadata, visitor);
+        QuerydslJpaHelper.having(sources, subquery, metadata, visitor);
+        QuerydslJpaHelper.orderBy(sources, subquery, metadata, visitor);
     }
 }

@@ -1,4 +1,4 @@
-package vn.truongngo.lib.dynamicquery.querydsl.jpa.support;
+package vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.support;
 
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.Expressions;
@@ -10,7 +10,7 @@ import vn.truongngo.lib.dynamicquery.core.enumerate.Operator;
 import vn.truongngo.lib.dynamicquery.core.expression.ComparisonPredicate;
 import vn.truongngo.lib.dynamicquery.core.expression.EntityReferenceExpression;
 import vn.truongngo.lib.dynamicquery.core.expression.JoinExpression;
-import vn.truongngo.lib.dynamicquery.querydsl.jpa.builder.QuerydslVisitor;
+import vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.builder.QuerydslJpaVisitor;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.Map;
  * @author Truong Ngo
  * @version 2.0.0
  */
-public class QuerydslExpressionHelper {
+public class QuerydslJpaExpressionHelper {
 
     /**
      * Creates a {@link PathBuilder} for the given class and alias.
@@ -69,12 +69,12 @@ public class QuerydslExpressionHelper {
      * @return a QueryDSL subquery expression
      */
     public static SubQueryExpression<?> buildQuerydslSubquery(QueryMetadata metadata) {
-        QuerydslVisitor visitor = new QuerydslVisitor();
+        QuerydslJpaVisitor visitor = new QuerydslJpaVisitor();
         Map<String, Path<?>> sources = getSources(metadata);
         JPQLQuery<?> subquery = JPAExpressions.select();
         String alias = (metadata.getAlias() == null) ? metadata.getEntityClass().getSimpleName() : metadata.getAlias();
         subquery.from((EntityPath<?>) sources.get(alias));
-        QuerydslHelper.buildQuery(metadata, sources, subquery, visitor);
+        QuerydslJpaHelper.buildQuery(metadata, sources, subquery, visitor);
         return subquery;
     }
 

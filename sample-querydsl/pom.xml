@@ -26,7 +26,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
@@ -46,6 +45,17 @@
             <groupId>vn.truongngo.lib.dynamicquery</groupId>
             <artifactId>querydsl-adapter</artifactId>
             <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.querydsl</groupId>
+            <artifactId>querydsl-sql</artifactId>
+            <version>${querydsl.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.querydsl</groupId>
+            <artifactId>querydsl-sql-codegen</artifactId>
+            <version>${querydsl.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -113,6 +123,36 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.querydsl</groupId>
+                <artifactId>querydsl-maven-plugin</artifactId>
+                <version>${querydsl.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>export</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <jdbcDriver>com.mysql.cj.jdbc.Driver</jdbcDriver>
+                    <jdbcUrl>jdbc:mysql://localhost:3306/demo</jdbcUrl>
+                    <jdbcUser>root</jdbcUser>
+                    <jdbcPassword>123456</jdbcPassword>
+                    <schemaPattern>demo</schemaPattern>
+                    <tableNamePattern>companies,employees</tableNamePattern>
+                    <packageName>vn.truongngo.lib.dynamicquery.sample</packageName>
+                    <targetFolder>${project.basedir}/target/generated-sources/java</targetFolder>
+                    <sourceFolder/>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.mysql</groupId>
+                        <artifactId>mysql-connector-j</artifactId>
+                        <version>9.1.0</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
