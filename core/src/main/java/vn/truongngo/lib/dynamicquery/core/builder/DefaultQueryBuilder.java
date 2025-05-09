@@ -1,9 +1,7 @@
 package vn.truongngo.lib.dynamicquery.core.builder;
 
 import lombok.Getter;
-import vn.truongngo.lib.dynamicquery.core.expression.JoinExpression;
-import vn.truongngo.lib.dynamicquery.core.expression.Predicate;
-import vn.truongngo.lib.dynamicquery.core.expression.Selection;
+import vn.truongngo.lib.dynamicquery.core.expression.*;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
 import vn.truongngo.lib.dynamicquery.core.support.Expressions;
@@ -74,6 +72,81 @@ public class DefaultQueryBuilder<Q> implements QueryBuilder<Q> {
     }
 
     /**
+     * Specifies the subquery as source for the main query.
+     *
+     * @param subquery The subquery to use in the main query.
+     * @return The current {@link QueryBuilder} instance.
+     */
+    @Override
+    public QueryBuilder<Q> from(SubqueryExpression subquery) {
+        this.queryMetadata = new DefaultQueryMetadata(subquery);
+        return this;
+    }
+
+    /**
+     * Specifies the subquery as source for the main query with alias.
+     *
+     * @param subquery The subquery to use in the main query.
+     * @param alias The alias to use for the subquery.
+     * @return The current {@link QueryBuilder} instance.
+     */
+    @Override
+    public QueryBuilder<Q> from(SubqueryExpression subquery, String alias) {
+        this.queryMetadata = new DefaultQueryMetadata(subquery, alias);
+        return this;
+    }
+
+    /**
+     * Specifies the common table expression as source for the main query.
+     *
+     * @param cte The common table expression to use in the main query.
+     * @return The current {@link QueryBuilder} instance.
+     */
+    @Override
+    public QueryBuilder<Q> from(CommonTableExpression cte) {
+        this.queryMetadata = new DefaultQueryMetadata(cte);
+        return this;
+    }
+
+    /**
+     * Specifies the common table expression as source for the main query with alias.
+     *
+     * @param cte The common table expression to use in the main query.
+     * @param alias The alias to use for the cte.
+     * @return The current {@link QueryBuilder} instance.
+     */
+    @Override
+    public QueryBuilder<Q> from(CommonTableExpression cte, String alias) {
+        this.queryMetadata = new DefaultQueryMetadata(cte, alias);
+        return this;
+    }
+
+    /**
+     * Specifies the set operation expression as source for the main query.
+     *
+     * @param setOps The set operation expression to use in the main query.
+     * @return The current {@link QueryBuilder} instance.
+     */
+    @Override
+    public QueryBuilder<Q> from(SetOperationExpression setOps) {
+        this.queryMetadata = new DefaultQueryMetadata(setOps);
+        return this;
+    }
+
+    /**
+     * Specifies the set operation expression as source for the main query with alias.
+     *
+     * @param setOps The set operation expression to use in the main query.
+     * @param alias The alias to use for the set operation expression.
+     * @return The current {@link QueryBuilder} instance.
+     */
+    @Override
+    public QueryBuilder<Q> from(SetOperationExpression setOps, String alias) {
+        this.queryMetadata = new DefaultQueryMetadata(setOps, alias);
+        return this;
+    }
+
+    /**
      * Adds expressions to the select clause of the query.
      *
      * @param expressions One or more expressions to select.
@@ -82,6 +155,26 @@ public class DefaultQueryBuilder<Q> implements QueryBuilder<Q> {
     @Override
     public QueryBuilder<Q> select(Selection... expressions) {
         for (Selection expression : expressions) {
+            queryMetadata.addSelect(expression);
+        }
+        return this;
+    }
+
+    /**
+     * Adds column names to the select clause of the query.
+     *
+     * @param columns One or more column names to select.
+     * @return The current {@link QueryBuilder} instance.
+     */
+    @Override
+    public QueryBuilder<Q> select(String... columns) {
+        if (queryMetadata.getFrom() instanceof SetOperationExpression) return this;                                                 // Not allow selection in set operation
+        for (String c : columns) {
+            Selection expression =
+                    queryMetadata.getFrom() instanceof EntityReferenceExpression entity ? Expressions.column(c, entity) :
+                    queryMetadata.getFrom() instanceof CommonTableExpression cte ? Expressions.column(c, cte) :
+                    queryMetadata.getFrom() instanceof SubqueryExpression subquery ? Expressions.column(c, subquery) : null;
+            if (expression == null) throw new IllegalArgumentException("Unsupported query source");
             queryMetadata.addSelect(expression);
         }
         return this;
@@ -98,21 +191,6 @@ public class DefaultQueryBuilder<Q> implements QueryBuilder<Q> {
     }
 
     /**
-     * Adds column names to the select clause of the query.
-     *
-     * @param columns One or more column names to select.
-     * @return The current {@link QueryBuilder} instance.
-     */
-    @Override
-    public QueryBuilder<Q> select(String... columns) {
-        for (String c : columns) {
-            Selection expression = Expressions.column(c, queryMetadata.getEntityClass());
-            queryMetadata.addSelect(expression);
-        }
-        return this;
-    }
-
-    /**
      * Adds a join clause to the query.
      *
      * @param entityClass The entity class to join with.
@@ -121,10 +199,9 @@ public class DefaultQueryBuilder<Q> implements QueryBuilder<Q> {
      * @return The current {@link QueryBuilder} instance.
      */
     @Override
-    public QueryBuilder<Q> join(Class<?> entityClass, Predicate condition, String alias) {
+    public QueryBuilder<Q> join(QuerySource target, Predicate condition) {
         JoinExpression joinExpression = Expressions.join(b -> b
-                .join(Expressions.entity(entityClass))
-                .as(alias)
+                .join(target)
                 .on(condition));
         queryMetadata.addJoin(joinExpression);
         return this;

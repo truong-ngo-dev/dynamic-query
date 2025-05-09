@@ -21,7 +21,7 @@ import vn.truongngo.lib.dynamicquery.core.enumerate.JoinType;
  * @author Truong Ngo
  * @version 1.0
  */
-public record JoinExpression(JoinType joinType, QuerySource target, Predicate condition, String alias) {
+public record JoinExpression(JoinType joinType, QuerySource target, Predicate condition) {
 
     /**
      * Creates a new builder for constructing a JoinExpression.
@@ -43,7 +43,6 @@ public record JoinExpression(JoinType joinType, QuerySource target, Predicate co
         private JoinType joinType;
         private QuerySource target;
         private Predicate condition;
-        private String alias;
 
 
         /**
@@ -74,18 +73,6 @@ public record JoinExpression(JoinType joinType, QuerySource target, Predicate co
 
 
         /**
-         * Specifies the alias for the resulting join expression.
-         *
-         * @param alias the alias for the target expression
-         * @return the current Builder instance
-         */
-        public Builder as(String alias) {
-            this.alias = alias;
-            return this;
-        }
-
-
-        /**
          * Specifies the ON condition for the JOIN expression.
          *
          * @param condition the join condition (predicate)
@@ -103,7 +90,7 @@ public record JoinExpression(JoinType joinType, QuerySource target, Predicate co
          * @return a new JoinExpression with the specified parameters
          */
         public JoinExpression build() {
-            return new JoinExpression(joinType, target, condition, alias);
+            return new JoinExpression(joinType, target, condition);
         }
     }
 }

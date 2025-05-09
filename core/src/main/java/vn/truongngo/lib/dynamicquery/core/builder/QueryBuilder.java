@@ -1,8 +1,6 @@
 package vn.truongngo.lib.dynamicquery.core.builder;
 
-import vn.truongngo.lib.dynamicquery.core.expression.JoinExpression;
-import vn.truongngo.lib.dynamicquery.core.expression.Predicate;
-import vn.truongngo.lib.dynamicquery.core.expression.Selection;
+import vn.truongngo.lib.dynamicquery.core.expression.*;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
 
@@ -39,6 +37,57 @@ public interface QueryBuilder<Q> {
     QueryBuilder<Q> from(Class<?> entityClass, String alias);
 
     /**
+     * Specifies a subquery as the query source.
+     *
+     * @param subquery the subquery expression to use as the query source
+     * @return the current builder instance
+     */
+    QueryBuilder<Q> from(SubqueryExpression subquery);
+
+    /**
+     * Specifies a subquery as the query source with alias.
+     *
+     * @param subquery the subquery expression to use as the query source
+     * @param alias the alias for the entity
+     * @return the current builder instance
+     */
+    QueryBuilder<Q> from(SubqueryExpression subquery, String alias);
+
+    /**
+     * Specifies a Common Table Expression (CTE) as the query source.
+     *
+     * @param cte   the Common Table Expression to use
+     * @return the current builder instance
+     */
+    QueryBuilder<Q> from(CommonTableExpression cte);
+
+    /**
+     * Specifies a Common Table Expression (CTE) as the query source.
+     *
+     * @param cte   the Common Table Expression to use
+     * @param alias the alias name for the CTE in the query context
+     * @return the current builder instance
+     */
+    QueryBuilder<Q> from(CommonTableExpression cte, String alias);
+
+    /**
+     * Specifies a set operation expression (e.g., UNION, INTERSECT) as the query source.
+     *
+     * @param setOps the set operation expression to use
+     * @return the current builder instance
+     */
+    QueryBuilder<Q> from(SetOperationExpression setOps);
+
+    /**
+     * Specifies a set operation expression (e.g., UNION, INTERSECT) as the query source.
+     *
+     * @param setOps the set operation expression to use
+     * @param alias  the alias name for the set operation result
+     * @return the current builder instance
+     */
+    QueryBuilder<Q> from(SetOperationExpression setOps, String alias);
+
+    /**
      * Specifies the selection expressions (columns, functions, etc.)
      *
      * @param expressions the selection expressions
@@ -62,14 +111,13 @@ public interface QueryBuilder<Q> {
     QueryBuilder<Q> distinct();
 
     /**
-     * Adds a join with another entity based on a condition and alias.
+     * Adds a join with another query source based on a condition and alias.
      *
-     * @param entityClass the class to join
+     * @param target the query source to join
      * @param condition the join condition
-     * @param alias the alias for the joined entity
      * @return the current builder instance
      */
-    QueryBuilder<Q> join(Class<?> entityClass, Predicate condition, String alias);
+    QueryBuilder<Q> join(QuerySource target, Predicate condition);
 
     /**
      * Adds a join using a builder pattern.

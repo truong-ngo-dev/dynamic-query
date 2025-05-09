@@ -14,6 +14,7 @@ import java.util.List;
  * This class stores the components of a dynamic query such as:
  * <ul>
  *     <li>{@code from} - the main entity or subquery the query is executed against</li>
+ *     <li>{@code setOps} - the main query source as set operation</li>
  *     <li>{@code select} - the projection of the query</li>
  *     <li>{@code join} - join clauses with other entities</li>
  *     <li>{@code where} - filter conditions</li>
@@ -32,6 +33,7 @@ import java.util.List;
 public class DefaultQueryMetadata implements QueryMetadata {
 
     private QuerySource from;
+    private SetOperationExpression setOps;
     private boolean distinct = false;
     private List<Selection> select = new ArrayList<>();
     private List<JoinExpression> join = new ArrayList<>();
@@ -48,6 +50,10 @@ public class DefaultQueryMetadata implements QueryMetadata {
         this.from = expression.as(alias);
     }
 
+    public DefaultQueryMetadata(QuerySource expression) {
+        this.from = expression;
+    }
+
     public DefaultQueryMetadata(Class<?> entityClass, String alias) {
         this.from = Expressions.entity(entityClass).as(alias);
     }
@@ -62,6 +68,14 @@ public class DefaultQueryMetadata implements QueryMetadata {
     @Override
     public QuerySource getFrom() {
         return from;
+    }
+
+    /**
+     * {@inheritDoc}
+     * */
+    @Override
+    public SetOperationExpression getSetOperation() {
+        return setOps;
     }
 
     /**
@@ -101,8 +115,24 @@ public class DefaultQueryMetadata implements QueryMetadata {
      * {@inheritDoc}
      * */
     @Override
-    public void setFrom(QuerySource fromExpression, String alias) {
-        this.from = fromExpression.as(alias);
+    public void setFrom(SubqueryExpression subquery, String alias) {
+        this.from = subquery.as(alias);
+    }
+
+    /**
+     * {@inheritDoc}
+     * */
+    @Override
+    public void setFrom(CommonTableExpression cte, String alias) {
+        this.from = cte.as(alias);
+    }
+
+    /**
+     * {@inheritDoc}
+     * */
+    @Override
+    public void setSetOperation(SetOperationExpression setOps, String alias) {
+        this.setOps = setOps.as(alias);
     }
 
     /**

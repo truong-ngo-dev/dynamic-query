@@ -1,9 +1,6 @@
 package vn.truongngo.lib.dynamicquery.core.builder;
 
-import vn.truongngo.lib.dynamicquery.core.expression.JoinExpression;
-import vn.truongngo.lib.dynamicquery.core.expression.Predicate;
-import vn.truongngo.lib.dynamicquery.core.expression.QuerySource;
-import vn.truongngo.lib.dynamicquery.core.expression.Selection;
+import vn.truongngo.lib.dynamicquery.core.expression.*;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
 
@@ -37,6 +34,13 @@ public interface QueryMetadata {
     QuerySource getFrom();
 
     /**
+     * Returns the set operation expression as a {@link QuerySource}.
+     *
+     * @return the {@link QuerySource} representing the set operation expression
+     */
+    SetOperationExpression getSetOperation();
+
+    /**
      * Returns the alias associated with the FROM expression, if any.
      *
      * @return the alias string
@@ -65,12 +69,28 @@ public interface QueryMetadata {
     void setFrom(Class<?> entityClass, String alias);
 
     /**
-     * Sets the FROM expression and its alias.
+     * Sets the FROM expression with subquery and its alias.
      *
-     * @param fromExpression the FROM target
-     * @param alias          the alias name
+     * @param subquery  the subquery
+     * @param alias     the alias name
      */
-    void setFrom(QuerySource fromExpression, String alias);
+    void setFrom(SubqueryExpression subquery, String alias);
+
+    /**
+     * Sets the FROM expression with common table expression and its alias.
+     *
+     * @param cte    the common table expression
+     * @param alias  the alias name
+     */
+    void setFrom(CommonTableExpression cte, String alias);
+
+    /**
+     * Sets the source expression with set operation expression and its alias.
+     *
+     * @param setOps the set operation expression
+     * @param alias  the alias name
+     */
+    void setSetOperation(SetOperationExpression setOps, String alias);
 
     /**
      * Adds an expression to the SELECT clause.

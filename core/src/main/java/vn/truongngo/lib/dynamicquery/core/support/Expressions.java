@@ -139,11 +139,11 @@ public class Expressions {
      * Creates a column expression for the given column name and entity.
      *
      * @param columnName the name of the column
-     * @param entityClass the owning entity class
+     * @param entity the entity expression
      * @return a column expression
      */
-    public static Selection column(String columnName, Class<?> entityClass) {
-        return new ColumnReferenceExpression(entity(entityClass), columnName);
+    public static Selection column(String columnName, EntityReferenceExpression entity) {
+        return new ColumnReferenceExpression(entity, columnName);
     }
 
     /**
@@ -153,7 +153,7 @@ public class Expressions {
      * @param cte the common table expression
      * @return a column reference expression
      */
-    public static Expression column(String columnName, CommonTableExpression cte) {
+    public static Selection column(String columnName, CommonTableExpression cte) {
         return new ColumnReferenceExpression(cte, columnName);
     }
 
@@ -166,7 +166,7 @@ public class Expressions {
      * @param subquery the subquery
      * @return a column reference expression
      */
-    public static Expression column(String columnName, SubqueryExpression subquery) {
+    public static Selection column(String columnName, SubqueryExpression subquery) {
         return new ColumnReferenceExpression(subquery, columnName);
     }
 
@@ -345,11 +345,10 @@ public class Expressions {
      * @param joinType the type of join (e.g., INNER, LEFT)
      * @param target the target entity or subquery
      * @param condition the join condition
-     * @param alias the alias for the joined table
      * @return a join expression
      */
-    public static JoinExpression join(JoinType joinType, QuerySource target, Predicate condition, String alias) {
-        return new JoinExpression(joinType, target, condition, alias);
+    public static JoinExpression join(JoinType joinType, QuerySource target, Predicate condition) {
+        return new JoinExpression(joinType, target, condition);
     }
 
     /**
@@ -415,7 +414,7 @@ public class Expressions {
      * @param builder A consumer that configures the CommonTableExpression via the builder.
      * @return A QuerySource representing the created CTE.
      */
-    public static QuerySource cte(Consumer<CommonTableExpression.Builder> builder) {
+    public static QuerySource with(Consumer<CommonTableExpression.Builder> builder) {
         CommonTableExpression.Builder b = CommonTableExpression.builder();
         builder.accept(b);
         return b.build();
