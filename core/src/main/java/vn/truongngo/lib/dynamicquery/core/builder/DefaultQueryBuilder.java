@@ -193,9 +193,8 @@ public class DefaultQueryBuilder<Q> implements QueryBuilder<Q> {
     /**
      * Adds a join clause to the query.
      *
-     * @param entityClass The entity class to join with.
+     * @param target The expression to join with.
      * @param condition The predicate condition for the join.
-     * @param alias The alias for the joined entity.
      * @return The current {@link QueryBuilder} instance.
      */
     @Override
