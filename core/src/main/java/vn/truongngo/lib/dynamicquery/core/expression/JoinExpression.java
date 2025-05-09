@@ -19,7 +19,7 @@ import vn.truongngo.lib.dynamicquery.core.enumerate.JoinType;
  * </pre></blockquote>
  *
  * @author Truong Ngo
- * @version 1.0
+ * @version 2.0.0
  */
 public record JoinExpression(JoinType joinType, QuerySource target, Predicate condition) {
 
