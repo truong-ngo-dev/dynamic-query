@@ -36,6 +36,20 @@ public class EntityReferenceExpression extends AbstractAlias<EntityReferenceExpr
     }
 
     /**
+     * Returns the alias for the current entity. If no alias has been explicitly set,
+     * this method returns the simple name of the entity class as the default alias.
+     *
+     * @return the alias of the entity, or the simple class name if not set
+     */
+    @Override
+    public String getAlias() {
+        if (super.getAlias() == null) {
+            return entityClass.getSimpleName();
+        }
+        return super.getAlias();
+    }
+
+    /**
      * Accepts a visitor to allow processing or transformation of the entity reference expression.
      * <p>
      * This method is part of the visitor pattern, where different types of expressions are processed by a visitor
