@@ -4,7 +4,7 @@ import lombok.Getter;
 import vn.truongngo.lib.dynamicquery.core.builder.DefaultQueryMetadata;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryMetadata;
 import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
-import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
+import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderExpression;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
 
 import java.util.function.Consumer;
@@ -172,12 +172,12 @@ public class SubqueryExpression extends AbstractAlias<SubqueryExpression> implem
         /**
          * Specifies the ordering of subquery results.
          *
-         * @param orderSpecifiers one or more order specifiers
+         * @param orderExpressions one or more order specifiers
          * @return this builder instance
          */
-        public SubqueryExpression.Builder orderBy(OrderSpecifier... orderSpecifiers) {
-            for (OrderSpecifier orderSpecifier : orderSpecifiers) {
-                metadata.addOrderBy(orderSpecifier);
+        public SubqueryExpression.Builder orderBy(OrderExpression... orderExpressions) {
+            for (OrderExpression orderExpression : orderExpressions) {
+                metadata.addOrderBy(orderExpression);
             }
             return this;
         }

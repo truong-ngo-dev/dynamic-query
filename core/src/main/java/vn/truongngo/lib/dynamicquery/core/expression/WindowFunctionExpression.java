@@ -2,7 +2,7 @@ package vn.truongngo.lib.dynamicquery.core.expression;
 
 import lombok.Getter;
 import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
-import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
+import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderExpression;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,9 +13,9 @@ public class WindowFunctionExpression extends AbstractAlias<WindowFunctionExpres
     private final String functionName;
     private final List<Selection> arguments;
     private final List<Selection> partitionBy;
-    private final List<OrderSpecifier> orderBy;
+    private final List<OrderExpression> orderBy;
 
-    public WindowFunctionExpression(String functionName, List<Selection> arguments, List<Selection> partitionBy, List<OrderSpecifier> orderBy) {
+    public WindowFunctionExpression(String functionName, List<Selection> arguments, List<Selection> partitionBy, List<OrderExpression> orderBy) {
         this.functionName = functionName;
         this.arguments = arguments;
         this.partitionBy = partitionBy;
@@ -35,7 +35,7 @@ public class WindowFunctionExpression extends AbstractAlias<WindowFunctionExpres
         private String functionName;
         private final List<Selection> arguments = new ArrayList<>();
         private final List<Selection> partitionBy = new ArrayList<>();
-        private final List<OrderSpecifier> orderBy = new ArrayList<>();
+        private final List<OrderExpression> orderBy = new ArrayList<>();
         private String as;
 
         public Builder name(String functionName) {
@@ -63,13 +63,13 @@ public class WindowFunctionExpression extends AbstractAlias<WindowFunctionExpres
             return this;
         }
 
-        public Builder orderBy(OrderSpecifier... orderSpecifier) {
-            this.orderBy.addAll(List.of(orderSpecifier));
+        public Builder orderBy(OrderExpression... orderExpression) {
+            this.orderBy.addAll(List.of(orderExpression));
             return this;
         }
 
-        public Builder orderBy(List<OrderSpecifier> orderSpecifiers) {
-            this.orderBy.addAll(orderSpecifiers);
+        public Builder orderBy(List<OrderExpression> orderExpressions) {
+            this.orderBy.addAll(orderExpressions);
             return this;
         }
 

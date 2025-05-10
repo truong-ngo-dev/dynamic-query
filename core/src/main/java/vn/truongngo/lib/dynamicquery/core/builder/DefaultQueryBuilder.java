@@ -2,7 +2,7 @@ package vn.truongngo.lib.dynamicquery.core.builder;
 
 import lombok.Getter;
 import vn.truongngo.lib.dynamicquery.core.expression.*;
-import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
+import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderExpression;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
 import vn.truongngo.lib.dynamicquery.core.support.Expressions;
 
@@ -264,12 +264,12 @@ public class DefaultQueryBuilder<Q> implements QueryBuilder<Q> {
     /**
      * Adds order specifications to the query.
      *
-     * @param orderSpecifiers One or more order specifiers.
+     * @param orderExpressions One or more order specifiers.
      * @return The current {@link QueryBuilder} instance.
      */
     @Override
-    public QueryBuilder<Q> orderBy(OrderSpecifier... orderSpecifiers) {
-        for (OrderSpecifier o : orderSpecifiers) {
+    public QueryBuilder<Q> orderBy(OrderExpression... orderExpressions) {
+        for (OrderExpression o : orderExpressions) {
             queryMetadata.addOrderBy(o);
         }
         return this;

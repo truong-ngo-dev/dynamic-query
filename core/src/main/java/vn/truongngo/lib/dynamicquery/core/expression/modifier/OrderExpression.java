@@ -14,15 +14,15 @@ import vn.truongngo.lib.dynamicquery.core.expression.Selection;
  * Example usage:
  *
  * Expression column = Expressions.column("name", User.class);
- * OrderSpecifier orderAsc = new OrderSpecifier(column); // default ASC
- * OrderSpecifier orderDesc = new OrderSpecifier(column, Order.DESC);
+ * OrderExpression orderAsc = new OrderExpression(column); // default ASC
+ * OrderExpression orderDesc = new OrderExpression(column, Order.DESC);
  * </pre></blockquote>
  *
  * @author Truong Ngo
  * @version 2.0.0
  */
 @Getter
-public class OrderSpecifier {
+public class OrderExpression {
 
     /**
      * The expression that will be used as the target of ordering.
@@ -40,7 +40,7 @@ public class OrderSpecifier {
      * @param target the expression to order by
      * @param order the sort direction (ascending or descending)
      */
-    public OrderSpecifier(Selection target, Order order) {
+    public OrderExpression(Selection target, Order order) {
         this.target = target;
         this.order = order;
     }
@@ -50,7 +50,7 @@ public class OrderSpecifier {
      *
      * @param target the expression to order by
      */
-    public OrderSpecifier(Selection target) {
+    public OrderExpression(Selection target) {
         this.target = target;
         this.order = Order.ASC;
     }

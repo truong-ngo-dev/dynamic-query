@@ -1,7 +1,7 @@
 package vn.truongngo.lib.dynamicquery.core.builder;
 
 import vn.truongngo.lib.dynamicquery.core.expression.*;
-import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
+import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderExpression;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
 
 import java.util.function.Consumer;
@@ -154,10 +154,10 @@ public interface QueryBuilder<Q> {
     /**
      * Specifies the ordering of query results.
      *
-     * @param orderSpecifiers one or more order specifiers
+     * @param orderExpressions one or more order specifiers
      * @return the current builder instance
      */
-    QueryBuilder<Q> orderBy(OrderSpecifier... orderSpecifiers);
+    QueryBuilder<Q> orderBy(OrderExpression... orderExpressions);
 
     /**
      * Adds restrictions (e.g., pagination, security filters).

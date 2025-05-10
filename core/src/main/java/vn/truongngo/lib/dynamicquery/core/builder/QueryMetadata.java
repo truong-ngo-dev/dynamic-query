@@ -1,7 +1,7 @@
 package vn.truongngo.lib.dynamicquery.core.builder;
 
 import vn.truongngo.lib.dynamicquery.core.expression.*;
-import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
+import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderExpression;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
 
 import java.util.List;
@@ -140,7 +140,7 @@ public interface QueryMetadata {
      *
      * @param orderByClauses the ORDER BY specifier
      */
-    void addOrderBy(OrderSpecifier orderByClauses);
+    void addOrderBy(OrderExpression orderByClauses);
 
     /**
      * Sets query restriction options such as limit and offset.
@@ -221,7 +221,7 @@ public interface QueryMetadata {
      *
      * @return the list of ORDER BY clauses
      */
-    List<OrderSpecifier> getOrderByClauses();
+    List<OrderExpression> getOrderByClauses();
 
     /**
      * Returns the query restrictions (typically contains one item with limit/offset info).

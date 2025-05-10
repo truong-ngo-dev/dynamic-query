@@ -1,7 +1,7 @@
 package vn.truongngo.lib.dynamicquery.core.builder;
 
 import vn.truongngo.lib.dynamicquery.core.expression.*;
-import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
+import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderExpression;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
 import vn.truongngo.lib.dynamicquery.core.support.Expressions;
 
@@ -40,7 +40,7 @@ public class DefaultQueryMetadata implements QueryMetadata {
     private List<Predicate> where = new ArrayList<>();
     private List<Selection> groupBy = new ArrayList<>();
     private List<Predicate> having = new ArrayList<>();
-    private List<OrderSpecifier> orderBy = new ArrayList<>();
+    private List<OrderExpression> orderBy = new ArrayList<>();
     private Restriction restriction = Restriction.unPaged();
 
     public DefaultQueryMetadata() {
@@ -187,7 +187,7 @@ public class DefaultQueryMetadata implements QueryMetadata {
      * {@inheritDoc}
      * */
     @Override
-    public void addOrderBy(OrderSpecifier orderByClauses) {
+    public void addOrderBy(OrderExpression orderByClauses) {
         orderBy.add(orderByClauses);
     }
 
@@ -297,7 +297,7 @@ public class DefaultQueryMetadata implements QueryMetadata {
      * {@inheritDoc}
      * */
     @Override
-    public List<OrderSpecifier> getOrderByClauses() {
+    public List<OrderExpression> getOrderByClauses() {
         return orderBy;
     }
 

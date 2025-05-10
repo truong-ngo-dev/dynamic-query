@@ -5,7 +5,7 @@ import vn.truongngo.lib.dynamicquery.core.enumerate.Function;
 import vn.truongngo.lib.dynamicquery.core.enumerate.JoinType;
 import vn.truongngo.lib.dynamicquery.core.enumerate.Order;
 import vn.truongngo.lib.dynamicquery.core.expression.*;
-import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
+import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderExpression;
 
 import java.util.function.Consumer;
 
@@ -370,8 +370,8 @@ public class Expressions {
      * @param order the sort direction (ASC or DESC)
      * @return an order specifier
      */
-    public static OrderSpecifier orderBy(Selection expression, Order order) {
-        return new OrderSpecifier(expression, order);
+    public static OrderExpression order(Selection expression, Order order) {
+        return new OrderExpression(expression, order);
     }
 
     /**
@@ -380,8 +380,8 @@ public class Expressions {
      * @param expression the expression to order by
      * @return an order specifier (default ASC)
      */
-    public static OrderSpecifier orderBy(Selection expression) {
-        return new OrderSpecifier(expression);
+    public static OrderExpression order(Selection expression) {
+        return new OrderExpression(expression);
     }
 
     /**
