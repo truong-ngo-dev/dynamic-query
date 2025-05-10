@@ -33,7 +33,6 @@ import java.util.List;
 public class DefaultQueryMetadata implements QueryMetadata {
 
     private QuerySource from;
-    private SetOperationExpression setOps;
     private boolean distinct = false;
     private List<Selection> select = new ArrayList<>();
     private List<JoinExpression> join = new ArrayList<>();
@@ -74,25 +73,8 @@ public class DefaultQueryMetadata implements QueryMetadata {
      * {@inheritDoc}
      * */
     @Override
-    public SetOperationExpression getSetOperation() {
-        return setOps;
-    }
-
-    /**
-     * {@inheritDoc}
-     * */
-    @Override
     public String getAlias() {
         return from.getAlias();
-    }
-
-    /**
-     * {@inheritDoc}
-     * */
-    @Override
-    public Class<?> getEntityClass() {
-        if (from instanceof EntityReferenceExpression) return ((EntityReferenceExpression) from).getEntityClass();
-        throw new IllegalStateException("Query is not from entity class");
     }
 
     /**
@@ -125,14 +107,6 @@ public class DefaultQueryMetadata implements QueryMetadata {
     @Override
     public void setFrom(CommonTableExpression cte, String alias) {
         this.from = cte.as(alias);
-    }
-
-    /**
-     * {@inheritDoc}
-     * */
-    @Override
-    public void setSetOperation(SetOperationExpression setOps, String alias) {
-        this.setOps = setOps.as(alias);
     }
 
     /**

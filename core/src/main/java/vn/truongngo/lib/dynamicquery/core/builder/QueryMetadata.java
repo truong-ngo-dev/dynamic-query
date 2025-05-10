@@ -34,24 +34,11 @@ public interface QueryMetadata {
     QuerySource getFrom();
 
     /**
-     * Returns the set operation expression as a {@link QuerySource}.
-     *
-     * @return the {@link QuerySource} representing the set operation expression
-     */
-    SetOperationExpression getSetOperation();
-
-    /**
      * Returns the alias associated with the FROM expression, if any.
      *
      * @return the alias string
      */
     String getAlias();
-
-    /**
-     * Returns the entity class that is target for query
-     * @return the target entity
-     * */
-    Class<?> getEntityClass();
 
     /**
      * Sets the FROM clause using a given entity class.
@@ -83,14 +70,6 @@ public interface QueryMetadata {
      * @param alias  the alias name
      */
     void setFrom(CommonTableExpression cte, String alias);
-
-    /**
-     * Sets the source expression with set operation expression and its alias.
-     *
-     * @param setOps the set operation expression
-     * @param alias  the alias name
-     */
-    void setSetOperation(SetOperationExpression setOps, String alias);
 
     /**
      * Adds an expression to the SELECT clause.
