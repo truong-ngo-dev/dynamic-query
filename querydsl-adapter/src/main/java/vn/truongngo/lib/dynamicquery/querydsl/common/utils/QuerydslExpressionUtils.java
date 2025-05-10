@@ -18,6 +18,18 @@ import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderExpression;
 
 import java.util.List;
 
+/**
+ * Utility class for converting dynamic query expressions into QueryDSL {@link com.querydsl.core.types.Expression} and
+ * {@link com.querydsl.core.types.Predicate} instances.
+ *
+ * <p>This utility is designed to work with a {@link Visitor} interface that traverses and transforms a custom
+ * expression model into corresponding QueryDSL expressions.</p>
+ *
+ * <p>All methods are stateless and thread-safe.</p>
+ *
+ * @author Truong Ngo
+ * @version 2.0.0
+ */
 public class QuerydslExpressionUtils {
 
     /**
