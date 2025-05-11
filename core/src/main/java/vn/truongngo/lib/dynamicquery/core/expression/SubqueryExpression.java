@@ -105,6 +105,28 @@ public class SubqueryExpression extends AbstractAlias<SubqueryExpression> implem
         }
 
         /**
+         * Defines the root expression of the subquery.
+         *
+         * @param querySource the query source object
+         * @return this builder instance
+         */
+        public Builder from(QuerySource querySource) {
+            return metadata.setFrom(querySource);
+        }
+
+        /**
+         * Defines the root entity with an alias.
+         *
+         * @param entityClass the root entity class
+         * @param alias the alias for the root entity
+         * @return this builder instance
+         */
+        public Builder from(Class<?> entityClass, String alias) {
+            metadata.setFrom(entityClass, alias);
+            return this;
+        }
+
+        /**
          * Specifies selected columns or expressions.
          *
          * @param expressions expressions to select

@@ -56,20 +56,19 @@ public interface QueryMetadata {
     void setFrom(Class<?> entityClass, String alias);
 
     /**
-     * Sets the FROM expression with subquery and its alias.
+     * Sets the FROM expression with query source.
      *
-     * @param subquery  the subquery
-     * @param alias     the alias name
+     * @param source  the query source
      */
-    void setFrom(SubqueryExpression subquery, String alias);
+    void setFrom(QuerySource source);
 
     /**
-     * Sets the FROM expression with common table expression and its alias.
+     * Sets the FROM expression with query source and its alias.
      *
-     * @param cte    the common table expression
-     * @param alias  the alias name
+     * @param source  the query source
+     * @param alias     the alias name
      */
-    void setFrom(CommonTableExpression cte, String alias);
+    void setFrom(QuerySource source, String alias);
 
     /**
      * Adds an expression to the SELECT clause.

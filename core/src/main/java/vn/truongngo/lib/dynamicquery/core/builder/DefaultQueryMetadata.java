@@ -97,16 +97,16 @@ public class DefaultQueryMetadata implements QueryMetadata {
      * {@inheritDoc}
      * */
     @Override
-    public void setFrom(SubqueryExpression subquery, String alias) {
-        this.from = subquery.as(alias);
+    public void setFrom(QuerySource source) {
+        this.from = source;
     }
 
     /**
      * {@inheritDoc}
      * */
     @Override
-    public void setFrom(CommonTableExpression cte, String alias) {
-        this.from = cte.as(alias);
+    public void setFrom(QuerySource source, String alias) {
+        this.from = source.as(alias);
     }
 
     /**
