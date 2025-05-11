@@ -76,10 +76,15 @@ public class QuerydslSqlVisitor implements Visitor<Expression<?>, Map<String, Qu
         QuerySource source = expression.getSource();
         if (source instanceof SetOperationExpression) {
             throw new UnsupportedOperationException("Column selection in set operations are not supported");
+        } else if (source instanceof EntityReferenceExpression entityRef) {
+            QuerydslSource querydslSource = context.get(entityRef.getAlias());
+            PathBuilder<?> pathBuilder = (PathBuilder<?>) querydslSource.getAlias();
+            return pathBuilder.get(expression.getColumnName());
+        } else {
+            QuerydslSource querydslSource = context.get(source.getAlias());
+            PathBuilder<?> pathBuilder = (PathBuilder<?>) querydslSource.getAlias();
+            return pathBuilder.get(expression.getColumnName());
         }
-        QuerydslSource querydslSource = context.get(source.getAlias());
-        PathBuilder<?> pathBuilder = (PathBuilder<?>) querydslSource.getAlias();
-        return pathBuilder.get(expression.getColumnName());
     }
 
     /**
