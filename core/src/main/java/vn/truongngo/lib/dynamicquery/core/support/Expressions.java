@@ -416,7 +416,7 @@ public class Expressions {
      * @param builder the consumer to configure the subquery
      * @return a subquery expression
      */
-    public static Expression subquery(Consumer<SubqueryExpression.Builder> builder) {
+    public static SubqueryExpression subquery(Consumer<SubqueryExpression.Builder> builder) {
         SubqueryExpression.Builder b = SubqueryExpression.builder();
         builder.accept(b);
         return b.build();
@@ -428,7 +428,7 @@ public class Expressions {
      * @param builder A consumer that configures the CommonTableExpression via the builder.
      * @return A QuerySource representing the created CTE.
      */
-    public static QuerySource with(Consumer<CommonTableExpression.Builder> builder) {
+    public static CommonTableExpression with(Consumer<CommonTableExpression.Builder> builder) {
         CommonTableExpression.Builder b = CommonTableExpression.builder();
         builder.accept(b);
         return b.build();
@@ -440,7 +440,7 @@ public class Expressions {
      * @param builder A consumer that configures the SetOperationExpression via the builder.
      * @return A QuerySource representing the created Set Operation Expression.
      */
-    public static QuerySource setOps(Consumer<SetOperationExpression.Builder> builder) {
+    public static SetOperationExpression setOps(Consumer<SetOperationExpression.Builder> builder) {
         SetOperationExpression.Builder b = SetOperationExpression.builder();
         builder.accept(b);
         return b.build();
