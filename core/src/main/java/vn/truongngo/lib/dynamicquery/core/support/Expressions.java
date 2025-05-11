@@ -136,6 +136,20 @@ public class Expressions {
     }
 
     /**
+     * Creates a column expression for the given column name and query source.
+     *
+     * @param columnName the name of the column
+     * @param source the query source expression
+     * @return a column expression
+     */
+    public static Selection column(String columnName, QuerySource source) {
+        if (source instanceof EntityReferenceExpression entityRef) return column(columnName, entityRef);
+        if (source instanceof SubqueryExpression subquery) return column(columnName, subquery);
+        if (source instanceof CommonTableExpression cte) return column(columnName, cte);
+        throw new IllegalArgumentException("Unsupported source: " + source);
+    }
+
+    /**
      * Creates a column expression for the given column name and entity.
      *
      * @param columnName the name of the column
