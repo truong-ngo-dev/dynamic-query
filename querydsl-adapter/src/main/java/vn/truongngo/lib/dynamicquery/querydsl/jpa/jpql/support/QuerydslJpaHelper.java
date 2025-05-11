@@ -1,17 +1,19 @@
 package vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.support;
 
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.Path;
-import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryMetadata;
 import vn.truongngo.lib.dynamicquery.core.enumerate.Order;
+import vn.truongngo.lib.dynamicquery.core.expression.EntityReferenceExpression;
 import vn.truongngo.lib.dynamicquery.core.expression.JoinExpression;
-import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderSpecifier;
+import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderExpression;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
 import vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.builder.QuerydslJpaVisitor;
 
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -127,9 +129,8 @@ public class QuerydslJpaHelper {
      */
     public static void orderBy(Map<String, Path<?>> pathBuilders, JPQLQuery<?> query, QueryMetadata metadata, QuerydslJpaVisitor visitor) {
         if (!metadata.getOrderByClauses().isEmpty()) {
-            for (OrderSpecifier o : metadata.getOrderByClauses()) {
-                vn.truongngo.lib.dynamicquery.core.expression.Expression e = o.getTarget();
-                Expression<?> expression = visitor.visit(e, pathBuilders);
+            for (OrderExpression o : metadata.getOrderByClauses()) {
+                Expression<?> expression = visitor.visit(o.getTarget(), pathBuilders);
                 com.querydsl.core.types.Order order = o.getOrder().equals(Order.ASC) ?
                         com.querydsl.core.types.Order.ASC :
                         com.querydsl.core.types.Order.DESC;
@@ -178,5 +179,44 @@ public class QuerydslJpaHelper {
         QuerydslJpaHelper.groupBy(sources, subquery, metadata, visitor);
         QuerydslJpaHelper.having(sources, subquery, metadata, visitor);
         QuerydslJpaHelper.orderBy(sources, subquery, metadata, visitor);
+    }
+
+    /**
+     * Extracts all path sources (main and joined entities) from the given metadata.
+     *
+     * @param queryMetadata the query metadata
+     * @return a map of alias-to-path representations
+     */
+    public static Map<String, Path<?>> getSourcesContext(QueryMetadata queryMetadata) {
+        Map<String, Path<?>> sources = new LinkedHashMap<>();
+        EntityReferenceExpression from = (EntityReferenceExpression) queryMetadata.getFrom();
+        PathBuilder<?> pathBuilder = new PathBuilder<>(from.getEntityClass(), from.getAlias());
+        sources.put(from.getAlias(), pathBuilder);
+
+        List<JoinExpression> joins = queryMetadata.getJoinClauses();
+        if (!joins.isEmpty()) {
+            for (JoinExpression joinExpression : joins) {
+                EntityReferenceExpression target = (EntityReferenceExpression) joinExpression.target();
+                PathBuilder<?> joinPath = new PathBuilder<>(target.getEntityClass(), target.getAlias());
+                sources.put(target.getAlias(), joinPath);
+            }
+        }
+
+        return sources;
+    }
+
+    /**
+     * Converts dynamic query metadata into a QueryDSL {@link SubQueryExpression}.
+     *
+     * @param metadata the query metadata
+     * @return a QueryDSL subquery expression
+     */
+    public static SubQueryExpression<?> subquery(QueryMetadata metadata) {
+        QuerydslJpaVisitor visitor = new QuerydslJpaVisitor();
+        Map<String, Path<?>> sources = getSourcesContext(metadata);
+        JPQLQuery<?> subquery = JPAExpressions.select();
+        subquery.from((EntityPath<?>) sources.get(metadata.getFrom().getAlias()));
+        QuerydslJpaHelper.buildQuery(metadata, sources, subquery, visitor);
+        return subquery;
     }
 }

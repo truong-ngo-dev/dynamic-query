@@ -57,7 +57,7 @@ public class QuerydslSqlStrategy<T> implements QueryBuilderStrategy<SQLQuery<T>>
             SQLQuery<T> query = new SQLQuery<>(dataSource.getConnection(), SQLTemplates.DEFAULT);
             Map<String, QuerydslSource> context = QuerydslSqlHelper.getSourcesContext(queryMetadata);
             QuerydslSource querydslSource = context.get(queryMetadata.getFrom().getAlias());
-            String alias = queryMetadata.getAlias();
+            String alias = queryMetadata.getFrom().getAlias();
             if (queryMetadata.getFrom() instanceof SetOperationExpression) {
                 Union<?> union = (Union<?>) querydslSource.getSource();
                 if (queryMetadata.getOrderByClauses() != null) {

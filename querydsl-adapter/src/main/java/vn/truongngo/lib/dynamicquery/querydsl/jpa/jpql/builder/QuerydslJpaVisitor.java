@@ -4,11 +4,10 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.*;
 import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
-import vn.truongngo.lib.dynamicquery.core.enumerate.LogicalOperator;
 import vn.truongngo.lib.dynamicquery.core.expression.*;
-import vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.support.QuerydslJpaExpressionHelper;
+import vn.truongngo.lib.dynamicquery.querydsl.common.utils.QuerydslExpressionUtils;
+import vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.support.QuerydslJpaHelper;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,7 +18,7 @@ import java.util.Map;
  *
  * <blockquote><pre>
  * // Example usage:
- * QuerydslVisitor visitor = new QuerydslVisitor();
+ * QuerydslVisitor visitor = QuerydslJpaVisitor.getInstance();
  * Expression&lt;?&gt; expression = someExpression.accept(visitor, context);
  * </pre></blockquote>
  *
@@ -80,22 +79,8 @@ public class QuerydslJpaVisitor implements Visitor<Expression<?>, Map<String, Pa
      * @throws IllegalArgumentException if either operand is not a {@code NumberExpression}
      */
     @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
     public Expression<?> visit(ArithmeticExpression expression, Map<String, Path<?>> context) {
-        Expression<?> left = expression.getLeft().accept(this, context);
-        Expression right = expression.getRight().accept(this, context);
-
-        if (!(left instanceof NumberExpression<?> leftNum) || !(right instanceof NumberExpression<?> rightNum)) {
-            throw new IllegalArgumentException("Arithmetic operations require NumberExpression types");
-        }
-
-        return switch (expression.getOperator()) {
-            case ADD -> leftNum.add(rightNum);
-            case SUBTRACT -> leftNum.subtract(rightNum);
-            case MULTIPLY -> leftNum.multiply(rightNum);
-            case DIVIDE -> leftNum.divide(rightNum);
-            case MODULO -> leftNum.mod(right);
-        };
+        return QuerydslExpressionUtils.arithmetic(expression, this, context);
     }
 
     /**
@@ -107,8 +92,7 @@ public class QuerydslJpaVisitor implements Visitor<Expression<?>, Map<String, Pa
      */
     @Override
     public Expression<?> visit(EntityReferenceExpression expression, Map<String, Path<?>> context) {
-        String key = expression.getAlias() == null ? expression.getEntityClass().getSimpleName() : expression.getAlias();
-        return context.get(key);
+        return context.get(expression.getAlias());
     }
 
     /**
@@ -129,7 +113,6 @@ public class QuerydslJpaVisitor implements Visitor<Expression<?>, Map<String, Pa
     public Expression<?> visit(CommonTableExpression expression, Map<String, Path<?>> context) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
 
     /**
      * Visits a {@link SetOperationExpression} and attempts to convert it into a corresponding QueryDSL expression.
@@ -158,10 +141,15 @@ public class QuerydslJpaVisitor implements Visitor<Expression<?>, Map<String, Pa
      */
     @Override
     public Expression<?> visit(ColumnReferenceExpression expression, Map<String, Path<?>> context) {
-        EntityReferenceExpression entityRef = (EntityReferenceExpression) expression.getSource();
-        String key = entityRef.getAlias() == null ? entityRef.getEntityClass().getSimpleName() : entityRef.getAlias();
-        PathBuilder<?> pathBuilder = (PathBuilder<?>) context.get(key);
-        return pathBuilder.get(expression.getColumnName());
+        QuerySource source = expression.getSource();
+        if (source instanceof EntityReferenceExpression entityRef) {
+            PathBuilder<?> pathBuilder = (PathBuilder<?>) context.get(entityRef.getAlias());
+            return pathBuilder.get(expression.getColumnName());
+        } else {
+            // QuerydslJpa doesn't support with select from subquery, cte, set operation
+            throw new UnsupportedOperationException("Column references are supported only with entity ref in JPA context.");
+        }
+
     }
 
     /**
@@ -173,25 +161,7 @@ public class QuerydslJpaVisitor implements Visitor<Expression<?>, Map<String, Pa
      */
     @Override
     public Expression<?> visit(FunctionExpression expression, Map<String, Path<?>> context) {
-        List<? extends Expression<?>> args = expression.getParameters().stream()
-                .map(param -> param.accept(this, context))
-                .toList();
-
-        StringBuilder templateBuilder = new StringBuilder(expression.getFunctionName()).append("(");
-        for (int i = 0; i < args.size(); i++) {
-            templateBuilder.append("{").append(i).append("}");
-            if (i < args.size() - 1) {
-                templateBuilder.append(", ");
-            }
-        }
-        templateBuilder.append(")");
-        String template = templateBuilder.toString();
-
-        Expression<?> result = Expressions.template(Object.class, template, args.toArray());
-
-        return expression.getAlias() != null
-                ? Expressions.template(Object.class, "{0} as " + expression.getAlias(), result)
-                : result;
+        return QuerydslExpressionUtils.function(expression, this, context);
     }
 
     /**
@@ -202,23 +172,8 @@ public class QuerydslJpaVisitor implements Visitor<Expression<?>, Map<String, Pa
      * @return the corresponding QueryDSL case expression
      */
     @Override
-    @SuppressWarnings("all")
     public Expression<?> visit(CaseWhenExpression expression, Map<String, Path<?>> context) {
-        CaseBuilder builder = new CaseBuilder();
-        CaseBuilder.Cases<?, ?> caseExpr = null;
-
-        for (CaseWhenExpression.WhenThen whenThen : expression.getConditions()) {
-            com.querydsl.core.types.Predicate when = (com.querydsl.core.types.Predicate) whenThen.when().accept(this, context);
-            Expression then = whenThen.then().accept(this, context);
-            if (caseExpr == null) {
-                caseExpr = builder.when(when).then(then);
-            } else {
-                caseExpr = caseExpr.when(when).then(then);
-            }
-        }
-
-        Expression otherwise = expression.getElseExpression().accept(this, context);
-        return caseExpr.otherwise(otherwise);
+        return QuerydslExpressionUtils.caseWhen(expression, this, context);
     }
 
     /**
@@ -230,7 +185,7 @@ public class QuerydslJpaVisitor implements Visitor<Expression<?>, Map<String, Pa
      */
     @Override
     public Expression<?> visit(SubqueryExpression expression, Map<String, Path<?>> context) {
-        return QuerydslJpaExpressionHelper.buildQuerydslSubquery(expression.getQueryMetadata());
+        return QuerydslJpaHelper.subquery(expression.getQueryMetadata());
     }
 
     /**
@@ -260,9 +215,7 @@ public class QuerydslJpaVisitor implements Visitor<Expression<?>, Map<String, Pa
      */
     @Override
     public com.querydsl.core.types.Predicate visit(ComparisonPredicate expression, Map<String, Path<?>> context) {
-        Expression<?> left = expression.getLeft().accept(this, context);
-        Expression<?> right = expression.getRight() != null ? expression.getRight().accept(this, context) : null;
-        return QuerydslJpaExpressionHelper.getComparisionPredicate(expression, left, right);
+        return QuerydslExpressionUtils.comparison(expression, this, context);
     }
 
     /**
@@ -274,15 +227,7 @@ public class QuerydslJpaVisitor implements Visitor<Expression<?>, Map<String, Pa
      */
     @Override
     public com.querydsl.core.types.Predicate visit(LogicalPredicate expression, Map<String, Path<?>> context) {
-        LogicalOperator operator = expression.getOperator();
-        List<? extends Expression<?>> predicates = expression.getPredicates().stream()
-                .map(p -> p.accept(this, context))
-                .toList();
-
-        return switch (operator) {
-            case AND -> Expressions.allOf((BooleanExpression) predicates);
-            case OR -> Expressions.anyOf((BooleanExpression) predicates);
-        };
+        return QuerydslExpressionUtils.logical(expression, this, context);
     }
 
     /**

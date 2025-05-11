@@ -7,7 +7,6 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryBuilderStrategy;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryMetadata;
-import vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.support.QuerydslJpaExpressionHelper;
 import vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.support.QuerydslJpaHelper;
 
 import java.util.Map;
@@ -57,11 +56,8 @@ public class QuerydslJpaStrategy<T> implements QueryBuilderStrategy<JPAQuery<T>>
      */
     @Override
     public JPAQuery<T> accept(QueryMetadata queryMetadata) {
-        Map<String, Path<?>> pathBuilders = QuerydslJpaExpressionHelper.getSources(queryMetadata);
-        String key = queryMetadata.getAlias() == null
-                ? queryMetadata.getEntityClass().getSimpleName()
-                : queryMetadata.getAlias();
-        PathBuilder<?> root = (PathBuilder<?>) pathBuilders.get(key);
+        Map<String, Path<?>> pathBuilders = QuerydslJpaHelper.getSourcesContext(queryMetadata);
+        PathBuilder<?> root = (PathBuilder<?>) pathBuilders.get(queryMetadata.getFrom().getAlias());
         JPAQuery<T> query = new JPAQuery<>(em);
         query.from(root);
         QuerydslJpaHelper.buildQuery(queryMetadata, pathBuilders, query, visitor);
