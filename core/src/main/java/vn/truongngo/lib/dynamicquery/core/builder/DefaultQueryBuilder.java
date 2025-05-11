@@ -72,77 +72,27 @@ public class DefaultQueryBuilder<Q> implements QueryBuilder<Q> {
     }
 
     /**
-     * Specifies the subquery as source for the main query.
+     * Specifies a query source.
      *
-     * @param subquery The subquery to use in the main query.
-     * @return The current {@link QueryBuilder} instance.
+     * @param source the query source expression
+     * @return the current builder instance
      */
     @Override
-    public QueryBuilder<Q> from(SubqueryExpression subquery) {
-        this.queryMetadata = new DefaultQueryMetadata(subquery);
+    public QueryBuilder<Q> from(QuerySource source) {
+        this.queryMetadata = new DefaultQueryMetadata(source);
         return this;
     }
 
     /**
-     * Specifies the subquery as source for the main query with alias.
+     * Specifies a query source with alias.
      *
-     * @param subquery The subquery to use in the main query.
+     * @param source the query source expression
      * @param alias The alias to use for the subquery.
      * @return The current {@link QueryBuilder} instance.
      */
     @Override
-    public QueryBuilder<Q> from(SubqueryExpression subquery, String alias) {
-        this.queryMetadata = new DefaultQueryMetadata(subquery, alias);
-        return this;
-    }
-
-    /**
-     * Specifies the common table expression as source for the main query.
-     *
-     * @param cte The common table expression to use in the main query.
-     * @return The current {@link QueryBuilder} instance.
-     */
-    @Override
-    public QueryBuilder<Q> from(CommonTableExpression cte) {
-        this.queryMetadata = new DefaultQueryMetadata(cte);
-        return this;
-    }
-
-    /**
-     * Specifies the common table expression as source for the main query with alias.
-     *
-     * @param cte The common table expression to use in the main query.
-     * @param alias The alias to use for the cte.
-     * @return The current {@link QueryBuilder} instance.
-     */
-    @Override
-    public QueryBuilder<Q> from(CommonTableExpression cte, String alias) {
-        this.queryMetadata = new DefaultQueryMetadata(cte, alias);
-        return this;
-    }
-
-    /**
-     * Specifies the set operation expression as source for the main query.
-     *
-     * @param setOps The set operation expression to use in the main query.
-     * @return The current {@link QueryBuilder} instance.
-     */
-    @Override
-    public QueryBuilder<Q> from(SetOperationExpression setOps) {
-        this.queryMetadata = new DefaultQueryMetadata(setOps);
-        return this;
-    }
-
-    /**
-     * Specifies the set operation expression as source for the main query with alias.
-     *
-     * @param setOps The set operation expression to use in the main query.
-     * @param alias The alias to use for the set operation expression.
-     * @return The current {@link QueryBuilder} instance.
-     */
-    @Override
-    public QueryBuilder<Q> from(SetOperationExpression setOps, String alias) {
-        this.queryMetadata = new DefaultQueryMetadata(setOps, alias);
+    public QueryBuilder<Q> from(QuerySource source, String alias) {
+        this.queryMetadata = new DefaultQueryMetadata(source, alias);
         return this;
     }
 

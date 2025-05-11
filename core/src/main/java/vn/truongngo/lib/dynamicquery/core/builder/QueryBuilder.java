@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 public interface QueryBuilder<Q> {
 
     /**
-     * Specifies the root entity to select from.
+     * Specifies query source from the root entity to select from.
      *
      * @param entityClass the entity class
      * @return the current builder instance
@@ -37,55 +37,21 @@ public interface QueryBuilder<Q> {
     QueryBuilder<Q> from(Class<?> entityClass, String alias);
 
     /**
-     * Specifies a subquery as the query source.
+     * Specifies a query source.
      *
-     * @param subquery the subquery expression to use as the query source
+     * @param source the query source expression
      * @return the current builder instance
      */
-    QueryBuilder<Q> from(SubqueryExpression subquery);
+    QueryBuilder<Q> from(QuerySource source);
 
     /**
-     * Specifies a subquery as the query source with alias.
+     * Specifies a query source with alias.
      *
-     * @param subquery the subquery expression to use as the query source
+     * @param source the query source expression
      * @param alias the alias for the entity
      * @return the current builder instance
      */
-    QueryBuilder<Q> from(SubqueryExpression subquery, String alias);
-
-    /**
-     * Specifies a Common Table Expression (CTE) as the query source.
-     *
-     * @param cte   the Common Table Expression to use
-     * @return the current builder instance
-     */
-    QueryBuilder<Q> from(CommonTableExpression cte);
-
-    /**
-     * Specifies a Common Table Expression (CTE) as the query source.
-     *
-     * @param cte   the Common Table Expression to use
-     * @param alias the alias name for the CTE in the query context
-     * @return the current builder instance
-     */
-    QueryBuilder<Q> from(CommonTableExpression cte, String alias);
-
-    /**
-     * Specifies a set operation expression (e.g., UNION, INTERSECT) as the query source.
-     *
-     * @param setOps the set operation expression to use
-     * @return the current builder instance
-     */
-    QueryBuilder<Q> from(SetOperationExpression setOps);
-
-    /**
-     * Specifies a set operation expression (e.g., UNION, INTERSECT) as the query source.
-     *
-     * @param setOps the set operation expression to use
-     * @param alias  the alias name for the set operation result
-     * @return the current builder instance
-     */
-    QueryBuilder<Q> from(SetOperationExpression setOps, String alias);
+    QueryBuilder<Q> from(QuerySource source, String alias);
 
     /**
      * Specifies the selection expressions (columns, functions, etc.)
