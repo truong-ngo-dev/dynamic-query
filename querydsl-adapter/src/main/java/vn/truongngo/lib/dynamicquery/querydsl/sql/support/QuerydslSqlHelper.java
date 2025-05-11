@@ -191,16 +191,16 @@ public class QuerydslSqlHelper {
      *
      * @param metadata the {@link QueryMetadata} containing all parts of the query
      * @param sources  a mapping of alias names to {@link QuerydslSource} used for resolving references
-     * @param subquery the {@link SQLQuery} instance being constructed
+     * @param query the {@link SQLQuery} instance being constructed
      * @param visitor  the {@link QuerydslSqlVisitor} responsible for converting expressions to QueryDSL constructs
      */
-    public static void buildQuery(QueryMetadata metadata, Map<String, QuerydslSource> sources, SQLQuery<?> subquery, QuerydslSqlVisitor visitor) {
-        QuerydslSqlHelper.select(sources, subquery, metadata, visitor);
-        QuerydslSqlHelper.join(sources, subquery, metadata, visitor);
-        QuerydslSqlHelper.where(sources, subquery, metadata, visitor);
-        QuerydslSqlHelper.groupBy(sources, subquery, metadata, visitor);
-        QuerydslSqlHelper.having(sources, subquery, metadata, visitor);
-        QuerydslSqlHelper.orderBy(sources, subquery, metadata, visitor);
+    public static void buildQuery(QueryMetadata metadata, Map<String, QuerydslSource> sources, SQLQuery<?> query, QuerydslSqlVisitor visitor) {
+        QuerydslSqlHelper.select(sources, query, metadata, visitor);
+        QuerydslSqlHelper.join(sources, query, metadata, visitor);
+        QuerydslSqlHelper.where(sources, query, metadata, visitor);
+        QuerydslSqlHelper.groupBy(sources, query, metadata, visitor);
+        QuerydslSqlHelper.having(sources, query, metadata, visitor);
+        QuerydslSqlHelper.orderBy(sources, query, metadata, visitor);
     }
 
     /**
@@ -266,7 +266,7 @@ public class QuerydslSqlHelper {
         try {
             @SuppressWarnings("unchecked")
             Class<? extends RelationalPathBase<?>> clazz = (Class<? extends RelationalPathBase<?>>) entityRef.getEntityClass();
-            String alias = entityRef.getAlias() == null ? clazz.getSimpleName() : entityRef.getAlias();
+            String alias = entityRef.getAlias();
             RelationalPath<?> entity = clazz.getConstructor(String.class).newInstance(alias);
             return QuerydslSource.builder().source(entity).build();
         } catch (Exception e) {

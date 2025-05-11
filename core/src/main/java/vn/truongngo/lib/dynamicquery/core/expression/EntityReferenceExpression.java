@@ -44,7 +44,7 @@ public class EntityReferenceExpression extends AbstractAlias<EntityReferenceExpr
     @Override
     public String getAlias() {
         if (super.getAlias() == null) {
-            return entityClass.getSimpleName();
+            return entityClass.getSimpleName().substring(0, 1).toLowerCase() + entityClass.getSimpleName().substring(1);
         }
         return super.getAlias();
     }
