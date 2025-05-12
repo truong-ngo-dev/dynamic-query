@@ -161,7 +161,7 @@ public class Expressions {
     }
 
     /**
-     * Creates a column expression with alias for an common table expression.
+     * Creates a column expression with alias for a common table expression.
      *
      * @param columnName the column name
      * @param cte the common table expression
