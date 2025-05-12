@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import vn.truongngo.lib.dynamicquery.core.builder.DefaultQueryBuilder;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryBuilder;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryBuilderStrategy;
-import vn.truongngo.lib.dynamicquery.core.expression.SubqueryExpression;
-import vn.truongngo.lib.dynamicquery.querydsl.jpa.builder.QuerydslJpaStrategy;
+import vn.truongngo.lib.dynamicquery.core.expression.QuerySource;
+import vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.builder.QuerydslJpaStrategy;
 import vn.truongngo.lib.dynamicquery.sample.querydsl.entity.Company;
 import vn.truongngo.lib.dynamicquery.sample.querydsl.entity.Employee;
 
@@ -22,25 +22,31 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class QuerydslService {
+public class QuerydslJpaService {
 
     private final EntityManager em;
 
-    public List<LinkedHashMap<String, Object>> testJoinQuery() {
+    private QueryBuilder<JPAQuery<Tuple>> prepareQueryBuilder() {
         QueryBuilderStrategy<JPAQuery<Tuple>> qbs = new QuerydslJpaStrategy<>(em);
-        QueryBuilder<JPAQuery<Tuple>> qb = new DefaultQueryBuilder<>(qbs);
+        return new DefaultQueryBuilder<>(qbs);
+    }
+
+    public List<LinkedHashMap<String, Object>> testJoinQuery() {
+
+        QueryBuilder<JPAQuery<Tuple>> qb = prepareQueryBuilder();
+        QuerySource employee = entity(Employee.class);
+        QuerySource company = entity(Company.class);
 
         qb
-                .from(Employee.class)
+                .from(employee)
                 .join(b -> b
-                        .join(entity(Company.class))
+                        .join(company)
                         .on(equal(
-                                column("companyId", Employee.class),
-                                column("id", Company.class)))
-                        .as(Company.class.getSimpleName()
-                        ))
+                                column("companyId", employee),
+                                column("id", company)))
+                        )
                 .select("firstName", "lastName")
-                .select(column("name", Company.class));
+                .select(column("name", company));
 
         JPAQuery<Tuple> jpaQuery = qb.build();
         List<Tuple> tuples = jpaQuery.fetch();
@@ -56,22 +62,24 @@ public class QuerydslService {
     }
 
     public List<LinkedHashMap<String, Object>> testCountQuery() {
-        QueryBuilderStrategy<JPAQuery<Tuple>> qbs = new QuerydslJpaStrategy<>(em);
-        QueryBuilder<JPAQuery<Tuple>> qb = new DefaultQueryBuilder<>(qbs);
+
+        QueryBuilder<JPAQuery<Tuple>> qb = prepareQueryBuilder();
+        QuerySource employee = entity(Employee.class);
+        QuerySource company = entity(Company.class);
+
         qb
-                .from(Company.class)
+                .from(company)
                 .join(b -> b
                         .join(entity(Employee.class))
                         .on(equal(
-                                column("companyId", Employee.class),
-                                column("id", Company.class)
-                        ))
-                        .as(Employee.class.getSimpleName()))
+                                column("companyId", employee),
+                                column("id", company)
+                        )))
                 .select("id", "name")
-                .select(count(column("id", Employee.class)).as("totalEmployee"))
+                .select(count(column("id", employee)).as("totalEmployee"))
                 .groupBy(
-                        column("id", Company.class),
-                        column("name", Company.class));
+                        column("id", employee),
+                        column("name", company));
 
         JPAQuery<Tuple> jpaQuery = qb.build();
         List<Tuple> tuples = jpaQuery.fetch();
@@ -87,18 +95,20 @@ public class QuerydslService {
     }
 
     public List<LinkedHashMap<String, Object>> testSubQuery() {
-        QueryBuilderStrategy<JPAQuery<Tuple>> qbs = new QuerydslJpaStrategy<>(em);
-        QueryBuilder<JPAQuery<Tuple>> qb = new DefaultQueryBuilder<>(qbs);
+
+        QueryBuilder<JPAQuery<Tuple>> qb = prepareQueryBuilder();
+        QuerySource employee = entity(Employee.class);
+        QuerySource company = entity(Company.class);
 
         qb
-                .from(Company.class)
+                .from(company)
                 .select("id", "name")
                 .where(in(
-                        column("id", Company.class),
-                        (SubqueryExpression) subquery(b -> b
-                                .from(Employee.class)
-                                .select(column("companyId", Employee.class))
-                                .where(equal(column("id", Employee.class), 1))
+                        column("id", company),
+                        subquery(b -> b
+                                .from(employee)
+                                .select(column("companyId", employee))
+                                .where(equal(column("id", employee), 1))
                 )
         ));
 
