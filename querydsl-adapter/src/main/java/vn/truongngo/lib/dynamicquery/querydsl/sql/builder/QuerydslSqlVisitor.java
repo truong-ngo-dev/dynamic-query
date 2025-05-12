@@ -3,6 +3,7 @@ package vn.truongngo.lib.dynamicquery.querydsl.sql.builder;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.sql.RelationalPath;
 import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
 import vn.truongngo.lib.dynamicquery.core.expression.*;
 import vn.truongngo.lib.dynamicquery.querydsl.common.context.QuerydslSource;
@@ -78,8 +79,12 @@ public class QuerydslSqlVisitor implements Visitor<Expression<?>, Map<String, Qu
             throw new UnsupportedOperationException("Column selection in set operations are not supported");
         } else if (source instanceof EntityReferenceExpression entityRef) {
             QuerydslSource querydslSource = context.get(entityRef.getAlias());
-            PathBuilder<?> pathBuilder = (PathBuilder<?>) querydslSource.getAlias();
-            return pathBuilder.get(expression.getColumnName());
+            RelationalPath<?> path = (RelationalPath<?>) querydslSource.getSource();
+            return path.getColumns()
+                    .stream()
+                    .filter(col -> expression.getColumnName().equals(col.getMetadata().getName()))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Column " + expression.getColumnName() + " not found"));
         } else {
             QuerydslSource querydslSource = context.get(source.getAlias());
             PathBuilder<?> pathBuilder = (PathBuilder<?>) querydslSource.getAlias();

@@ -1,10 +1,9 @@
 package vn.truongngo.lib.dynamicquery.querydsl.sql.support;
 
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.*;
 import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.core.types.SubQueryExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.sql.RelationalPath;
@@ -65,9 +64,10 @@ public class QuerydslSqlHelper {
                 Predicate onCondition = (Predicate) visitor.visit(joinExpression.condition(), paths);
 
                 QuerySource source = joinExpression.target();
+                QuerydslSource dslSource = paths.get(source.getAlias());
 
                 if (source instanceof EntityReferenceExpression) {
-                    RelationalPath<?> entityPath = (RelationalPath<?>) paths.get(source.getAlias());
+                    RelationalPath<?> entityPath = (RelationalPath<?>) dslSource.getSource();
                     switch (joinExpression.joinType()) {
                         case LEFT_JOIN -> query.leftJoin(entityPath);
                         case INNER_JOIN -> query.innerJoin(entityPath);
@@ -75,8 +75,8 @@ public class QuerydslSqlHelper {
                         default -> throw new IllegalStateException("Unexpected join type: " + joinExpression.joinType());
                     }
                 } else {
-                    SubQueryExpression<?> subquery = (SubQueryExpression<?>) paths.get(source.getAlias());
-                    Path<?> subqueryPath = Expressions.path(subquery.getType(), source.getAlias());
+                    SubQueryExpression<?> subquery = (SubQueryExpression<?>) dslSource.getSource();
+                    Path<?> subqueryPath = dslSource.getAlias();
                     switch (joinExpression.joinType()) {
                         case LEFT_JOIN -> query.leftJoin(subquery, subqueryPath);
                         case INNER_JOIN -> query.innerJoin(subquery, subqueryPath);
@@ -160,7 +160,7 @@ public class QuerydslSqlHelper {
                         com.querydsl.core.types.Order.DESC :
                         com.querydsl.core.types.Order.ASC;
                 @SuppressWarnings("all")
-                com.querydsl.core.types.OrderSpecifier<?> op = new com.querydsl.core.types.OrderSpecifier(order, expression);
+                OrderSpecifier<?> op = new OrderSpecifier(order, expression);
                 query.orderBy(op);
             }
         }
