@@ -17,6 +17,7 @@
 
 	<modules>
 		<module>core</module>
+		<module>metadata</module>
 		<module>querydsl-adapter</module>
 		<module>jooq-adapter</module>
 	</modules>

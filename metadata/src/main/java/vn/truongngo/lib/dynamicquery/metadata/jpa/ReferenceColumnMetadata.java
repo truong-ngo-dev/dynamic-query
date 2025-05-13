@@ -26,4 +26,5 @@ public interface ReferenceColumnMetadata {
      * @return the name of the referenced column in the target entity's table
      */
     String getReferenceColumnName();
+
 }
