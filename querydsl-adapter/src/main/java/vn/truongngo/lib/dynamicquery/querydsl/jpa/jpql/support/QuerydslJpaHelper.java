@@ -179,6 +179,7 @@ public class QuerydslJpaHelper {
         QuerydslJpaHelper.groupBy(sources, subquery, metadata, visitor);
         QuerydslJpaHelper.having(sources, subquery, metadata, visitor);
         QuerydslJpaHelper.orderBy(sources, subquery, metadata, visitor);
+        QuerydslJpaHelper.restriction(subquery, metadata);
     }
 
     /**

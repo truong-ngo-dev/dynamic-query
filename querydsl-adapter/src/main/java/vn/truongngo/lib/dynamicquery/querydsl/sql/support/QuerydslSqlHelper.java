@@ -200,6 +200,7 @@ public class QuerydslSqlHelper {
         QuerydslSqlHelper.groupBy(sources, query, metadata, visitor);
         QuerydslSqlHelper.having(sources, query, metadata, visitor);
         QuerydslSqlHelper.orderBy(sources, query, metadata, visitor);
+        QuerydslSqlHelper.restriction(query, metadata);
     }
 
     /**
