@@ -1,5 +1,6 @@
 package vn.truongngo.lib.dynamicquery.metadata.jpa;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import vn.truongngo.lib.dynamicquery.metadata.db.TableMetadata;
@@ -21,6 +22,7 @@ import java.util.List;
  */
 @Getter
 @Setter
+@Builder
 public class JpaEntityMetadata implements EntityMetadata {
 
     /**
@@ -42,7 +44,7 @@ public class JpaEntityMetadata implements EntityMetadata {
      * List of ID fields for the entity.
      * Typically mapped using {@code @Id} or {@code @EmbeddedId}.
      */
-    private List<DefaultEntityMetadata> idFields;
+    private List<FieldMetadata> idFields;
 
     /**
      * List of join columns representing foreign key relationships using {@code @JoinColumn}.
@@ -66,4 +68,19 @@ public class JpaEntityMetadata implements EntityMetadata {
      */
     private List<CompositeJoinColumnFieldMetadata> inverseCompositeJoinFields;
 
+    public void addField(FieldMetadata field) {
+        fields.add(field);
+    }
+
+    public void addIdField(FieldMetadata field) {
+        idFields.add(field);
+    }
+
+    public void addJoinField(JoinColumnFieldMetadata field) {joinFields.add(field);}
+
+    public void addCompositeJoinField(CompositeJoinColumnFieldMetadata field) {compositeJoinFields.add(field);}
+
+    public void addInverseJoinField(JoinColumnFieldMetadata field) {inverseJoinFields.add(field);}
+
+    public void addInverseCompositeJoinField(CompositeJoinColumnFieldMetadata field) {inverseCompositeJoinFields.add(field);}
 }

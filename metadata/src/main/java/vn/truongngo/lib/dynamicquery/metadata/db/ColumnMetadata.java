@@ -40,11 +40,4 @@ public interface ColumnMetadata {
      */
     boolean isPrimaryKey();
 
-    /**
-     * Retrieves the index of the column within the table, useful for identifying the column's position when constructing a SELECT query.
-     *
-     * @return The index of the column within the table.
-     */
-    int getColumnIndex();
-
 }

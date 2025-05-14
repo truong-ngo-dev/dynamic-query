@@ -1,7 +1,9 @@
 package vn.truongngo.lib.dynamicquery.metadata.entity;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import vn.truongngo.lib.dynamicquery.metadata.db.ColumnMetadata;
 
 import java.sql.JDBCType;
@@ -24,6 +26,7 @@ import java.sql.JDBCType;
  */
 @Getter
 @Setter
+@SuperBuilder
 public class DefaultFieldMetadata implements FieldMetadata {
 
     /**
@@ -40,6 +43,11 @@ public class DefaultFieldMetadata implements FieldMetadata {
      * The JDBC type corresponding to the field, used for SQL type mapping.
      */
     private JDBCType jdbcType;
+
+    /**
+     * The index of the field in its declaration context, such as its order in a list or query projection.
+     */
+    private int index;
 
     /**
      * The metadata of the database column that this field maps to.

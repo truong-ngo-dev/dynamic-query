@@ -1,5 +1,6 @@
 package vn.truongngo.lib.dynamicquery.metadata.db;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +21,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@Builder
 public class DefaultColumnMetadata implements ColumnMetadata {
 
     /**
@@ -41,10 +43,5 @@ public class DefaultColumnMetadata implements ColumnMetadata {
      * Whether this column is part of the table's primary key.
      */
     private boolean primaryKey;
-
-    /**
-     * The zero-based index of the column in the table schema.
-     */
-    private int columnIndex;
 
 }

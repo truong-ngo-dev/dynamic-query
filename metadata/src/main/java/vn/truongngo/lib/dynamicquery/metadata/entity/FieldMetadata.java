@@ -43,6 +43,13 @@ public interface FieldMetadata {
     String getFieldName();
 
     /**
+     * The index of the field in its declaration context, such as its order in a list or query projection.
+     *
+     * @return The field index
+     */
+    int getIndex();
+
+    /**
      * Returns the metadata of the database column that this field maps to.
      *
      * @return The associated {@link ColumnMetadata}.

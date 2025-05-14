@@ -1,7 +1,9 @@
 package vn.truongngo.lib.dynamicquery.metadata.db;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
@@ -20,6 +22,8 @@ import java.util.List;
  */
 @Getter
 @Setter
+@SuperBuilder
+@AllArgsConstructor
 public class DefaultTableMetadata implements TableMetadata {
 
     /**

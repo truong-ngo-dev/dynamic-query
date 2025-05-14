@@ -1,5 +1,7 @@
 package vn.truongngo.lib.dynamicquery.metadata.jpa;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import vn.truongngo.lib.dynamicquery.metadata.db.ColumnMetadata;
@@ -21,6 +23,7 @@ import java.util.List;
  */
 @Getter
 @Setter
+@Builder
 public class CompositeJoinColumnFieldMetadata implements FieldMetadata {
 
     /**
@@ -39,6 +42,11 @@ public class CompositeJoinColumnFieldMetadata implements FieldMetadata {
     private JDBCType jdbcType;
 
     /**
+     * The index of the field in its declaration context, such as its order in a list or query projection.
+     */
+    private int index;
+
+    /**
      * The list of items representing individual column-to-column references in the composite join.
      */
     private List<Item> items;
@@ -54,11 +62,22 @@ public class CompositeJoinColumnFieldMetadata implements FieldMetadata {
     }
 
     /**
+     * Adds an {@link Item} to the list of join column mappings.
+     *
+     * @param item the column mapping item to add
+     */
+    public void addItem(Item item) {
+        items.add(item);
+    }
+
+    /**
      * Represents a single column reference in a composite join.
      * Each {@code Item} contains metadata for mapping one local column to one foreign column.
      */
     @Getter
     @Setter
+    @Builder
+    @AllArgsConstructor
     public static class Item implements ReferenceColumnMetadata {
 
         /**
