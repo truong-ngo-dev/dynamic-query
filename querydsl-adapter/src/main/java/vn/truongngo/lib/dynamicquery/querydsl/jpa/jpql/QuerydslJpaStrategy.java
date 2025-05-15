@@ -1,4 +1,4 @@
-package vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.builder;
+package vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql;
 
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.PathBuilder;
@@ -7,7 +7,6 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryBuilderStrategy;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryMetadata;
-import vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.support.QuerydslJpaHelper;
 
 import java.util.Map;
 
