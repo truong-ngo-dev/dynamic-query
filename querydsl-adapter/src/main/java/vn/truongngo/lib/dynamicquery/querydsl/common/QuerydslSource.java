@@ -1,4 +1,4 @@
-package vn.truongngo.lib.dynamicquery.querydsl.common.context;
+package vn.truongngo.lib.dynamicquery.querydsl.common;
 
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;

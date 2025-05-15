@@ -1,12 +1,11 @@
-package vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.builder;
+package vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql;
 
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.*;
 import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
 import vn.truongngo.lib.dynamicquery.core.expression.*;
-import vn.truongngo.lib.dynamicquery.querydsl.common.utils.QuerydslExpressionUtils;
-import vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.support.QuerydslJpaHelper;
+import vn.truongngo.lib.dynamicquery.querydsl.common.QuerydslExpressionUtils;
 
 import java.util.Map;
 
