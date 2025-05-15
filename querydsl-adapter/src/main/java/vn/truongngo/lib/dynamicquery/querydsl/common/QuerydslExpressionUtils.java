@@ -1,12 +1,10 @@
-package vn.truongngo.lib.dynamicquery.querydsl.common.utils;
+package vn.truongngo.lib.dynamicquery.querydsl.common;
 
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.core.types.dsl.*;
+import com.querydsl.sql.RelationalPath;
 import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.WindowFunction;
 import com.querydsl.sql.WindowOver;
@@ -17,6 +15,7 @@ import vn.truongngo.lib.dynamicquery.core.expression.*;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderExpression;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Utility class for converting dynamic query expressions into QueryDSL {@link com.querydsl.core.types.Expression} and
@@ -237,6 +236,25 @@ public class QuerydslExpressionUtils {
             case AND -> Expressions.allOf((BooleanExpression) predicates);
             case OR -> Expressions.anyOf((BooleanExpression) predicates);
         };
+    }
+
+    public static Path<?> getPath(ColumnReferenceExpression expression, Map<String, QuerydslSource> context) {
+        QuerySource source = expression.getSource();
+        if (source instanceof SetOperationExpression) {
+            throw new UnsupportedOperationException("Column selection in set operations are not supported");
+        } else if (source instanceof EntityReferenceExpression entityRef) {
+            QuerydslSource querydslSource = context.get(entityRef.getAlias());
+            RelationalPath<?> path = (RelationalPath<?>) querydslSource.getSource();
+            return path.getColumns()
+                    .stream()
+                    .filter(col -> expression.getColumnName().equals(col.getMetadata().getName()))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Column " + expression.getColumnName() + " not found"));
+        } else {
+            QuerydslSource querydslSource = context.get(source.getAlias());
+            PathBuilder<?> pathBuilder = (PathBuilder<?>) querydslSource.getAlias();
+            return pathBuilder.get(expression.getColumnName());
+        }
     }
 
 }
