@@ -238,6 +238,30 @@ public class QuerydslExpressionUtils {
         };
     }
 
+    /**
+     * Resolves a {@link Path} from a {@link ColumnReferenceExpression} using the provided QueryDSL context.
+     * <p>
+     * This method determines the source of the column expression and attempts to resolve
+     * the correct {@link Path} object for use in QueryDSL-based queries.
+     *
+     * <p>Supports both relational paths and alias-based path builders.
+     * If the column is not found, an {@link IllegalArgumentException} is thrown.
+     * <p>
+     * <b>Note:</b> Set operation expressions are not supported and will throw an
+     * {@link UnsupportedOperationException}.
+     *
+     * <p><b>Example:</b>
+     * <pre>{@code
+     * ColumnReferenceExpression expr = new ColumnReferenceExpression("userId", new EntityReferenceExpression("u"));
+     * Path<?> path = getPath(expr, context);  // resolves u.userId
+     * }</pre>
+     *
+     * @param expression the column reference expression to resolve
+     * @param context a mapping from source aliases to their corresponding {@link QuerydslSource}
+     * @return the resolved {@link Path} corresponding to the column
+     * @throws UnsupportedOperationException if the source is a set operation
+     * @throws IllegalArgumentException if the column is not found in the source metadata
+     */
     public static Path<?> getPath(ColumnReferenceExpression expression, Map<String, QuerydslSource> context) {
         QuerySource source = expression.getSource();
         if (source instanceof SetOperationExpression) {
