@@ -9,6 +9,8 @@ import vn.truongngo.lib.dynamicquery.core.builder.DefaultQueryBuilder;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryBuilder;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryBuilderStrategy;
 import vn.truongngo.lib.dynamicquery.core.expression.QuerySource;
+import vn.truongngo.lib.dynamicquery.core.expression.SubqueryExpression;
+import vn.truongngo.lib.dynamicquery.core.support.Expressions;
 import vn.truongngo.lib.dynamicquery.querydsl.sql.QuerydslSqlStrategy;
 import vn.truongngo.lib.dynamicquery.sample.querydsl.entity.Company;
 import vn.truongngo.lib.dynamicquery.sample.querydsl.entity.Employee;
@@ -18,8 +20,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import static vn.truongngo.lib.dynamicquery.core.support.Expressions.column;
-import static vn.truongngo.lib.dynamicquery.core.support.Expressions.entity;
+import static vn.truongngo.lib.dynamicquery.core.support.Expressions.*;
 import static vn.truongngo.lib.dynamicquery.core.support.Predicates.equal;
 
 @Slf4j
@@ -70,5 +71,44 @@ public class QuerydslSqlService {
             rs.add(map);
         }
         return rs;
+    }
+
+    public List<Tuple> testJoinSubQuery() {
+
+        QueryBuilder<SQLQuery<Tuple>> qb = prepareJpaNativeBuilder();
+        QuerySource employee = entity(Employee.class).as("e");
+        QuerySource company = entity(Company.class).as("c");
+
+        QuerySource subEmp = entity(Employee.class).as("se");
+
+        SubqueryExpression subquery = Expressions.subquery(b -> b
+                .from(subEmp)
+                .select(column("companyId", subEmp)).as("company_id")
+                .select(avg(column("salary", subEmp)).as("avg_salary"))
+                .groupBy(column("companyId", subEmp)))
+                .as("salary_tb");
+
+        qb
+                .from(employee)
+                .select("id")
+                .select(column("name", company))
+                .select(column("avg_salary", subquery))
+                .join(b -> b
+                        .join(company)
+                        .on(equal(
+                                column("companyId", employee),
+                                column("id", company))))
+                .join(b -> b
+                        .join(subquery)
+                        .on(equal(
+                                column("id", company),
+                                column("avg_salary", subquery)
+                        )));
+
+        SQLQuery<Tuple> sqlQuery = qb.build();
+        log.info(sqlQuery.toString());
+        List<Tuple> tuples = sqlQuery.fetch();
+
+        return tuples;
     }
 }
