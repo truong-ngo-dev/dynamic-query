@@ -9,7 +9,7 @@ import vn.truongngo.lib.dynamicquery.core.builder.DefaultQueryBuilder;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryBuilder;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryBuilderStrategy;
 import vn.truongngo.lib.dynamicquery.core.expression.QuerySource;
-import vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.builder.QuerydslJpaStrategy;
+import vn.truongngo.lib.dynamicquery.querydsl.jpa.jpql.QuerydslJpaStrategy;
 import vn.truongngo.lib.dynamicquery.sample.querydsl.entity.Company;
 import vn.truongngo.lib.dynamicquery.sample.querydsl.entity.Employee;
 

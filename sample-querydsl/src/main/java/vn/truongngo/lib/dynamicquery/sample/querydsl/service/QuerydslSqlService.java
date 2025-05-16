@@ -9,9 +9,9 @@ import vn.truongngo.lib.dynamicquery.core.builder.DefaultQueryBuilder;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryBuilder;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryBuilderStrategy;
 import vn.truongngo.lib.dynamicquery.core.expression.QuerySource;
-import vn.truongngo.lib.dynamicquery.querydsl.sql.builder.QuerydslSqlStrategy;
-import vn.truongngo.lib.dynamicquery.sample.QCompanies;
-import vn.truongngo.lib.dynamicquery.sample.QEmployees;
+import vn.truongngo.lib.dynamicquery.querydsl.sql.QuerydslSqlStrategy;
+import vn.truongngo.lib.dynamicquery.sample.querydsl.entity.Company;
+import vn.truongngo.lib.dynamicquery.sample.querydsl.entity.Employee;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -29,17 +29,22 @@ public class QuerydslSqlService {
 
     private final DataSource dataSource;
 
-    private QueryBuilder<SQLQuery<Tuple>> prepareQueryBuilder() {
-        QueryBuilderStrategy<SQLQuery<Tuple>> qbs = new QuerydslSqlStrategy<>(dataSource);
+    private QueryBuilder<SQLQuery<Tuple>> prepareSqlBuilder() {
+        QueryBuilderStrategy<SQLQuery<Tuple>> qbs = new QuerydslSqlStrategy<>(dataSource, false);
+        return new DefaultQueryBuilder<>(qbs);
+    }
+
+    private QueryBuilder<SQLQuery<Tuple>> prepareJpaNativeBuilder() {
+        QueryBuilderStrategy<SQLQuery<Tuple>> qbs = new QuerydslSqlStrategy<>(dataSource, true);
         return new DefaultQueryBuilder<>(qbs);
     }
 
     @SuppressWarnings("all")
     public List<LinkedHashMap<String, Object>> testJoinQuery() {
 
-        QueryBuilder<SQLQuery<Tuple>> qb = prepareQueryBuilder();
-        QuerySource employee = entity(QEmployees.class);
-        QuerySource company = entity(QCompanies.class);
+        QueryBuilder<SQLQuery<Tuple>> qb = prepareJpaNativeBuilder();
+        QuerySource employee = entity(Employee.class);
+        QuerySource company = entity(Company.class);
 
         qb
                 .from(employee)
