@@ -6,7 +6,6 @@ import vn.truongngo.lib.dynamicquery.metadata.db.DefaultColumnMetadata;
 import vn.truongngo.lib.dynamicquery.metadata.db.DefaultTableMetadata;
 import vn.truongngo.lib.dynamicquery.metadata.db.TableMetadata;
 import vn.truongngo.lib.dynamicquery.metadata.entity.DefaultFieldMetadata;
-import vn.truongngo.lib.dynamicquery.metadata.entity.EntityMetadata;
 import vn.truongngo.lib.dynamicquery.metadata.entity.FieldMetadata;
 import vn.truongngo.lib.dynamicquery.metadata.jpa.CompositeJoinColumnFieldMetadata;
 import vn.truongngo.lib.dynamicquery.metadata.jpa.JoinColumnFieldMetadata;
