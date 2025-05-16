@@ -315,8 +315,8 @@ public class JpaEntityScanner implements EntityScanner<Class<?>> {
      * @param foreignType the class containing the referenced field
      * @param mappedBy    the name of the field in the foreign class
      */
-    private void parseJoinColumn(Field field, int index, JpaEntityMetadata metadata, Class<?> foreignType, String s) {
-        Field foreignField = getForeignField(foreignType, s);
+    private void parseJoinColumn(Field field, int index, JpaEntityMetadata metadata, Class<?> foreignType, String mappedBy) {
+        Field foreignField = getForeignField(foreignType, mappedBy);
         JoinColumn foreignJoinColumn = foreignField.getDeclaredAnnotation(JoinColumn.class);
         if (foreignJoinColumn != null) {
             metadata.addInverseJoinField(getJoinColumnMetadata(foreignType, field.getName(), index, foreignJoinColumn));
