@@ -86,7 +86,7 @@ public class QuerydslSqlStrategy<T> implements QueryBuilderStrategy<SQLQuery<T>>
         try {
 
             SQLQuery<T> query = new SQLQuery<>(dataSource.getConnection(), SQLTemplates.DEFAULT);
-            helper.buildQuery(queryMetadata, helper, visitor, query);
+            helper.buildQuery(queryMetadata, visitor, query);
 
             return query;
         } catch (SQLException e) {

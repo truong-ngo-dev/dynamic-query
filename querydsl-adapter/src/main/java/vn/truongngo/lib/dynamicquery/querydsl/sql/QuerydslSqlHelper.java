@@ -262,6 +262,63 @@ public class QuerydslSqlHelper {
     }
 
     /**
+     * Builds a {@link SQLQuery} based on the provided {@link QueryMetadata}, using {@link QuerydslSqlHelper}
+     * and {@link QuerydslSqlVisitor} for expression resolution. This method supports joining against
+     * subqueries (including set operations like UNION) and entity references.
+     *
+     * <p>
+     * The method inspects the {@code from} clause in the {@link QueryMetadata} to determine whether it is:
+     * <ul>
+     *   <li>A {@link SetOperationExpression} (e.g., UNION), in which case it uses the corresponding {@link Union}
+     *       as a subquery and applies any {@code orderBy} clauses directly on the result.</li>
+     *   <li>An {@link EntityReferenceExpression}, in which case it directly uses the root entity's path.</li>
+     *   <li>A nested {@link SQLQuery} (i.e., subquery in FROM), in which case it is aliased via {@link Path}.</li>
+     * </ul>
+     * After determining the appropriate source and alias, it registers the {@code from} clause with the
+     * target query and delegates the rest of the query construction (joins, predicates, selects, etc.)
+     * to the helper.
+     * </p>
+     *
+     * @param queryMetadata the query metadata that contains structural info for building the SQL query
+     * @param visitor the visitor that traverses and converts dynamic expressions to QueryDSL expressions
+     * @param query the QueryDSL SQL query to be populated with from and other clauses
+     * @param <T> the result type of the SQL query
+     *
+     * @see QueryMetadata
+     * @see QuerydslSqlVisitor
+     * @see SQLQuery
+     * @see SetOperationExpression
+     * @see EntityReferenceExpression
+     */
+    public <T> void buildQuery(QueryMetadata queryMetadata, QuerydslSqlVisitor visitor, SQLQuery<T> query) {
+        Map<String, QuerydslSource> context = getSourcesContext(queryMetadata);
+        QuerydslSource querydslSource = context.get(queryMetadata.getFrom().getAlias());
+        String alias = queryMetadata.getFrom().getAlias();
+        if (queryMetadata.getFrom() instanceof SetOperationExpression) {
+            Union<?> union = (Union<?>) querydslSource.getSource();
+            if (queryMetadata.getOrderByClauses() != null) {
+                @SuppressWarnings("rawtypes")
+                OrderSpecifier[] orderSpecifiers = queryMetadata.getOrderByClauses()
+                        .stream()
+                        .map(op -> QuerydslExpressionUtils.order(op, visitor, context))
+                        .toArray(OrderSpecifier[]::new);
+                query.from(union, querydslSource.getAlias()).orderBy(orderSpecifiers);
+            }
+        } else {
+            if (queryMetadata.getFrom() instanceof EntityReferenceExpression) {
+                Expression<?> root = context.get(alias).getSource();
+                query.from(root);
+            } else {
+                SQLQuery<?> sqlQuery = (SQLQuery<?>) context.get(alias).getSource();
+                Path<?> path = context.get(alias).getAlias();
+                query.from(sqlQuery, path);
+            }
+
+            buildQuery(queryMetadata, context, query, visitor);
+        }
+    }
+
+    /**
      * Builds the sources context map from the given {@link QueryMetadata}.
      * This includes the `FROM` clause and any `JOIN` clauses, mapping aliases to corresponding {@link QuerydslSource}.
      *
@@ -346,7 +403,7 @@ public class QuerydslSqlHelper {
      */
     public QuerydslSource subquerySource(SubqueryExpression subquery) {
         SQLQuery<?> sqlSubquery = new SQLQuery<Void>();
-        buildQuery(subquery.getQueryMetadata(), this, QuerydslSqlVisitor.getInstance(jpaEntityMode), sqlSubquery);
+        buildQuery(subquery.getQueryMetadata(), QuerydslSqlVisitor.getInstance(jpaEntityMode), sqlSubquery);
         Path<?> alias = new PathBuilder<>(Tuple.class, subquery.getAlias());
         return QuerydslSource.builder().source(sqlSubquery).alias(alias).build();
     }
@@ -409,31 +466,4 @@ public class QuerydslSqlHelper {
         return QuerydslSource.builder().source(setOpsExpression).alias(alias).build();
     }
 
-    public <T> void buildQuery(QueryMetadata queryMetadata, QuerydslSqlHelper helper, QuerydslSqlVisitor visitor, SQLQuery<T> query) {
-        Map<String, QuerydslSource> context = helper.getSourcesContext(queryMetadata);
-        QuerydslSource querydslSource = context.get(queryMetadata.getFrom().getAlias());
-        String alias = queryMetadata.getFrom().getAlias();
-        if (queryMetadata.getFrom() instanceof SetOperationExpression) {
-            Union<?> union = (Union<?>) querydslSource.getSource();
-            if (queryMetadata.getOrderByClauses() != null) {
-                @SuppressWarnings("rawtypes")
-                OrderSpecifier[] orderSpecifiers = queryMetadata.getOrderByClauses()
-                        .stream()
-                        .map(op -> QuerydslExpressionUtils.order(op, visitor, context))
-                        .toArray(OrderSpecifier[]::new);
-                query.from(union, querydslSource.getAlias()).orderBy(orderSpecifiers);
-            }
-        } else {
-            if (queryMetadata.getFrom() instanceof EntityReferenceExpression) {
-                Expression<?> root = context.get(alias).getSource();
-                query.from(root);
-            } else {
-                SQLQuery<?> sqlQuery = (SQLQuery<?>) context.get(alias).getSource();
-                Path<?> path = context.get(alias).getAlias();
-                query.from(sqlQuery, path);
-            }
-
-            helper.buildQuery(queryMetadata, context, query, visitor);
-        }
-    }
 }
