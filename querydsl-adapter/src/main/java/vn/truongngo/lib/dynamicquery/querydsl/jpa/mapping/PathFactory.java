@@ -17,12 +17,36 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Factory Class to construct QPath instances
+ * Factory class responsible for constructing Querydsl {@link Path} instances
+ * based on the Java field type information.
+ *
+ * <p>This class maintains an internal registry mapping Java types to {@link PathProvider}s
+ * that create the appropriate Querydsl path objects for those types.</p>
+ *
+ * <p>Supported types include primitives, wrapper types, arrays, date/time types, and enums.</p>
+ *
+ * <p>If the field type is not recognized, the factory defaults to creating a
+ * {@link com.querydsl.core.types.dsl.SimplePath} with the given type.</p>
+ *
+ * <p>This factory is intended to be used with {@link QEntity} instances and
+ * {@link FieldMetadata} describing entity fields.</p>
+ *
+ * <h3>Usage example:</h3>
+ * <blockquote><pre>{@code
+ * FieldMetadata field = ...;
+ * QEntity<?> qEntity = ...;
+ * Path<?> path = PathFactory.create(qEntity, field);
+ * }</pre></blockquote>
+ *
+ * @author Truong Ngo
+ * @version 2.0.0
  */
 public abstract class PathFactory {
 
+    /**
+     * Registry mapping Java classes to their respective {@link PathProvider}.
+     */
     private static final Map<Class<?>, PathProvider> pathFactory = new HashMap<>();
-
 
     static {
         pathFactory.put(Array.class, (q, config) -> q.createArray(config.getFieldName(), config.getFieldType()));
@@ -70,7 +94,19 @@ public abstract class PathFactory {
         pathFactory.put(Object.class, (q, config) -> q.createSimple(config.getFieldName(), config.getFieldType()));
     }
 
-    static Path<?> create(QEntity<?> q, FieldMetadata fieldMetadata) {
+    /**
+     * Creates a Querydsl {@link Path} instance for the given {@link QEntity} and {@link FieldMetadata}.
+     *
+     * <p>The method determines the Java type from {@code fieldMetadata}, finds the appropriate
+     * {@link PathProvider} from the registry, and delegates creation of the {@link Path}.</p>
+     *
+     * <p>If no exact match is found for the type, a simple path with type {@code Object} is created.</p>
+     *
+     * @param q the {@link QEntity} instance used to create the path
+     * @param fieldMetadata the metadata describing the field for which to create the path
+     * @return the Querydsl {@link Path} instance corresponding to the field
+     */
+    public static Path<?> create(QEntity<?> q, FieldMetadata fieldMetadata) {
         Class<?> type = fieldMetadata.getFieldType();
         if (!pathFactory.containsKey(type)) {
             type = Object.class;
@@ -78,11 +114,22 @@ public abstract class PathFactory {
         return pathFactory.get(type).provide(q, fieldMetadata);
     }
 
+    /**
+     * Internal method to create an {@link EnumPath} for enum types.
+     *
+     * @param q the {@link QEntity} instance
+     * @param fieldMetadata the field metadata
+     * @return the created {@link EnumPath}
+     */
     @SuppressWarnings("all")
     private static EnumPath createEnum(QEntity<?> q, FieldMetadata fieldMetadata) {
         return q.createEnum(fieldMetadata.getFieldName(), (Class<Enum>) fieldMetadata.getFieldType());
     }
 
+    /**
+     * Functional interface representing a provider of {@link Path} instances
+     * for a given {@link QEntity} and {@link FieldMetadata}.
+     */
     private interface PathProvider {
         Path<?> provide(QEntity<?> q, FieldMetadata metadata);
     }
