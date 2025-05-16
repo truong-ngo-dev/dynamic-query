@@ -86,31 +86,7 @@ public class QuerydslSqlStrategy<T> implements QueryBuilderStrategy<SQLQuery<T>>
         try {
 
             SQLQuery<T> query = new SQLQuery<>(dataSource.getConnection(), SQLTemplates.DEFAULT);
-            Map<String, QuerydslSource> context = helper.getSourcesContext(queryMetadata);
-            QuerydslSource querydslSource = context.get(queryMetadata.getFrom().getAlias());
-            String alias = queryMetadata.getFrom().getAlias();
-            if (queryMetadata.getFrom() instanceof SetOperationExpression) {
-                Union<?> union = (Union<?>) querydslSource.getSource();
-                if (queryMetadata.getOrderByClauses() != null) {
-                    @SuppressWarnings("rawtypes")
-                    OrderSpecifier[] orderSpecifiers = queryMetadata.getOrderByClauses()
-                            .stream()
-                            .map(op -> QuerydslExpressionUtils.order(op, visitor, context))
-                            .toArray(OrderSpecifier[]::new);
-                    union.orderBy(orderSpecifiers);
-                }
-            } else {
-                if (queryMetadata.getFrom() instanceof EntityReferenceExpression) {
-                    Expression<?> root = context.get(alias).getSource();
-                    query.from(root);
-                } else {
-                    SQLQuery<?> sqlQuery = (SQLQuery<?>) context.get(alias).getSource();
-                    Path<?> path = context.get(alias).getAlias();
-                    query.from(sqlQuery, path);
-                }
-
-                helper.buildQuery(queryMetadata, context, query, visitor);
-            }
+            helper.buildQuery(queryMetadata, helper, visitor, query);
 
             return query;
         } catch (SQLException e) {
@@ -119,4 +95,4 @@ public class QuerydslSqlStrategy<T> implements QueryBuilderStrategy<SQLQuery<T>>
         }
     }
 
-}
+ }

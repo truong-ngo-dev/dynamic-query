@@ -8,6 +8,7 @@ import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.sql.RelationalPath;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
+import com.querydsl.sql.Union;
 import lombok.RequiredArgsConstructor;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryMetadata;
 import vn.truongngo.lib.dynamicquery.core.enumerate.Order;
@@ -16,6 +17,7 @@ import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderExpression;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
 import vn.truongngo.lib.dynamicquery.metadata.jpa.JpaEntityMetadata;
 import vn.truongngo.lib.dynamicquery.metadata.scanner.JpaEntityScanner;
+import vn.truongngo.lib.dynamicquery.querydsl.common.QuerydslExpressionUtils;
 import vn.truongngo.lib.dynamicquery.querydsl.common.QuerydslSource;
 import vn.truongngo.lib.dynamicquery.querydsl.jpa.mapping.QEntity;
 import vn.truongngo.lib.dynamicquery.querydsl.jpa.mapping.QEntityBuilder;
@@ -343,14 +345,10 @@ public class QuerydslSqlHelper {
      * @return a {@link QuerydslSource} representing the subquery with its alias
      */
     public QuerydslSource subquerySource(SubqueryExpression subquery) {
-        QueryMetadata metadata = subquery.getQueryMetadata();
-        QuerydslSqlVisitor visitor = QuerydslSqlVisitor.getInstance(jpaEntityMode);
-        Map<String, QuerydslSource> sources = getSourcesContext(metadata);
         SQLQuery<?> sqlSubquery = new SQLQuery<Void>();
-        buildQuery(metadata, sources, sqlSubquery, visitor);
+        buildQuery(subquery.getQueryMetadata(), this, QuerydslSqlVisitor.getInstance(jpaEntityMode), sqlSubquery);
         Path<?> alias = new PathBuilder<>(Tuple.class, subquery.getAlias());
-        Expression<?> subqueryExpression = sqlSubquery.as(alias);
-        return QuerydslSource.builder().source(subqueryExpression).alias(alias).build();
+        return QuerydslSource.builder().source(sqlSubquery).alias(alias).build();
     }
 
     /**
@@ -409,5 +407,33 @@ public class QuerydslSqlHelper {
         }
 
         return QuerydslSource.builder().source(setOpsExpression).alias(alias).build();
+    }
+
+    public <T> void buildQuery(QueryMetadata queryMetadata, QuerydslSqlHelper helper, QuerydslSqlVisitor visitor, SQLQuery<T> query) {
+        Map<String, QuerydslSource> context = helper.getSourcesContext(queryMetadata);
+        QuerydslSource querydslSource = context.get(queryMetadata.getFrom().getAlias());
+        String alias = queryMetadata.getFrom().getAlias();
+        if (queryMetadata.getFrom() instanceof SetOperationExpression) {
+            Union<?> union = (Union<?>) querydslSource.getSource();
+            if (queryMetadata.getOrderByClauses() != null) {
+                @SuppressWarnings("rawtypes")
+                OrderSpecifier[] orderSpecifiers = queryMetadata.getOrderByClauses()
+                        .stream()
+                        .map(op -> QuerydslExpressionUtils.order(op, visitor, context))
+                        .toArray(OrderSpecifier[]::new);
+                query.from(union, querydslSource.getAlias()).orderBy(orderSpecifiers);
+            }
+        } else {
+            if (queryMetadata.getFrom() instanceof EntityReferenceExpression) {
+                Expression<?> root = context.get(alias).getSource();
+                query.from(root);
+            } else {
+                SQLQuery<?> sqlQuery = (SQLQuery<?>) context.get(alias).getSource();
+                Path<?> path = context.get(alias).getAlias();
+                query.from(sqlQuery, path);
+            }
+
+            helper.buildQuery(queryMetadata, context, query, visitor);
+        }
     }
 }
