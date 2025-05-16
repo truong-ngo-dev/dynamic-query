@@ -127,7 +127,7 @@ public class JpaEntityScanner implements EntityScanner<Class<?>> {
             prev = prev.getSuperclass();
         }
         if (metadata.getIdFields().isEmpty()) {
-            throw new IllegalArgumentException("No @Id, @E annotation found for " + source);
+            throw new IllegalArgumentException("No @Id, @EmbeddedId annotation found for " + source);
         }
     }
 
