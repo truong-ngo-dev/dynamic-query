@@ -1,4 +1,4 @@
-package vn.truongngo.lib.dynamicquery.querydsl.sql.support;
+package vn.truongngo.lib.dynamicquery.querydsl.sql;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.*;
@@ -8,13 +8,17 @@ import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.sql.RelationalPath;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
+import lombok.RequiredArgsConstructor;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryMetadata;
 import vn.truongngo.lib.dynamicquery.core.enumerate.Order;
 import vn.truongngo.lib.dynamicquery.core.expression.*;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderExpression;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
-import vn.truongngo.lib.dynamicquery.querydsl.common.context.QuerydslSource;
-import vn.truongngo.lib.dynamicquery.querydsl.sql.builder.QuerydslSqlVisitor;
+import vn.truongngo.lib.dynamicquery.metadata.jpa.JpaEntityMetadata;
+import vn.truongngo.lib.dynamicquery.metadata.scanner.JpaEntityScanner;
+import vn.truongngo.lib.dynamicquery.querydsl.common.QuerydslSource;
+import vn.truongngo.lib.dynamicquery.querydsl.jpa.mapping.QEntity;
+import vn.truongngo.lib.dynamicquery.querydsl.jpa.mapping.QEntityBuilder;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -27,7 +31,59 @@ import java.util.Map;
  * @author Truong Ngo
  * @version 2.0.0
  * */
+@RequiredArgsConstructor
 public class QuerydslSqlHelper {
+
+    /**
+     * Indicates whether the Querydsl integration should operate in JPA entity mode.
+     *
+     * <p>
+     * When set to {@code true}, query construction uses JPA entity classes and conventions,
+     * allowing queries like {@code from(MyJpaEntity.class)} to be built on top of JPA models.
+     * When {@code false}, queries are constructed using Querydsl's native SQL Q-class types,
+     * generated directly from the database schema.
+     * </p>
+     */
+    private final boolean jpaEntityMode;
+
+    /**
+     * Provides access to the singleton instance of {@link QuerydslSqlHelper} based on the {@code jpaEntityMode} flag.
+     *
+     * <p>This implementation is thread-safe and ensures lazy initialization of
+     * singleton instances, one for JPA entity mode and one for native SQL mode.</p>
+     *
+     * <p>Use this method to obtain the appropriate helper for the query construction strategy
+     * you require:</p>
+     *
+     * <blockquote><pre>
+     * // Example usage:
+     * QuerydslSqlHelper helper = QuerydslSqlHelper.getInstance(true);  // Use JPA entity mode
+     * QuerydslSqlHelper helper = QuerydslSqlHelper.getInstance(false); // Use Querydsl SQL native mode
+     * </pre></blockquote>
+     *
+     * @param jpaEntityMode {@code true} to build queries based on JPA entity classes; {@code false} to use Querydsl SQL Q-classes
+     * @return the singleton instance of {@code QuerydslSqlHelper} for the specified mode
+     */
+    public static QuerydslSqlHelper getInstance(boolean jpaEntityMode) {
+        return jpaEntityMode ? Holder.JPA : Holder.SQL;
+    }
+
+    /**
+     * Lazy-loaded holder class implementing the Initialization-on-demand holder idiom
+     * to provide thread-safe, lazy initialization of singleton instances.
+     *
+     * <p>This class holds two singleton instances of {@link QuerydslSqlHelper}:</p>
+     * <ul>
+     *   <li>{@code SQL} – instance for native Querydsl SQL mode (jpaEntityMode = false).</li>
+     *   <li>{@code JPA} – instance for JPA entity mode (jpaEntityMode = true).</li>
+     * </ul>
+     *
+     * <p>The instances are created only once when first accessed via {@link QuerydslSqlHelper#getInstance(boolean)}.</p>
+     */
+    private static class Holder {
+        private static final QuerydslSqlHelper SQL = new QuerydslSqlHelper(false);
+        private static final QuerydslSqlHelper JPA = new QuerydslSqlHelper(true);
+    }
 
     /**
      * Applies SELECT expressions from metadata to the given SQL query.
@@ -37,7 +93,7 @@ public class QuerydslSqlHelper {
      * @param metadata  the dynamic query metadata containing SELECT expressions
      * @param visitor   the visitor responsible for converting expressions to QueryDSL {@link Expression}s
      */
-    public static void select(Map<String, QuerydslSource> paths, SQLQuery<?> query, QueryMetadata metadata, QuerydslSqlVisitor visitor) {
+    public void select(Map<String, QuerydslSource> paths, SQLQuery<?> query, QueryMetadata metadata, QuerydslSqlVisitor visitor) {
         Expression<?>[] selects = metadata
                 .getSelectClauses()
                 .stream()
@@ -57,7 +113,7 @@ public class QuerydslSqlHelper {
      * @param metadata  the dynamic query metadata containing JOIN expressions
      * @param visitor   the visitor used to convert ON conditions to QueryDSL {@link Predicate}s
      */
-    public static void join(Map<String, QuerydslSource> paths, SQLQuery<?> query, QueryMetadata metadata, QuerydslSqlVisitor visitor) {
+    public void join(Map<String, QuerydslSource> paths, SQLQuery<?> query, QueryMetadata metadata, QuerydslSqlVisitor visitor) {
         if (!metadata.getJoinClauses().isEmpty()) {
             for (JoinExpression joinExpression : metadata.getJoinClauses()) {
                 Predicate onCondition = (Predicate) visitor.visit(joinExpression.condition(), paths);
@@ -99,7 +155,7 @@ public class QuerydslSqlHelper {
      * @param metadata      the dynamic query metadata containing WHERE predicates
      * @param visitor       the visitor used to convert predicates to QueryDSL {@link Predicate}s
      */
-    public static void where(Map<String, QuerydslSource> pathBuilders, SQLQuery<?> query, QueryMetadata metadata, QuerydslSqlVisitor visitor) {
+    public void where(Map<String, QuerydslSource> pathBuilders, SQLQuery<?> query, QueryMetadata metadata, QuerydslSqlVisitor visitor) {
         if (!metadata.getWhereClauses().isEmpty()) {
             for (vn.truongngo.lib.dynamicquery.core.expression.Predicate p : metadata.getWhereClauses()) {
                 Predicate predicate = (Predicate) visitor.visit(p, pathBuilders);
@@ -116,7 +172,7 @@ public class QuerydslSqlHelper {
      * @param metadata      the dynamic query metadata containing GROUP BY expressions
      * @param visitor       the visitor used to convert expressions to QueryDSL {@link Expression}s
      */
-    public static void groupBy(Map<String, QuerydslSource> pathBuilders, SQLQuery<?> query, QueryMetadata metadata, QuerydslSqlVisitor visitor) {
+    public void groupBy(Map<String, QuerydslSource> pathBuilders, SQLQuery<?> query, QueryMetadata metadata, QuerydslSqlVisitor visitor) {
         if (!metadata.getGroupByClauses().isEmpty()) {
             for (vn.truongngo.lib.dynamicquery.core.expression.Expression g : metadata.getGroupByClauses()) {
                 Expression<?> expression = visitor.visit(g, pathBuilders);
@@ -133,7 +189,7 @@ public class QuerydslSqlHelper {
      * @param metadata      the dynamic query metadata containing HAVING predicates
      * @param visitor       the visitor used to convert predicates to QueryDSL {@link Predicate}s
      */
-    public static void having(Map<String, QuerydslSource> pathBuilders, SQLQuery<?> query, QueryMetadata metadata, QuerydslSqlVisitor visitor) {
+    public void having(Map<String, QuerydslSource> pathBuilders, SQLQuery<?> query, QueryMetadata metadata, QuerydslSqlVisitor visitor) {
         if (!metadata.getHavingClauses().isEmpty()) {
             for (vn.truongngo.lib.dynamicquery.core.expression.Predicate p : metadata.getHavingClauses()) {
                 Predicate predicate = (Predicate) visitor.visit(p, pathBuilders);
@@ -150,7 +206,7 @@ public class QuerydslSqlHelper {
      * @param metadata      the dynamic query metadata containing ORDER BY expressions
      * @param visitor       the visitor used to convert order targets to QueryDSL {@link Expression}s
      */
-    public static void orderBy(Map<String, QuerydslSource> pathBuilders, SQLQuery<?> query, QueryMetadata metadata, QuerydslSqlVisitor visitor) {
+    public void orderBy(Map<String, QuerydslSource> pathBuilders, SQLQuery<?> query, QueryMetadata metadata, QuerydslSqlVisitor visitor) {
         if (!metadata.getOrderByClauses().isEmpty()) {
             for (OrderExpression o : metadata.getOrderByClauses()) {
                 vn.truongngo.lib.dynamicquery.core.expression.Expression e = o.getTarget();
@@ -171,7 +227,7 @@ public class QuerydslSqlHelper {
      * @param query     the QueryDSL JPQLQuery to apply restrictions
      * @param metadata  dynamic query metadata
      */
-    public static void restriction(SQLQuery<?> query, QueryMetadata metadata) {
+    public void restriction(SQLQuery<?> query, QueryMetadata metadata) {
         Restriction restriction = metadata.getRestriction();
         if (restriction.isPaging()) {
             query.limit(restriction.getSize());
@@ -193,14 +249,14 @@ public class QuerydslSqlHelper {
      * @param query the {@link SQLQuery} instance being constructed
      * @param visitor  the {@link QuerydslSqlVisitor} responsible for converting expressions to QueryDSL constructs
      */
-    public static void buildQuery(QueryMetadata metadata, Map<String, QuerydslSource> sources, SQLQuery<?> query, QuerydslSqlVisitor visitor) {
-        QuerydslSqlHelper.select(sources, query, metadata, visitor);
-        QuerydslSqlHelper.join(sources, query, metadata, visitor);
-        QuerydslSqlHelper.where(sources, query, metadata, visitor);
-        QuerydslSqlHelper.groupBy(sources, query, metadata, visitor);
-        QuerydslSqlHelper.having(sources, query, metadata, visitor);
-        QuerydslSqlHelper.orderBy(sources, query, metadata, visitor);
-        QuerydslSqlHelper.restriction(query, metadata);
+    public void buildQuery(QueryMetadata metadata, Map<String, QuerydslSource> sources, SQLQuery<?> query, QuerydslSqlVisitor visitor) {
+        select(sources, query, metadata, visitor);
+        join(sources, query, metadata, visitor);
+        where(sources, query, metadata, visitor);
+        groupBy(sources, query, metadata, visitor);
+        having(sources, query, metadata, visitor);
+        orderBy(sources, query, metadata, visitor);
+        restriction(query, metadata);
     }
 
     /**
@@ -210,7 +266,7 @@ public class QuerydslSqlHelper {
      * @param metadata the metadata representing a dynamic query
      * @return a map of alias names to {@link QuerydslSource} instances
      */
-    public static Map<String, QuerydslSource> getSourcesContext(QueryMetadata metadata) {
+    public Map<String, QuerydslSource> getSourcesContext(QueryMetadata metadata) {
 
         Map<String, QuerydslSource> context = new LinkedHashMap<>();
 
@@ -246,7 +302,7 @@ public class QuerydslSqlHelper {
      * @return the corresponding {@link QuerydslSource}
      * @throws IllegalArgumentException if the source type is unsupported or null
      */
-    public static QuerydslSource querydslSource(QuerySource source) {
+    public QuerydslSource querydslSource(QuerySource source) {
         if (source == null) throw new IllegalArgumentException("Source is null");
         if (source instanceof EntityReferenceExpression entityRef) return tableSource(entityRef);
         if (source instanceof SubqueryExpression subquery) return subquerySource(subquery);
@@ -262,13 +318,19 @@ public class QuerydslSqlHelper {
      * @return a {@link QuerydslSource} wrapping the table
      * @throws IllegalArgumentException if instantiation of the entity path fails
      */
-    public static QuerydslSource tableSource(EntityReferenceExpression entityRef) {
+    public QuerydslSource tableSource(EntityReferenceExpression entityRef) {
         try {
-            @SuppressWarnings("unchecked")
-            Class<? extends RelationalPathBase<?>> clazz = (Class<? extends RelationalPathBase<?>>) entityRef.getEntityClass();
             String alias = entityRef.getAlias();
-            RelationalPath<?> entity = clazz.getConstructor(String.class).newInstance(alias);
-            return QuerydslSource.builder().source(entity).build();
+            if (jpaEntityMode) {
+                JpaEntityMetadata metadata = new JpaEntityScanner().scan(entityRef.getEntityClass());
+                QEntity<?> qEntity = QEntityBuilder.build(metadata, alias, false);
+                return QuerydslSource.builder().source(qEntity).build();
+            } else {
+                @SuppressWarnings("unchecked")
+                Class<? extends RelationalPathBase<?>> clazz = (Class<? extends RelationalPathBase<?>>) entityRef.getEntityClass();
+                RelationalPath<?> entity = clazz.getConstructor(String.class).newInstance(alias);
+                return QuerydslSource.builder().source(entity).build();
+            }
         } catch (Exception e) {
             throw new IllegalArgumentException("Cannot instantiate " + entityRef.getEntityClass().getName(), e);
         }
@@ -280,12 +342,12 @@ public class QuerydslSqlHelper {
      * @param subquery the subquery expression
      * @return a {@link QuerydslSource} representing the subquery with its alias
      */
-    public static QuerydslSource subquerySource(SubqueryExpression subquery) {
+    public QuerydslSource subquerySource(SubqueryExpression subquery) {
         QueryMetadata metadata = subquery.getQueryMetadata();
-        QuerydslSqlVisitor visitor = QuerydslSqlVisitor.getInstance();
+        QuerydslSqlVisitor visitor = QuerydslSqlVisitor.getInstance(jpaEntityMode);
         Map<String, QuerydslSource> sources = getSourcesContext(metadata);
         SQLQuery<?> sqlSubquery = new SQLQuery<Void>();
-        QuerydslSqlHelper.buildQuery(metadata, sources, sqlSubquery, visitor);
+        buildQuery(metadata, sources, sqlSubquery, visitor);
         Path<?> alias = new PathBuilder<>(Tuple.class, subquery.getAlias());
         Expression<?> subqueryExpression = sqlSubquery.as(alias);
         return QuerydslSource.builder().source(subqueryExpression).alias(alias).build();
@@ -298,7 +360,7 @@ public class QuerydslSqlHelper {
      * @return a {@link QuerydslSource} representing the set operation result
      * @throws UnsupportedOperationException if the set operator is unsupported
      */
-    public static QuerydslSource cteSource(CommonTableExpression cte) {
+    public QuerydslSource cteSource(CommonTableExpression cte) {
         SQLQuery<?> cteQuery = new SQLQuery<Void>();
         QuerydslSource subquerySrc = subquerySource(cte.getSubquery());
         Path<?> alias = new PathBuilder<>(Tuple.class, cte.getName());
@@ -315,7 +377,7 @@ public class QuerydslSqlHelper {
      * @throws UnsupportedOperationException if the set operator is unsupported
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static QuerydslSource setOpsSource(SetOperationExpression setOperation) {
+    public QuerydslSource setOpsSource(SetOperationExpression setOperation) {
         SQLQuery<?> setOperationQuery = new SQLQuery<>();
         List<SubQueryExpression> queryExpressions = new ArrayList<>();
 

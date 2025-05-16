@@ -1,14 +1,13 @@
-package vn.truongngo.lib.dynamicquery.querydsl.sql.builder;
+package vn.truongngo.lib.dynamicquery.querydsl.sql;
 
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.PathBuilder;
-import com.querydsl.sql.RelationalPath;
+import lombok.RequiredArgsConstructor;
 import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
 import vn.truongngo.lib.dynamicquery.core.expression.*;
-import vn.truongngo.lib.dynamicquery.querydsl.common.context.QuerydslSource;
-import vn.truongngo.lib.dynamicquery.querydsl.common.utils.QuerydslExpressionUtils;
-import vn.truongngo.lib.dynamicquery.querydsl.sql.support.QuerydslSqlHelper;
+import vn.truongngo.lib.dynamicquery.querydsl.common.QuerydslSource;
+import vn.truongngo.lib.dynamicquery.querydsl.common.QuerydslExpressionUtils;
 
 import java.util.Map;
 
@@ -23,31 +22,73 @@ import java.util.Map;
  * <h2>Usage Example</h2>
  * <blockquote><pre>
  * Map&lt;String, QuerydslSource&gt; context = ...;
- * Expression&lt;?&gt; result = QuerydslSqlVisitor.getInstance().visit(expression, context);
+ * Expression&lt;?&gt; result = QuerydslSqlVisitor.getInstance(true).visit(expression, context);
  * </pre></blockquote>
  *
  * @author Truong Ngo
  * @version 2.0.0
  */
+@RequiredArgsConstructor
 public class QuerydslSqlVisitor implements Visitor<Expression<?>, Map<String, QuerydslSource>> {
 
     /**
-     * Provides access to the singleton instance of {@link QuerydslSqlVisitor}.
+     * Indicates whether Querydsl SQL should operate in JPA entity mode.
      *
-     * <p>This implementation is thread-safe and ensures that the instance is
-     * created only when the method is called for the first time.</p>
+     * <p>When enabled, this mode allows passing JPA entity classes as query sources
+     * (e.g., {@code from(MyEntity.class)}), interpreting metadata via reflection.</p>
      *
-     * @return the singleton instance of {@code QuerydslSqlVisitor}
+     * <p>When disabled, only Querydsl-generated Q-types (e.g., {@code QUser}) can be used as sources.</p>
+     *
+     * <p>This setting only affects query source resolution — query generation always uses Querydsl SQL.</p>
      */
-    public static QuerydslSqlVisitor getInstance() {
-        return QuerydslSqlVisitor.Holder.INSTANCE;
+    private final boolean jpaEntityMode;
+
+    /**
+     * Returns a singleton instance of {@link QuerydslSqlVisitor} based on the {@code jpaEntityMode} flag.
+     *
+     * <p>This method provides a thread-safe and lazily initialized instance of the visitor.</p>
+     *
+     * <blockquote><pre>
+     * // Enable entity-based query sources (e.g., from(MyEntity.class))
+     * QuerydslSqlVisitor visitor = QuerydslSqlVisitor.getInstance(true);
+     *
+     * // Use standard Q-types as query sources
+     * QuerydslSqlVisitor visitor = QuerydslSqlVisitor.getInstance(false);
+     * </pre></blockquote>
+     *
+     * @param jpaEntityMode {@code true} to allow using JPA entities as query sources,
+     *                      {@code false} to use Querydsl-generated Q-types
+     * @return the configured singleton instance of {@code QuerydslSqlVisitor}
+     */
+    public static QuerydslSqlVisitor getInstance(boolean jpaEntityMode) {
+        return jpaEntityMode ? Holder.JPA : Holder.SQL;
     }
 
     /**
-     * Lazy-loaded holder class for singleton pattern.
+     * Internal static holder class for lazily initialized singleton instances of {@link QuerydslSqlVisitor}.
+     *
+     * <p>This class leverages the "Initialization-on-demand holder" idiom to ensure thread-safe,
+     * lazy initialization of {@code QuerydslSqlVisitor} instances for different modes.</p>
+     *
+     * <p>Instances are initialized only once when accessed through {@link #getInstance(boolean)}.</p>
      */
     private static class Holder {
-        private static final QuerydslSqlVisitor INSTANCE = new QuerydslSqlVisitor();
+
+        /**
+         * Singleton instance of {@link QuerydslSqlVisitor} configured for Querydsl Q-type mode.
+         *
+         * <p>In this mode, all query sources must be Querydsl-generated Q-type classes (e.g., {@code QUser}).</p>
+         */
+        private static final QuerydslSqlVisitor SQL = new QuerydslSqlVisitor(false);
+
+        /**
+         * Singleton instance of {@link QuerydslSqlVisitor} configured for JPA entity mode.
+         *
+         * <p>In this mode, JPA entity classes (e.g., {@code MyEntity.class}) can be used directly
+         * as query sources, with metadata inferred via reflection.</p>
+         */
+        private static final QuerydslSqlVisitor JPA = new QuerydslSqlVisitor(true);
+
     }
 
     /**
@@ -67,29 +108,13 @@ public class QuerydslSqlVisitor implements Visitor<Expression<?>, Map<String, Qu
     }
 
     /**
-     * Visits a {@link ColumnReferenceExpression} and resolves it using the corresponding
-     * {@link PathBuilder} from the provided context.
+     * Visits a {@link ColumnReferenceExpression} and delegates processing to {@link QuerydslExpressionUtils}.
      *
      * @throws UnsupportedOperationException if the source is a set operation
      */
     @Override
     public Expression<?> visit(ColumnReferenceExpression expression, Map<String, QuerydslSource> context) {
-        QuerySource source = expression.getSource();
-        if (source instanceof SetOperationExpression) {
-            throw new UnsupportedOperationException("Column selection in set operations are not supported");
-        } else if (source instanceof EntityReferenceExpression entityRef) {
-            QuerydslSource querydslSource = context.get(entityRef.getAlias());
-            RelationalPath<?> path = (RelationalPath<?>) querydslSource.getSource();
-            return path.getColumns()
-                    .stream()
-                    .filter(col -> expression.getColumnName().equals(col.getMetadata().getName()))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("Column " + expression.getColumnName() + " not found"));
-        } else {
-            QuerydslSource querydslSource = context.get(source.getAlias());
-            PathBuilder<?> pathBuilder = (PathBuilder<?>) querydslSource.getAlias();
-            return pathBuilder.get(expression.getColumnName());
-        }
+        return QuerydslExpressionUtils.getPath(expression, context);
     }
 
     /**
@@ -114,7 +139,7 @@ public class QuerydslSqlVisitor implements Visitor<Expression<?>, Map<String, Qu
      */
     @Override
     public Expression<?> visit(SubqueryExpression expression, Map<String, QuerydslSource> context) {
-        return QuerydslSqlHelper.subquerySource(expression).getSource();
+        return QuerydslSqlHelper.getInstance(jpaEntityMode).subquerySource(expression).getSource();
     }
 
     /**
