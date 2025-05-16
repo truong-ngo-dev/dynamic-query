@@ -121,7 +121,8 @@ public class QuerydslExpressionUtils {
         }
 
         Expression otherwise = expression.getElseExpression().accept(visitor, context);
-        return caseExpr.otherwise(otherwise);
+        Expression result = caseExpr.otherwise(otherwise);
+        return as(result, expression.getAlias());
     }
 
     /**
@@ -149,10 +150,7 @@ public class QuerydslExpressionUtils {
         String template = templateBuilder.toString();
 
         Expression<?> result = Expressions.template(Object.class, template, args.toArray());
-
-        return expression.getAlias() != null
-                ? Expressions.template(Object.class, "{0} as " + expression.getAlias(), result)
-                : result;
+        return as(result, expression.getAlias());
     }
 
     /**
@@ -262,23 +260,47 @@ public class QuerydslExpressionUtils {
      * @throws UnsupportedOperationException if the source is a set operation
      * @throws IllegalArgumentException if the column is not found in the source metadata
      */
-    public static Path<?> getPath(ColumnReferenceExpression expression, Map<String, QuerydslSource> context) {
+    public static Expression<?> getPath(ColumnReferenceExpression expression, Map<String, QuerydslSource> context) {
         QuerySource source = expression.getSource();
         if (source instanceof SetOperationExpression) {
             throw new UnsupportedOperationException("Column selection in set operations are not supported");
         } else if (source instanceof EntityReferenceExpression entityRef) {
             QuerydslSource querydslSource = context.get(entityRef.getAlias());
             RelationalPath<?> path = (RelationalPath<?>) querydslSource.getSource();
-            return path.getColumns()
+            Path<?> p = path.getColumns()
                     .stream()
                     .filter(col -> expression.getColumnName().equals(col.getMetadata().getName()))
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("Column " + expression.getColumnName() + " not found"));
+            return as(p, expression.getAlias());
         } else {
             QuerydslSource querydslSource = context.get(source.getAlias());
             PathBuilder<?> pathBuilder = (PathBuilder<?>) querydslSource.getAlias();
-            return pathBuilder.get(expression.getColumnName());
+            PathBuilder<?> pb = pathBuilder.get(expression.getColumnName());
+            return as(pb, expression.getAlias());
         }
     }
 
+    /**
+     * Returns a new {@link Expression} that represents the given expression with a SQL alias.
+     * <p>
+     * This method is typically used when constructing dynamic SQL projections where you want to assign
+     * an alias to a column or an expression, such as:
+     * <blockquote><pre>
+     * SELECT e.company_id AS comp_id
+     * </pre></blockquote>
+     * <p>
+     * For example:
+     * <blockquote><pre>
+     * Expression&lt;?&gt; aliased = as(employee.companyId, "comp_id");
+     * query.select(aliased).from(employee);
+     * </pre></blockquote>
+     *
+     * @param expression the base expression to alias, must not be {@code null}
+     * @param alias the SQL alias to assign to the expression; if {@code null}, the original expression is returned
+     * @return a new {@link Expression} with the alias applied, or the original expression if alias is {@code null}
+     */
+    public static Expression<?> as(Expression<?> expression, String alias) {
+        return alias == null ? expression : Expressions.template(Object.class, "{0} as " + alias, expression);
+    }
 }
