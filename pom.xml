@@ -36,6 +36,11 @@
 				<artifactId>core</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>vn.truongngo.lib.dynamicquery</groupId>
+				<artifactId>metadata</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
