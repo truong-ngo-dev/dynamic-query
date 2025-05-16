@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import vn.truongngo.lib.dynamicquery.core.builder.DefaultQueryBuilder;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryBuilder;
 import vn.truongngo.lib.dynamicquery.core.builder.QueryBuilderStrategy;
+import vn.truongngo.lib.dynamicquery.core.enumerate.JoinType;
 import vn.truongngo.lib.dynamicquery.core.expression.QuerySource;
 import vn.truongngo.lib.dynamicquery.core.expression.SubqueryExpression;
 import vn.truongngo.lib.dynamicquery.core.support.Expressions;
@@ -73,7 +74,7 @@ public class QuerydslSqlService {
         return rs;
     }
 
-    public List<Tuple> testJoinSubQuery() {
+    public List<LinkedHashMap<String, Object>> testJoinSubQuery() {
 
         QueryBuilder<SQLQuery<Tuple>> qb = prepareJpaNativeBuilder();
         QuerySource employee = entity(Employee.class).as("e");
@@ -83,32 +84,44 @@ public class QuerydslSqlService {
 
         SubqueryExpression subquery = Expressions.subquery(b -> b
                 .from(subEmp)
-                .select(column("companyId", subEmp)).as("company_id")
+                .select(column("companyId", subEmp).as("comp_id"))
                 .select(avg(column("salary", subEmp)).as("avg_salary"))
                 .groupBy(column("companyId", subEmp)))
                 .as("salary_tb");
 
         qb
                 .from(employee)
-                .select("id")
+                .select("id", "firstName", "lastName")
                 .select(column("name", company))
-                .select(column("avg_salary", subquery))
+                .select(column("avg_salary", subquery).as("avg_sal"))
                 .join(b -> b
-                        .join(company)
+                        .join(company, JoinType.LEFT_JOIN)
                         .on(equal(
                                 column("companyId", employee),
                                 column("id", company))))
                 .join(b -> b
-                        .join(subquery)
+                        .join(subquery, JoinType.LEFT_JOIN)
                         .on(equal(
                                 column("id", company),
-                                column("avg_salary", subquery)
+                                column("comp_id", subquery)
                         )));
 
         SQLQuery<Tuple> sqlQuery = qb.build();
         log.info(sqlQuery.toString());
         List<Tuple> tuples = sqlQuery.fetch();
 
-        return tuples;
+        List<LinkedHashMap<String, Object>> rs = new ArrayList<>();
+
+        for (Tuple tuple : tuples) {
+            LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+            map.put("id", tuple.get(0, Object.class));
+            map.put("first_name", tuple.get(1, Object.class));
+            map.put("last_name", tuple.get(2, Object.class));
+            map.put("company_name", tuple.get(3, Object.class));
+            map.put("avg_salary", tuple.get(4, Object.class));
+            rs.add(map);
+        }
+
+        return rs;
     }
 }
