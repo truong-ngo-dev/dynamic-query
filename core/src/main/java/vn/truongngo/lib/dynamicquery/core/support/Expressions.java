@@ -445,4 +445,36 @@ public class Expressions {
         builder.accept(b);
         return b.build();
     }
+
+    /**
+     * Creates an ascending order expression for the given selection.
+     *
+     * <p><strong>Example usage:</strong></p>
+     * <blockquote><pre>
+     * OrderExpression order = Expressions.asc(column("salary", Employee.class));
+     * // Results in: salary ASC
+     * </pre></blockquote>
+     *
+     * @param expression the column or expression to sort by
+     * @return an {@link OrderExpression} representing ascending order
+     */
+    public static OrderExpression asc(Selection expression) {
+        return new OrderExpression(expression, Order.ASC);
+    }
+
+    /**
+     * Creates a descending order expression for the given selection.
+     *
+     * <p><strong>Example usage:</strong></p>
+     * <blockquote><pre>
+     * OrderExpression order = Expressions.desc(column("created_at", Employee.class));
+     * // Results in: created_at DESC
+     * </pre></blockquote>
+     *
+     * @param expression the column or expression to sort by
+     * @return an {@link OrderExpression} representing descending order
+     */
+    public static OrderExpression desc(Selection expression) {
+        return new OrderExpression(expression, Order.DESC);
+    }
 }
