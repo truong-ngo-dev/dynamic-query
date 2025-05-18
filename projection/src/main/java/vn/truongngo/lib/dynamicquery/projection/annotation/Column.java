@@ -48,7 +48,7 @@ public @interface Column {
      *
      * @return the name of the column to select
      */
-    String name();
+    String name() default "";
 
     /**
      * Optional alias to use in the select clause of the query.
