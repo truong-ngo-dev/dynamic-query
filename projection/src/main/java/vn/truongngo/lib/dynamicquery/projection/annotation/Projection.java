@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
  *
  * <p>This results in query expressions similar to:</p>
  * <blockquote><pre>
- * SELECT u.id AS id, u.username AS user_name
+ * SELECT u.id, u.username AS user_name
  * FROM User u
  * </pre></blockquote>
  *
