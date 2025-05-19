@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  * Defines a join clause between the current projection's entity and a target entity.
  * This annotation is intended to be used on a projection class to declare SQL JOIN relationships.
  *
- * <p>Example usage:</p>
+ * <h2>Example usage:</h2>
  * <blockquote><pre>
  * &#64;Projection(entity = User.class, alias = "u")
  * &#64;Join(
@@ -37,7 +37,7 @@ import java.lang.annotation.*;
 public @interface Join {
 
     /**
-     * Type of the SQL join (INNER, LEFT, RIGHT, etc).
+     * Type of the SQL join (INNER, LEFT, RIGHT, etc.).
      *
      * @return the type of join. Default is INNER_JOIN.
      */
