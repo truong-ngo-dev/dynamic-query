@@ -44,6 +44,28 @@ public @interface Join {
     JoinType joinType() default JoinType.INNER_JOIN;
 
     /**
+     * The source entity class where the join originates.
+     * Optional if the source is the main projection entity.
+     *
+     * @return the class representing the source entity.
+     */
+    Class<?> source() default Void.class;
+
+    /**
+     * Alias for the source entity.
+     *
+     * @return the alias used for the source entity.
+     */
+    String sourceAlias() default "";
+
+    /**
+     * The column in the source entity (the one being projected).
+     *
+     * @return the name of the column in the source entity used for join.
+     */
+    String sourceColumn();
+
+    /**
      * The entity class that this projection will join with.
      *
      * @return the class representing the target entity.
@@ -56,13 +78,6 @@ public @interface Join {
      * @return the alias for the target entity in the query.
      */
     String targetAlias() default "";
-
-    /**
-     * The column in the source entity (the one being projected).
-     *
-     * @return the name of the column in the source entity used for join.
-     */
-    String sourceColumn();
 
     /**
      * The column in the target entity that the source column references.
