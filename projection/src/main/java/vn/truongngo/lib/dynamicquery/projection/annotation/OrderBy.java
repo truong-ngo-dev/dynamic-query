@@ -7,29 +7,58 @@ import java.lang.annotation.*;
 /**
  * Annotation to specify ORDER BY clause elements in a query projection.
  * <p>
- * The {@code reference} value should correspond to the alias or name of a selected column
- * or expression. This typically refers to fields annotated with {@code @Column} or other
- * expression-related annotations in the projection.
+ * Ordering can be declared in two ways:
+ * <ul>
+ *   <li>By referencing a selected column or expression alias using {@link #reference()}</li>
+ *   <li>By specifying a raw SQL expression directly using {@link #expression()}</li>
+ * </ul>
  * <p>
- * If not found in the projection, it may refer to a column defined in one of the query sources
- * (i.e., FROM or JOIN), using the associated {@code sourceAlias}.
- * </p>
+ * The primary method is using {@code reference()}, which maps to existing projection selections.
+ * If the reference cannot be resolved from the projection, it will fallback to the source entity
+ * (FROM or JOIN) specified via {@code sourceAlias} to find a matching field using reflection.
  * <p>
- * Defines the sorting order for the specified reference in the query result.
- * </p>
+ * If ordering by a derived expression not present in either the projection or the source entity,
+ * then {@code expression()} must be used to provide the SQL fragment directly.
  *
- * <p><b>Usage:</b></p>
+ * <h2>Resolution Logic:</h2>
+ * <ol>
+ *   <li>Try resolving {@code reference} from projection's {@code SelectionDescriptor} (by alias or column name)</li>
+ *   <li>If not found, use {@code sourceAlias} to inspect the corresponding entity class and locate the field</li>
+ *   <li>If unresolved or ordering by expression, use {@code expression()}</li>
+ * </ol>
+ *
+ * <h2>Examples:</h2>
+ *
+ * <h3>Order by an alias in the projection:</h3>
  * <blockquote><pre>
  * &#64;OrderBy(reference = "createdDate", order = Order.DESC)
  * public class UserProjection {
  *     &#64;Column(name = "created_at", alias = "createdDate")
  *     private LocalDateTime createdAt;
- *     ...
+ * }
+ * </pre></blockquote>
+ *
+ * <h3>Order by a column from a joined source:</h3>
+ * <blockquote><pre>
+ * &#64;OrderBy(reference = "username", sourceAlias = "u")
+ * &#64;Join(entity = User.class, alias = "u", ...)
+ * public class LogProjection {
+ *     &#64;Column(name = "message")
+ *     private String message;
+ * }
+ * </pre></blockquote>
+ *
+ * <h3>Order by a SQL expression:</h3>
+ * <blockquote><pre>
+ * &#64;OrderBy(expression = "LENGTH(message)", order = Order.DESC)
+ * public class LogProjection {
+ *     &#64;Column(name = "message")
+ *     private String message;
  * }
  * </pre></blockquote>
  *
  * @author Truong Ngo
- * @version 2.0.0
+ * @version 2.1.0
  */
 @Repeatable(value = OrderBy.List.class)
 @Target(ElementType.TYPE)
@@ -38,25 +67,35 @@ public @interface OrderBy {
     /**
      * Reference to the alias or name of a selected column or expression to be used in the ORDER BY clause.
      * <p>
-     * This should match either an alias (name) declared in the projection (SELECT clause), or a column defined
-     * in one of the query sources (FROM or JOIN).
+     * This should match either an alias declared in the projection, or a column from the source entity.
+     * If this cannot be resolved, {@link #expression()} must be used instead.
+     * <p>
+     * Ignored if {@code expression()} is provided.
      *
-     * @return the referenced alias or name for ordering
+     * @return the referenced alias or column name
      */
-    String reference();
+    String reference() default "";
 
     /**
-     * The alias of the data source (FROM or JOIN) that contains the referenced column or expression. <p>
-     * This should match the alias defined in either the main source (@Projection) or one of the joined sources (@Join).
+     * The alias of the data source (FROM or JOIN) used to locate the source entity class if {@code reference}
+     * cannot be found in the projection.
      * <p>
-     * If the referenced column or expression is already defined in the projection (i.e., selected in the SELECT clause),
-     * this value can be omitted.
-     * <p>
-     * If this value is not defined, the main source will be applied by default.
+     * If omitted, the primary source defined in {@code @Projection} will be used.
      *
-     * @return the alias of the source from which the referenced column originates
+     * @return the alias of the source entity
      */
     String sourceAlias() default "";
+
+    /**
+     * A raw SQL expression to be used directly in the ORDER BY clause.
+     * <p>
+     * This is used when ordering is based on expressions not present in the projection or entity.
+     * <p>
+     * If provided, this takes precedence over {@code reference()} and {@code sourceAlias()}.
+     *
+     * @return the SQL expression used for ordering
+     */
+    String expression() default "";
 
     /**
      * Defines the ordering direction, either ascending or descending.
