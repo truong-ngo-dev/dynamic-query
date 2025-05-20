@@ -14,13 +14,21 @@ import java.lang.annotation.Target;
  * such as column names or constant values. Nested arithmetic (i.e., chaining expressions via aliases)
  * is not supported by this annotation.
  * </p>
+ *
  * <h2>Usage Example</h2>
  * <blockquote><pre>
- * {@code @Arithmetic(left = "price", right = "quantity", operator = ArithmeticOperator.MULTIPLY, alias = "totalCost")}
+ * {@code @Arithmetic}(
+ *     left = "price",
+ *     leftSource = "invoice",
+ *     right = "quantity",
+ *     rightSource = "item",
+ *     operator = ArithmeticOperator.MULTIPLY,
+ *     alias = "totalCost"
+ * )
  * </pre></blockquote>
  * <p>
- * This expression will be resolved into the equivalent arithmetic expression in the query engine
- * and projected using the specified alias.
+ * This expression will be resolved into an arithmetic operation in the final query using the
+ * provided sources and operands, and projected with the specified alias.
  * </p>
  *
  * @author Truong Ngo
@@ -39,12 +47,28 @@ public @interface Arithmetic {
     String left();
 
     /**
+     * Optional source (such as a table alias or entity name) for the left operand.
+     * Useful in cases where multiple sources are joined in the query and disambiguation is needed.
+     *
+     * @return the source alias for the left operand, or empty string if not specified
+     */
+    String leftSource() default "";
+
+    /**
      * The right operand of the arithmetic expression.
      * Must be a column name or a constant value.
      *
      * @return the right operand
      */
     String right();
+
+    /**
+     * Optional source (such as a table alias or entity name) for the right operand.
+     * Useful in cases where multiple sources are joined in the query and disambiguation is needed.
+     *
+     * @return the source alias for the right operand, or empty string if not specified
+     */
+    String rightSource() default "";
 
     /**
      * The arithmetic operator to apply between the left and right operands.
