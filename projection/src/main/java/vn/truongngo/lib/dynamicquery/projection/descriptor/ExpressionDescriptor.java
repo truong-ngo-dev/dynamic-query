@@ -1,5 +1,8 @@
 package vn.truongngo.lib.dynamicquery.projection.descriptor;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Descriptor representing a raw expression used in the SELECT clause of a query.
  * <p>
@@ -22,7 +25,9 @@ package vn.truongngo.lib.dynamicquery.projection.descriptor;
  * @author Truong Ngo
  * @version 2.0.0
  */
-public class ExpressionDescriptor {
+@Getter
+@Setter
+public class ExpressionDescriptor implements SelectDescriptor {
 
     /**
      * The raw string expression (e.g., "price * quantity", "LOWER(name)", etc.).

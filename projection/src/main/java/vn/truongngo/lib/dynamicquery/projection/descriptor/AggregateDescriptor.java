@@ -40,7 +40,7 @@ public class AggregateDescriptor implements SelectDescriptor {
     /**
      * The descriptor representing the column or expression to be aggregated.
      */
-    private SelectDescriptor selection;
+    private ColumnDescriptor column;
 
     /**
      * The alias used to reference the result of the aggregate function in the projection.
