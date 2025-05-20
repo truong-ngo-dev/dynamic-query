@@ -42,6 +42,6 @@ public interface SelectDescriptor {
      *
      * @return the zero-based index position
      */
-    int getIndex();
+    Integer getIndex();
 
 }

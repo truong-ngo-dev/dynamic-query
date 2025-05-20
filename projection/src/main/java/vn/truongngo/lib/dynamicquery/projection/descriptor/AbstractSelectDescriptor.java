@@ -30,6 +30,6 @@ public class AbstractSelectDescriptor implements SelectDescriptor {
     /**
      * The zero-based index of the selection in the projection class declaration.
      */
-    private int index;
+    private Integer index;
 
 }
