@@ -3,6 +3,7 @@ package vn.truongngo.lib.dynamicquery.projection.descriptor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import vn.truongngo.lib.dynamicquery.core.enumerate.AggregateFunction;
 
 /**
@@ -29,8 +30,8 @@ import vn.truongngo.lib.dynamicquery.core.enumerate.AggregateFunction;
  */
 @Getter
 @Setter
-@Builder
-public class AggregateDescriptor implements SelectDescriptor {
+@SuperBuilder
+public class AggregateDescriptor extends AbstractSelectDescriptor {
 
     /**
      * The aggregate function to apply (e.g., SUM, COUNT, AVG).
@@ -43,20 +44,8 @@ public class AggregateDescriptor implements SelectDescriptor {
     private ColumnDescriptor column;
 
     /**
-     * The alias used to reference the result of the aggregate function in the projection.
-     */
-    private String alias;
-
-    /**
      * Indicates whether the aggregation should apply only to distinct values.
      */
     private boolean distinct;
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getAlias() {
-        return alias;
-    }
 }

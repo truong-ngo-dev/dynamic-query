@@ -3,6 +3,7 @@ package vn.truongngo.lib.dynamicquery.projection.descriptor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import vn.truongngo.lib.dynamicquery.projection.annotation.Column;
 
 /**
@@ -25,18 +26,13 @@ import vn.truongngo.lib.dynamicquery.projection.annotation.Column;
  */
 @Getter
 @Setter
-@Builder
-public class ColumnDescriptor implements SelectDescriptor {
+@SuperBuilder
+public class ColumnDescriptor extends AbstractSelectDescriptor {
 
    /**
     * The name of the column as it appears in the source (table or view).
     */
     private String name;
-
-    /**
-     * The alias used to reference this column in other parts of the query (e.g., ORDER BY, GROUP BY).
-     */
-    private String alias;
 
     /**
      * The alias of the source (FROM or JOIN) from which this column originates.

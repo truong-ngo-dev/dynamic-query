@@ -2,6 +2,7 @@ package vn.truongngo.lib.dynamicquery.projection.descriptor;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import vn.truongngo.lib.dynamicquery.core.enumerate.ArithmeticOperator;
 
 /**
@@ -32,7 +33,8 @@ import vn.truongngo.lib.dynamicquery.core.enumerate.ArithmeticOperator;
  */
 @Getter
 @Setter
-public class ArithmeticDescriptor implements SelectDescriptor {
+@SuperBuilder
+public class ArithmeticDescriptor extends AbstractSelectDescriptor {
 
     /**
      * The arithmetic operator to apply (e.g., ADD, SUBTRACT, MULTIPLY, DIVIDE).
@@ -48,10 +50,5 @@ public class ArithmeticDescriptor implements SelectDescriptor {
      * The right operand of the arithmetic operation, typically a column or expression.
      */
     private ColumnDescriptor right;
-
-    /**
-     * The alias used to reference the result of the arithmetic expression in the projection.
-     */
-    private String alias;
 
 }

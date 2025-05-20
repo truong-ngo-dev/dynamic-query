@@ -2,6 +2,7 @@ package vn.truongngo.lib.dynamicquery.projection.descriptor;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 /**
  * Descriptor representing a raw expression used in the SELECT clause of a query.
@@ -27,17 +28,12 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ExpressionDescriptor implements SelectDescriptor {
+@SuperBuilder
+public class ExpressionDescriptor extends AbstractSelectDescriptor {
 
     /**
      * The raw string expression (e.g., "price * quantity", "LOWER(name)", etc.).
      */
     private String expression;
-
-    /**
-     * The alias assigned to the expression in the result set.
-     * This alias can be referenced by other clauses in the query.
-     */
-    private String alias;
 
 }
