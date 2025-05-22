@@ -187,6 +187,17 @@ public class FunctionExpression extends AbstractAlias<FunctionExpression> implem
             return this;
         }
 
+        /**
+         * Adds the given parameters (arguments) to the function.
+         *
+         * @param parameters one or more {@link Selection} expressions
+         * @return this builder instance
+         */
+        public Builder parameters(List<Selection> parameters) {
+            this.parameters.addAll(parameters);
+            return this;
+        }
+
 
         /**
          * Marks the function as applying the {@code DISTINCT} modifier.

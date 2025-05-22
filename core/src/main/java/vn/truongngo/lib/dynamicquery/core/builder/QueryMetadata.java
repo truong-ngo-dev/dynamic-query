@@ -5,6 +5,7 @@ import vn.truongngo.lib.dynamicquery.core.expression.modifier.OrderExpression;
 import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Interface that represents the metadata of a query. It stores the structural components of a query
@@ -39,6 +40,17 @@ public interface QueryMetadata {
      * @return the alias string
      */
     String getAlias();
+
+    /**
+     * Returns a mapping of alias names to query sources. This includes the
+     * primary FROM source and any additional JOINed sources.
+     * <p>
+     * The key is the alias (or name) used in the query, and the value is the corresponding {@link QuerySource}.
+     * </p>
+     *
+     * @return a map of aliases to query sources
+     */
+    Map<String, QuerySource> getSourceMap();
 
     /**
      * Sets the FROM clause using a given entity class.

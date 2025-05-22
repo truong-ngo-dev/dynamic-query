@@ -6,7 +6,9 @@ import vn.truongngo.lib.dynamicquery.core.expression.modifier.Restriction;
 import vn.truongngo.lib.dynamicquery.core.support.Expressions;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Default implementation of the {@link QueryMetadata} interface.
@@ -75,6 +77,20 @@ public class DefaultQueryMetadata implements QueryMetadata {
     @Override
     public String getAlias() {
         return from.getAlias();
+    }
+
+    /**
+     * {@inheritDoc}
+     * */
+    @Override
+    public Map<String, QuerySource> getSourceMap() {
+        Map<String, QuerySource> rs = new LinkedHashMap<>();
+        rs.put(from.getAlias(), from);
+        for (JoinExpression j : join) {
+            QuerySource source = j.target();
+            rs.put(source.getAlias(), source);
+        }
+        return rs;
     }
 
     /**

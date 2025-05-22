@@ -37,7 +37,7 @@ public class CaseWhenExpression extends AbstractAlias<CaseWhenExpression> implem
      * @param conditions   the list of WHEN-THEN conditions
      * @param elseExpression the expression to be returned if no conditions match
      */
-    public CaseWhenExpression(List<WhenThen> conditions,Selection elseExpression) {
+    public CaseWhenExpression(List<WhenThen> conditions, Selection elseExpression) {
         this.conditions = conditions;
         this.elseExpression = elseExpression;
     }
