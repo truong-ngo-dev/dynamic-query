@@ -52,6 +52,27 @@ import java.util.List;
 public class DefaultExpressionParser implements ExpressionParser {
 
     /**
+     * Holder class for the singleton instance of {@link DefaultExpressionParser}.
+     * <p>
+     * This leverages the initialization-on-demand holder idiom to ensure
+     * thread-safe, lazy initialization of the singleton instance.
+     */
+    private static class Holder {
+        private static final DefaultExpressionParser INSTANCE = new DefaultExpressionParser();
+    }
+
+    /**
+     * Returns the singleton instance of {@link DefaultExpressionParser}.
+     * <p>
+     * This method uses the initialization-on-demand holder idiom for lazy, thread-safe instantiation.
+     *
+     * @return the singleton {@code DefaultExpressionParser} instance
+     */
+    public static DefaultExpressionParser getInstance() {
+        return Holder.INSTANCE;
+    }
+
+    /**
      * Parses a constant SQL expression into a {@link ConstantExpression}.
      *
      * <p>This method supports various literal types including:</p>
