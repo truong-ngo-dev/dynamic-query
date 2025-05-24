@@ -2,6 +2,7 @@ package vn.truongngo.lib.dynamicquery.core.expression;
 
 import lombok.Getter;
 import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
+import vn.truongngo.lib.dynamicquery.core.utils.NamingUtil;
 
 /**
  * Represents an entity reference expression, typically used to refer to a specific entity class in a query.
@@ -16,6 +17,9 @@ import vn.truongngo.lib.dynamicquery.core.builder.Visitor;
 @Getter
 public class EntityReferenceExpression extends AbstractAlias<EntityReferenceExpression> implements QuerySource {
 
+    /**
+     * The entity class that this expression refers to.
+     */
     private final Class<?> entityClass;
 
     /**
@@ -29,10 +33,26 @@ public class EntityReferenceExpression extends AbstractAlias<EntityReferenceExpr
      * @throws IllegalArgumentException if the provided entity class is {@code null}
      */
     public EntityReferenceExpression(Class<?> entityClass) {
+        this(entityClass, null);
+    }
+
+    /**
+     * Constructs a new {@link EntityReferenceExpression} for the given entity class.
+     * <p>
+     * The entity class is used to reference a specific entity type in a query. This can be useful for building
+     * queries that refer to specific types of entities in an ORM context or custom query systems.
+     * </p>
+     *
+     * @param entityClass the class of the entity being referenced in the query
+     * @throws IllegalArgumentException if the provided entity class is {@code null}
+     */
+    public EntityReferenceExpression(Class<?> entityClass, String alias) {
         if (entityClass == null) {
             throw new IllegalArgumentException("Entity class must not be null");
         }
         this.entityClass = entityClass;
+        String as = alias == null ? NamingUtil.camelToUnderscore(entityClass.getSimpleName()) : alias;
+        this.as(as);
     }
 
     /**
@@ -44,7 +64,7 @@ public class EntityReferenceExpression extends AbstractAlias<EntityReferenceExpr
     @Override
     public String getAlias() {
         if (super.getAlias() == null) {
-            return entityClass.getSimpleName().substring(0, 1).toLowerCase() + entityClass.getSimpleName().substring(1);
+            return NamingUtil.camelToUnderscore(entityClass.getSimpleName());
         }
         return super.getAlias();
     }
