@@ -35,6 +35,14 @@ import java.lang.annotation.Target;
 public @interface Criteria {
 
     /**
+     * Specifies the name of the column in the source entity that this field represents.
+     * If not specified, the field name will be used as the column name.
+     *
+     * @return the name of the column to be used in the query
+     */
+    String column() default "";
+
+    /**
      * Defines the comparison operator to be used for the annotated field.
      * Default is {@code EQUAL}.
      *
