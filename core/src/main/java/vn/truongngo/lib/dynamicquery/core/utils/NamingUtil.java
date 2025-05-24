@@ -1,4 +1,4 @@
-package vn.truongngo.lib.dynamicquery.metadata.utils;
+package vn.truongngo.lib.dynamicquery.core.utils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
