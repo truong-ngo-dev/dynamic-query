@@ -1,11 +1,13 @@
 package vn.truongngo.lib.dynamicquery.projection.processor;
 
-import vn.truongngo.lib.dynamicquery.metadata.utils.NamingUtil;
+import vn.truongngo.lib.dynamicquery.core.enumerate.LogicalOperator;
+import vn.truongngo.lib.dynamicquery.core.utils.NamingUtil;
 import vn.truongngo.lib.dynamicquery.projection.annotation.*;
 import vn.truongngo.lib.dynamicquery.projection.descriptor.*;
 
 import java.lang.reflect.Field;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Utility class responsible for scanning and parsing projection classes annotated
@@ -131,10 +133,12 @@ public class ProjectionScanner {
      */
     private static void scanColumn(ProjectionDescriptor descriptor, Field field, int index) {
         Column column = field.getDeclaredAnnotation(Column.class);
+        String alias = column.name().isEmpty() || column.name().equals(field.getName()) ? null : field.getName();
         ColumnDescriptor columnDescriptor = ColumnDescriptor.builder()
-                .name(column.name().isEmpty() ? field.getName() : column.name())
-                .alias(column.alias())
-                .from(column.from() == null ? descriptor.getAlias() : column.from())
+                .field(field)
+                .name(column.name().trim().isEmpty() ? field.getName() : column.name())
+                .alias(alias)
+                .from(column.from().trim().isEmpty() ? descriptor.getAlias() : column.from())
                 .index(index)
                 .build();
         descriptor.addSelect(columnDescriptor);
@@ -155,9 +159,10 @@ public class ProjectionScanner {
                 .from(aggregate.source().isEmpty() ? descriptor.getAlias() : aggregate.source())
                 .build();
         AggregateDescriptor aggregateDescriptor = AggregateDescriptor.builder()
+                .field(field)
                 .function(aggregate.function())
                 .column(columnDescriptor)
-                .alias(aggregate.alias())
+                .alias(field.getName())
                 .distinct(aggregate.distinct())
                 .index(index)
                 .build();
@@ -183,10 +188,11 @@ public class ProjectionScanner {
                 .from(arithmetic.rightSource().isEmpty() ? descriptor.getAlias() : arithmetic.rightSource())
                 .build();
         ArithmeticDescriptor arithmeticDescriptor = ArithmeticDescriptor.builder()
+                .field(field)
                 .left(left)
                 .right(right)
                 .operator(arithmetic.operator())
-                .alias(arithmetic.alias())
+                .alias(field.getName())
                 .index(index)
                 .build();
         descriptor.addSelect(arithmeticDescriptor);
@@ -203,9 +209,10 @@ public class ProjectionScanner {
     private static void scanSubquery(ProjectionDescriptor descriptor, Field field, int index) {
         Subquery subquery = field.getDeclaredAnnotation(Subquery.class);
         SubqueryDescriptor subqueryDescriptor = SubqueryDescriptor.builder()
+                .field(field)
                 .targetProjection(subquery.target())
                 .column(subquery.column())
-                .alias(subquery.alias())
+                .alias(field.getName())
                 .index(index)
                 .build();
         descriptor.addSelect(subqueryDescriptor);
@@ -222,8 +229,9 @@ public class ProjectionScanner {
     private static void scanExpression(ProjectionDescriptor descriptor, Field field, int index) {
         Expression expression = field.getDeclaredAnnotation(Expression.class);
         ExpressionDescriptor expressionDescriptor = ExpressionDescriptor.builder()
+                .field(field)
                 .expression(expression.value())
-                .alias(expression.alias())
+                .alias(field.getName())
                 .index(index)
                 .build();
         descriptor.addSelect(expressionDescriptor);
@@ -240,8 +248,9 @@ public class ProjectionScanner {
     private static void scanGroupBy(ProjectionDescriptor descriptor, Class<?> projectionClass) {
         GroupBy[] groupBys = projectionClass.getDeclaredAnnotationsByType(GroupBy.class);
         for (GroupBy groupBy : groupBys) {
+            String sourceAlias = groupBy.sourceAlias().trim().isEmpty() ? descriptor.getAlias() : groupBy.sourceAlias();
             SelectDescriptor selectDescriptor = groupBy.expression().isEmpty() ?
-                    getSelect(descriptor, groupBy.reference(), groupBy.sourceAlias()) :
+                    getSelect(descriptor, groupBy.reference(), sourceAlias) :
                     ExpressionDescriptor.builder().expression(groupBy.expression()).build();
             descriptor.addGroupBy(selectDescriptor);
         }
@@ -257,8 +266,9 @@ public class ProjectionScanner {
     private static void scanOrderBy(ProjectionDescriptor descriptor, Class<?> projectionClass) {
         OrderBy[] orderBys = projectionClass.getDeclaredAnnotationsByType(OrderBy.class);
         for (OrderBy orderBy : orderBys) {
+            String sourceAlias = orderBy.sourceAlias().trim().isEmpty() ? descriptor.getAlias() : orderBy.sourceAlias();
             SelectDescriptor selectDescriptor = orderBy.expression().isEmpty() ?
-                    getSelect(descriptor, orderBy.reference(), orderBy.sourceAlias()) :
+                    getSelect(descriptor, orderBy.reference(), sourceAlias) :
                     ExpressionDescriptor.builder().expression(orderBy.expression()).build();
             OrderByDescriptor orderByDescriptor = OrderByDescriptor.builder()
                     .selection(selectDescriptor)
@@ -301,16 +311,9 @@ public class ProjectionScanner {
      */
     private static SelectDescriptor getSelectInternal(ProjectionDescriptor descriptor, String identifier) {
         for (SelectDescriptor select : descriptor.getSelects()) {
-            if (select instanceof ColumnDescriptor columnDescriptor) {
-                if (columnDescriptor.getAlias() != null && columnDescriptor.getAlias().equals(identifier)) {
-                    return columnDescriptor;
-                } else if (columnDescriptor.getName() != null && columnDescriptor.getName().equals(identifier)) {
-                    return columnDescriptor;
-                }
-            } else {
-                if (select.getAlias() != null && select.getAlias().equals(identifier)) {
-                    return select;
-                }
+            String reference = select.getReference();
+            if (identifier.equals(reference)) {
+                return select;
             }
         }
         return null;
@@ -351,5 +354,172 @@ public class ProjectionScanner {
             }
         }
         return null;
+    }
+
+    /**
+     * Scans and builds a predicate descriptor tree from the given predicate class.
+     * <p>
+     * This method processes fields annotated with {@code @Criteria} and {@code @Group} to
+     * create a hierarchy of predicates combining simple criteria and nested groups.
+     * </p>
+     *
+     * @param predicateClass       the class containing predicate definitions (criteria and groups)
+     * @param projectionDescriptor the projection descriptor that provides context and aliasing
+     * @return the root {@link PredicateDescriptor} representing the full predicate tree
+     */
+    public static PredicateDescriptor scanPredicate(Class<?> predicateClass, ProjectionDescriptor projectionDescriptor) {
+        GroupDescriptor descriptor = GroupDescriptor.builder().predicates(new ArrayList<>()).operator(LogicalOperator.AND).build();
+        scanCriteria(descriptor, predicateClass, projectionDescriptor);
+        scanGroup(descriptor, predicateClass, projectionDescriptor);
+        return descriptor;
+    }
+
+    /**
+     * Scans fields of the criteria class for {@code @Criteria} annotations without grouping,
+     * and adds corresponding {@link PredicateDescriptor}s to the given group descriptor.
+     *
+     * @param descriptor           the group descriptor to add predicates to
+     * @param criteriaClass        the criteria class to scan fields from
+     * @param projectionDescriptor the projection context used to resolve selection references
+     */
+    private static void scanCriteria(GroupDescriptor descriptor, Class<?> criteriaClass, ProjectionDescriptor projectionDescriptor) {
+        Field[] fields = criteriaClass.getDeclaredFields();
+        for (Field field : fields) {
+            Criteria criteria = field.getDeclaredAnnotation(Criteria.class);
+            Group group = field.getDeclaredAnnotation(Group.class);
+            if (criteria != null && group == null) {
+                PredicateDescriptor predicateDescriptor = buildCriteriaDescriptor(projectionDescriptor, field, criteria);
+                descriptor.addPredicate(predicateDescriptor);
+            }
+        }
+    }
+
+    /**
+     * Scans fields annotated with both {@code @Group} and {@code @Criteria}, organizing
+     * them into groups and building nested predicate trees according to group definitions.
+     *
+     * @param descriptor           the root group descriptor to add grouped predicates to
+     * @param criteriaClass        the criteria class to scan
+     * @param projectionDescriptor the projection descriptor for context
+     */
+    private static void scanGroup(GroupDescriptor descriptor, Class<?> criteriaClass, ProjectionDescriptor projectionDescriptor) {
+        Field[] fields = criteriaClass.getDeclaredFields();
+        Map<String, List<PredicateDescriptor>> groupCriteria = new HashMap<>();
+        for (Field field : fields) {
+            Criteria criteria = field.getDeclaredAnnotation(Criteria.class);
+            Group group = field.getDeclaredAnnotation(Group.class);
+            if (group != null && criteria != null) {
+                PredicateDescriptor criteriaDescriptor = buildCriteriaDescriptor(projectionDescriptor, field, criteria);
+                groupCriteria.computeIfAbsent(group.id(), k -> new ArrayList<>()).add(criteriaDescriptor);
+            }
+        }
+
+        if (groupCriteria.isEmpty()) return;
+
+        GroupDefinition[] groupDefinitions = criteriaClass.getDeclaredAnnotationsByType(GroupDefinition.class);
+
+        Map<String, PredicateDescriptor> groupMap = groupCriteria.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> {
+                            String groupId = entry.getKey();
+                            List<PredicateDescriptor> criteriaDescriptors = entry.getValue();
+                            GroupDefinition groupDefinition = getGroupDefinition(groupDefinitions, groupId);
+                            return GroupDescriptor.builder()
+                                    .operator(groupDefinition.type())
+                                    .predicates(criteriaDescriptors)
+                                    .build();
+                        }
+                ));
+
+        Set<String> rootIds = findRootIds(groupDefinitions);
+        List<PredicateDescriptor> rootGroups = rootIds.stream().map(id -> buildGroupDescriptorTree(id, groupMap, groupDefinitions)).toList();
+        descriptor.addPredicate(rootGroups);
+    }
+
+    /**
+     * Builds a {@link CriteriaDescriptor} from the given field and criteria annotation.
+     * <p>
+     * Resolves the selection (column or expression) to use based on the criteria configuration,
+     * including source alias, reference name, and optional expression override.
+     * </p>
+     *
+     * @param projectionDescriptor the projection descriptor providing alias context
+     * @param field                the field annotated with {@code @Criteria}
+     * @param criteria             the {@code @Criteria} annotation instance
+     * @return a {@link CriteriaDescriptor} representing the predicate for the field
+     */
+    private static PredicateDescriptor buildCriteriaDescriptor(ProjectionDescriptor projectionDescriptor, Field field, Criteria criteria) {
+        String sourceAlias = criteria.sourceAlias().trim().isEmpty() ? projectionDescriptor.getAlias() : criteria.sourceAlias();
+        SelectDescriptor selectDescriptor = criteria.expression().isEmpty() ?
+                getSelect(projectionDescriptor, criteria.reference(), sourceAlias) :
+                ExpressionDescriptor.builder().expression(criteria.expression()).build();
+
+        return CriteriaDescriptor.builder()
+                .selection(selectDescriptor)
+                .field(field)
+                .operator(criteria.operator())
+                .build();
+    }
+
+    /**
+     * Finds root group IDs among all group definitions by removing any IDs that appear as children.
+     *
+     * @param groupDefinitions the array of all {@link GroupDefinition} annotations
+     * @return a set of root group IDs that have no parent group
+     */
+    public static Set<String> findRootIds(GroupDefinition[] groupDefinitions) {
+
+        Set<String> allIds = new HashSet<>();
+        for (GroupDefinition gd : groupDefinitions) {
+            allIds.add(gd.id());
+        }
+
+        Set<String> childIds = new HashSet<>();
+        for (GroupDefinition gd : groupDefinitions) {
+            childIds.addAll(Arrays.asList(gd.children()));
+        }
+
+        allIds.removeAll(childIds);
+        return allIds;
+    }
+
+    /**
+     * Recursively builds a nested {@link GroupDescriptor} tree from the group ID, group map, and group definitions.
+     *
+     * @param id               the current group ID to build the descriptor for
+     * @param groupMap         a map of group IDs to their corresponding {@link PredicateDescriptor}
+     * @param groupDefinitions the array of all {@link GroupDefinition} annotations
+     * @return a nested {@link PredicateDescriptor} representing the group and its children
+     */
+    public static PredicateDescriptor buildGroupDescriptorTree(String id, Map<String, PredicateDescriptor> groupMap, GroupDefinition[] groupDefinitions) {
+        GroupDefinition groupDefinition = getGroupDefinition(groupDefinitions, id);
+        GroupDescriptor groupDescriptor = GroupDescriptor.builder()
+                .operator(groupDefinition.type())
+                .build();
+        String[] childIds = groupDefinition.children();
+        for (String childId : childIds) {
+            PredicateDescriptor descriptor = groupMap.get(childId);
+            if (descriptor != null) {
+                groupDescriptor.addPredicate(descriptor);
+            } else {
+                PredicateDescriptor childGroup = buildGroupDescriptorTree(childId, groupMap, groupDefinitions);
+                groupDescriptor.addPredicate(childGroup);
+            }
+        }
+        return groupDescriptor;
+    }
+
+    /**
+     * Finds a {@link GroupDefinition} by its group ID from the given array.
+     *
+     * @param groupDefinitions the array of {@link GroupDefinition} annotations to search
+     * @param groupId          the ID of the group to find
+     * @return the matching {@link GroupDefinition}
+     * @throws IllegalArgumentException if no matching group is found
+     */
+    private static GroupDefinition getGroupDefinition(GroupDefinition[] groupDefinitions, String groupId) {
+        return Arrays.stream(groupDefinitions)
+                .filter(g -> g.id().equals(groupId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Group " + groupId + " not found"));
     }
 }
