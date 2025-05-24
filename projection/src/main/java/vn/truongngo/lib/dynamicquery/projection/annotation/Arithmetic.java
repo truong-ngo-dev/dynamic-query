@@ -77,12 +77,4 @@ public @interface Arithmetic {
      */
     ArithmeticOperator operator();
 
-    /**
-     * The alias to assign to the result of this arithmetic expression.
-     * This alias is used as the name of the projected field in the final result set.
-     *
-     * @return the alias of the resulting expression
-     */
-    String alias();
-
 }

@@ -65,13 +65,6 @@ public @interface Aggregate {
     String source() default "";
 
     /**
-     * The alias for the resulting aggregated value in the projection result.
-     *
-     * @return the alias for the aggregated output
-     */
-    String alias();
-
-    /**
      * Indicates whether to apply the {@code DISTINCT} modifier inside the aggregate function.
      * <p>
      * For example: {@code COUNT(DISTINCT user_id)}
