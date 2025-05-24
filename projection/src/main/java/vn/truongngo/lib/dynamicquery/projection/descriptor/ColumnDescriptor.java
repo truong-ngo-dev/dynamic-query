@@ -1,6 +1,5 @@
 package vn.truongngo.lib.dynamicquery.projection.descriptor;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -40,4 +39,19 @@ public class ColumnDescriptor extends AbstractSelectDescriptor {
      */
     private String from;
 
+    /**
+     * Returns the effective reference name for this column to be used in clauses
+     * like ORDER BY or GROUP BY.
+     * <p>
+     * This returns the alias if defined; otherwise, it falls back to the column name.
+     * This fallback ensures that references to this column always resolve correctly
+     * even when no explicit alias is provided.
+     * </p>
+     *
+     * @return the alias if present, or the original column name otherwise
+     */
+    @Override
+    public String getReference() {
+        return getAlias() != null ? getAlias() : name;
+    }
 }
