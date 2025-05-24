@@ -207,6 +207,14 @@ public class DefaultQueryMetadata implements QueryMetadata {
      * {@inheritDoc}
      * */
     @Override
+    public void resetSelectClause() {
+        select = new ArrayList<>();
+    }
+
+    /**
+     * {@inheritDoc}
+     * */
+    @Override
     public void resetWhereClauses() {
         where = new ArrayList<>();
     }
