@@ -2,10 +2,7 @@ package vn.truongngo.lib.dynamicquery.projection.annotation;
 
 import vn.truongngo.lib.dynamicquery.core.enumerate.LogicalOperator;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Annotation used to define a logical group that combines multiple field-level groups
@@ -34,7 +31,7 @@ import java.lang.annotation.Target;
  * @version 2.0.0
  */
 @Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
+@Repeatable(GroupDefinition.List.class)
 public @interface GroupDefinition {
 
     /**
@@ -60,5 +57,14 @@ public @interface GroupDefinition {
      * @return array of child group IDs
      */
     String[] children();
+
+    /**
+     * Container annotation to allow multiple {@code @GroupDefinition} annotations on the same class.
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    @interface List {
+        GroupDefinition[] value();
+    }
 
 }

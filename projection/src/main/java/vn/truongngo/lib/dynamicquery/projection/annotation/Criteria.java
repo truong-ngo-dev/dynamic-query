@@ -35,12 +35,33 @@ import java.lang.annotation.Target;
 public @interface Criteria {
 
     /**
-     * Specifies the name of the column in the source entity that this field represents.
-     * If not specified, the field name will be used as the column name.
+     * Refers to either:
+     * <ul>
+     *     <li>A column in the entity (e.g., {@code "status"})</li>
+     *     <li>An alias of a computed select field (e.g., {@code "totalCount"})</li>
+     * </ul>
+     * If left empty, the field name will be used as the default reference.
      *
-     * @return the name of the column to be used in the query
+     * @return the reference to a column, alias, or expression
      */
-    String column() default "";
+    String reference() default "";
+
+    /**
+     * Provides a raw SQL-compatible expression that represents the left-hand side of the predicate.
+     * This is useful for advanced or computed expressions that not included in selected expression.
+     * <p>
+     * Example:
+     * <pre>{@code
+     * @Criteria(expression = "LOWER(username)")
+     * private String username;
+     * }</pre>
+     * <p>
+     * If this property is set, it takes precedence over {@link #reference()}.
+     * </p>
+     *
+     * @return the SQL expression to use in the predicate
+     */
+    String expression() default "";
 
     /**
      * Defines the comparison operator to be used for the annotated field.
