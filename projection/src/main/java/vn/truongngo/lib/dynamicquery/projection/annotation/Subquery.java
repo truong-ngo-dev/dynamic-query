@@ -49,11 +49,4 @@ public @interface Subquery {
      */
     String column();
 
-    /**
-     * The alias to assign to the subquery result in the projection.
-     * If omitted, the field name may be used as the alias.
-     *
-     * @return the alias of the subquery result
-     */
-    String alias() default "";
 }
