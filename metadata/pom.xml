@@ -15,14 +15,12 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <commons-text.version>1.10.0</commons-text.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-            <version>${commons-text.version}</version>
+            <groupId>vn.truongngo.lib.dynamicquery</groupId>
+            <artifactId>core</artifactId>
         </dependency>
     </dependencies>
 
