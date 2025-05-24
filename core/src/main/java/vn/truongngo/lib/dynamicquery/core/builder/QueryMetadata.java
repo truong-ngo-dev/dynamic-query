@@ -145,6 +145,11 @@ public interface QueryMetadata {
     void reset();
 
     /**
+     * Resets all expression in the SELECT clause
+     */
+    void resetSelectClause();
+
+    /**
      * Clears all predicates in the WHERE clause.
      */
     void resetWhereClauses();
