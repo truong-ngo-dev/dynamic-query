@@ -43,12 +43,4 @@ public @interface Expression {
      */
     String value();
 
-    /**
-     * The alias to assign to the result of the expression.
-     * If omitted, the field name may be used as a fallback.
-     *
-     * @return the alias of the projected expression
-     */
-    String alias() default "";
-
 }
