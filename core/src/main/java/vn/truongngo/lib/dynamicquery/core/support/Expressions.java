@@ -47,7 +47,7 @@ public class Expressions {
      * @param right    the right operand
      * @return a {@link Selection} representing the resulting arithmetic expression
      */
-    private static Selection arithmetic(ArithmeticOperator operator, Selection left, Selection right) {
+    public static Selection arithmetic(ArithmeticOperator operator, Selection left, Selection right) {
         return ArithmeticExpression.builder()
                 .left(left)
                 .right(right)
@@ -192,6 +192,17 @@ public class Expressions {
      */
     public static QuerySource entity(Class<?> entityClass) {
         return new EntityReferenceExpression(entityClass);
+    }
+
+    /**
+     * Creates an entity reference expression for the given class with an optional alias.
+     *
+     * @param entityClass the entity class
+     * @param alias the alias for the entity reference (optional)
+     * @return an entity reference expression
+     */
+    public static QuerySource entity(Class<?> entityClass, String alias) {
+        return new EntityReferenceExpression(entityClass, alias);
     }
 
     /**
