@@ -1,8 +1,5 @@
 package vn.truongngo.lib.dynamicquery.projection.annotation;
 
-import vn.truongngo.lib.dynamicquery.core.builder.QueryMetadata;
-import vn.truongngo.lib.dynamicquery.core.expression.ColumnReferenceExpression;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -11,28 +8,23 @@ import java.lang.annotation.Target;
 /**
  * Indicates that the annotated field represents a column in the resulting query projection.
  * This annotation is intended to be used within a class annotated with {@link Projection}.
- * It supports specifying the exact column name, an optional alias for the column, and the source alias
- * (useful when working with joins or subqueries).
  *
- * <p>This metadata will be processed and converted into a {@link ColumnReferenceExpression} within the
- * {@link QueryMetadata}.</p>
+ * <p>The {@code name} attribute defines the column name in the source entity or query.
+ * The alias in the generated query will always match the field name.</p>
  *
  * <h2>Usage Example</h2>
  * <blockquote><pre>
  * {@code @Projection}(entity = User.class, alias = "u")
  * public class UserProjection {
  *
- *     {@code @Column}(name = "id")
- *     private Long id;
- *
- *     {@code @Column}(name = "username", alias = "user_name", from = "u")
+ *     {@code @Column}(name = "user_name")
  *     private String username;
  * }
  * </pre></blockquote>
  *
- * <p>This will result in query expressions like:</p>
+ * <p>Will result in:</p>
  * <blockquote><pre>
- * SELECT u.id, u.username AS user_name
+ * SELECT u.user_name AS username
  * FROM User u
  * </pre></blockquote>
  *
@@ -44,19 +36,26 @@ import java.lang.annotation.Target;
 public @interface Column {
 
     /**
-     * The name of the column in the source entity.
+     * The name of the column in the source entity or query.
      *
-     * @return the name of the column to select
+     * <p>If not specified, the field name will be used as the column name.
+     * If specified and differs from the field name, the field name will be used as the alias.</p>
+     *
+     * <p>Examples:</p>
+     * <blockquote><pre>
+     * {@code @}Column
+     * private String username;              // SQL: SELECT u.username
+     *
+     * {@code @}Column(name = "username")
+     * private String username;              // SQL: SELECT u.username
+     *
+     * {@code @}Column(name = "user_name")
+     * private String username;              // SQL: SELECT u.user_name AS username
+     * </pre></blockquote>
+     *
+     * @return the column name to select
      */
     String name() default "";
-
-    /**
-     * Optional alias to use in the select clause of the query.
-     * If not provided, the field name will be used as the alias.
-     *
-     * @return the alias of the column in the result set
-     */
-    String alias() default "";
 
     /**
      * The alias of the table or subquery this column comes from.
