@@ -1,6 +1,7 @@
 package vn.truongngo.lib.dynamicquery.metadata.scanner;
 
 import jakarta.persistence.*;
+import vn.truongngo.lib.dynamicquery.core.utils.NamingUtil;
 import vn.truongngo.lib.dynamicquery.metadata.db.ColumnMetadata;
 import vn.truongngo.lib.dynamicquery.metadata.db.DefaultColumnMetadata;
 import vn.truongngo.lib.dynamicquery.metadata.db.DefaultTableMetadata;
@@ -10,7 +11,6 @@ import vn.truongngo.lib.dynamicquery.metadata.entity.FieldMetadata;
 import vn.truongngo.lib.dynamicquery.metadata.jpa.CompositeJoinColumnFieldMetadata;
 import vn.truongngo.lib.dynamicquery.metadata.jpa.JoinColumnFieldMetadata;
 import vn.truongngo.lib.dynamicquery.metadata.jpa.JpaEntityMetadata;
-import vn.truongngo.lib.dynamicquery.metadata.utils.NamingUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
