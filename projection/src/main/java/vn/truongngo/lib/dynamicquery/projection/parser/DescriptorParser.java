@@ -13,6 +13,7 @@ import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Utility class for parsing various {@link ProjectionDescriptor} and related predicate descriptors
@@ -227,6 +228,7 @@ public class DescriptorParser {
         GroupDescriptor group = (GroupDescriptor) predicateDescriptor;
         List<Predicate> predicates = group.getPredicates().stream()
                 .map(pd -> parsePredicateDescriptor(pd, queryMetadata, criteria))
+                .filter(Objects::nonNull)
                 .toList();
         predicates.forEach(queryMetadata::addWhere);
     }
@@ -263,12 +265,17 @@ public class DescriptorParser {
             Selection selection = parseSelectDescriptor(criteriaDescriptor.getSelection(), queryMetadata);
             Field field = criteriaDescriptor.getField();
             field.setAccessible(true);
-            Selection compareExpression = Expressions.constant(field.get(criteria));
-            return ComparisonPredicate.builder()
-                    .left(selection)
-                    .operator(criteriaDescriptor.getOperator())
-                    .right(compareExpression)
-                    .build();
+            Object value = field.get(criteria);
+            if (value != null) {
+                Selection compareExpression = Expressions.constant(value);
+                return ComparisonPredicate.builder()
+                        .left(selection)
+                        .operator(criteriaDescriptor.getOperator())
+                        .right(compareExpression)
+                        .build();
+            } else {
+                return null;
+            }
         } catch (IllegalAccessException e) {
             throw new IllegalArgumentException("Failed to access field value for criteria: " + criteriaDescriptor.getField().getName(), e);
         }
@@ -290,7 +297,10 @@ public class DescriptorParser {
      */
     public static Predicate parsePredicateDescriptor(GroupDescriptor groupDescriptor, QueryMetadata queryMetadata, Object criteria) {
         List<PredicateDescriptor> predicateDescriptors = groupDescriptor.getPredicates();
-        List<Predicate> predicates = predicateDescriptors.stream().map(pd -> parsePredicateDescriptor(pd, queryMetadata, criteria)).toList();
+        List<Predicate> predicates = predicateDescriptors.stream()
+                .map(pd -> parsePredicateDescriptor(pd, queryMetadata, criteria))
+                .filter(Objects::nonNull)
+                .toList();
         return new LogicalPredicate(predicates, groupDescriptor.getOperator());
     }
 }
