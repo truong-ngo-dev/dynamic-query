@@ -38,7 +38,10 @@ public class ProjectionQueryFactory<Q> {
     public <P, C> Q createQuery(Class<P> projectionClass, C criteria, QueryCustomizer customizer) {
         ProjectionDescriptorProvider provider = ProjectionDescriptorProvider.getInstance();
         ProjectionDescriptor projectionDescriptor = provider.getProjectionDescriptor(projectionClass);
-        PredicateDescriptor predicateDescriptor = provider.getPredicateDescriptor(criteria.getClass(), projectionClass);
+        PredicateDescriptor predicateDescriptor = null;
+        if (criteria != null) {
+            predicateDescriptor = provider.getPredicateDescriptor(criteria.getClass(), projectionClass);
+        }
         QueryMetadata queryMetadata = buildQueryMetadata(projectionDescriptor, predicateDescriptor, criteria, customizer);
         return strategy.accept(queryMetadata);
     }
@@ -74,7 +77,10 @@ public class ProjectionQueryFactory<Q> {
             C criteria,
             QueryCustomizer customizer) {
         QueryMetadata queryMetadata = DescriptorParser.parseProjectionDescriptor(projectionDescriptor);
-        DescriptorParser.setCriteriaDescriptor(queryMetadata, predicateDescriptor, criteria);
+
+        if (criteria != null) {
+            DescriptorParser.setCriteriaDescriptor(queryMetadata, predicateDescriptor, criteria);
+        }
 
         if (customizer != null) {
             customizer.customize(queryMetadata);

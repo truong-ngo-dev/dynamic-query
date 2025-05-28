@@ -27,6 +27,10 @@
             <artifactId>metadata</artifactId>
         </dependency>
         <dependency>
+            <groupId>vn.truongngo.lib.dynamicquery</groupId>
+            <artifactId>projection</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-jpa</artifactId>
             <version>${querydsl.version}</version>

@@ -57,22 +57,22 @@ public class ProjectionDescriptor {
     /**
      * List of selected expressions (columns, aggregates, subqueries, etc.).
      */
-    private List<SelectDescriptor> selects;
+    private List<SelectDescriptor> selects = new LinkedList<>();
 
     /**
      * List of join descriptors used to join other entities.
      */
-    private List<JoinDescriptor> joins;
+    private List<JoinDescriptor> joins = new LinkedList<>();
 
     /**
      * List of expressions used in the GROUP BY clause.
      */
-    private List<SelectDescriptor> groupBys;
+    private List<SelectDescriptor> groupBys = new LinkedList<>();
 
     /**
      * List of order-by descriptors used to sort the result.
      */
-    private List<OrderByDescriptor> orderBys;
+    private List<OrderByDescriptor> orderBys = new LinkedList<>();
 
     /**
      * Adds a join descriptor to the list of joins.

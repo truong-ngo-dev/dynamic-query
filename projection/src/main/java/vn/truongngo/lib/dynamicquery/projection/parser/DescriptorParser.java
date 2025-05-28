@@ -150,7 +150,7 @@ public class DescriptorParser {
     public static Selection parseSelectDescriptor(ColumnDescriptor columnDescriptor, QueryMetadata queryMetadata) {
         Map<String, QuerySource> sourceMap = queryMetadata.getSourceMap();
         Selection columnReferenceExpression = Expressions.column(columnDescriptor.getName(), sourceMap.get(columnDescriptor.getFrom()));
-        if (!columnDescriptor.getAlias().isEmpty()) columnReferenceExpression.as(columnDescriptor.getAlias());
+        if (columnDescriptor.getAlias() != null && !columnDescriptor.getAlias().isEmpty()) columnReferenceExpression.as(columnDescriptor.getAlias());
         return columnReferenceExpression;
     }
 

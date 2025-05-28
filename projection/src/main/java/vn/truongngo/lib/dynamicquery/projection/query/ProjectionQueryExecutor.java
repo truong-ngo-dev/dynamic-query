@@ -23,25 +23,21 @@ public interface ProjectionQueryExecutor<Q> {
      * Executes the given query and returns the result mapped to instances of the specified projection class.
      *
      * @param <P> the type of the projection result
-     * @param <C> the type of the criteria object
      * @param query the query object to be executed
-     * @param projectionClass the class representing the projection type to map results to
-     * @param criteria the criteria object that may provide values or context for mapping (optional, can be null)
+     * @param projectionClass the class representing the projection type to map results t
      * @return a list of projection results
      */
-    <P, C> List<P> execute(Q query, Class<P> projectionClass, C criteria);
+    <P> List<P> execute(Q query, Class<P> projectionClass);
 
     /**
      * Executes the given query with pagination and returns the result mapped to instances of the specified projection class.
      *
      * @param <P> the type of the projection result
-     * @param <C> the type of the criteria object
      * @param query the query object to be executed
      * @param projectionClass the class representing the projection type to map results to
-     * @param criteria the criteria object that may provide values or context for mapping (optional, can be null)
      * @param pageable the pagination information, including page number and size
      * @return a {@link org.springframework.data.domain.Page} containing the paginated projection results
      */
-    <P, C> Page<P> execute(Q query, Class<P> projectionClass, C criteria, Pageable pageable);
+    <P> Page<P> execute(Q query, Class<P> projectionClass, Pageable pageable);
 
 }

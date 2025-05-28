@@ -33,6 +33,7 @@ import java.lang.annotation.*;
  * @version 2.0.0
  */
 @Repeatable(Join.List.class)
+@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Join {
 
