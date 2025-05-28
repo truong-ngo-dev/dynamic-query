@@ -449,8 +449,9 @@ public class ProjectionScanner {
      */
     private static PredicateDescriptor buildCriteriaDescriptor(ProjectionDescriptor projectionDescriptor, Field field, Criteria criteria) {
         String sourceAlias = criteria.sourceAlias().trim().isEmpty() ? projectionDescriptor.getAlias() : criteria.sourceAlias();
+        String reference = criteria.reference().trim().isEmpty() ? field.getName() : criteria.reference();
         SelectDescriptor selectDescriptor = criteria.expression().isEmpty() ?
-                getSelect(projectionDescriptor, criteria.reference(), sourceAlias) :
+                getSelect(projectionDescriptor, reference, sourceAlias) :
                 ExpressionDescriptor.builder().expression(criteria.expression()).build();
 
         return CriteriaDescriptor.builder()
