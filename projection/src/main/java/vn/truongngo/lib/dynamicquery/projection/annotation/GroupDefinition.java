@@ -32,6 +32,7 @@ import java.lang.annotation.*;
  */
 @Target(ElementType.TYPE)
 @Repeatable(GroupDefinition.List.class)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface GroupDefinition {
 
     /**

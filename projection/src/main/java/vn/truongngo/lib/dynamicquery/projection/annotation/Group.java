@@ -1,7 +1,5 @@
 package vn.truongngo.lib.dynamicquery.projection.annotation;
 
-import vn.truongngo.lib.dynamicquery.core.enumerate.LogicalOperator;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

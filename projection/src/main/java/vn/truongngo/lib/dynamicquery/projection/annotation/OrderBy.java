@@ -61,6 +61,7 @@ import java.lang.annotation.*;
  * @version 2.1.0
  */
 @Repeatable(value = OrderBy.List.class)
+@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface OrderBy {
 
