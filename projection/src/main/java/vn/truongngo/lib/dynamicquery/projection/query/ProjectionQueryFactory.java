@@ -16,7 +16,7 @@ import vn.truongngo.lib.dynamicquery.projection.processor.ProjectionDescriptorPr
  * </p>
  *
  * @param <Q> the type of the query object produced by this factory
- * @author Tring Ngo
+ * @author Truong Ngo
  * @version 2.0.0
  */
 @RequiredArgsConstructor
