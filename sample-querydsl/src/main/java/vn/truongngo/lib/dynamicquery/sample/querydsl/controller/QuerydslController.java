@@ -28,6 +28,6 @@ public class QuerydslController {
 
     @GetMapping("/test")
     private List<EmployeeProjection> test() {
-        return projectionQueryService.testProjectionQuery();
+        return projectionQueryService.testProjectionQuery1();
     }
 }

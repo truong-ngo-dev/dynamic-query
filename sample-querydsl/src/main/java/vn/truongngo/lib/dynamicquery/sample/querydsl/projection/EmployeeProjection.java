@@ -19,4 +19,6 @@ public class EmployeeProjection {
     private String lastName;
     @Column(name = "name", from = "c")
     private String companyName;
+    @Column(from = "c")
+    private String industry;
 }

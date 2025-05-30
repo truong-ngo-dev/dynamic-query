@@ -2,6 +2,7 @@ package vn.truongngo.lib.dynamicquery.sample.querydsl.projection;
 
 import lombok.Builder;
 import lombok.Data;
+
 import vn.truongngo.lib.dynamicquery.projection.annotation.Criteria;
 
 @Data
@@ -14,7 +15,7 @@ public class EmployeeCriteria {
     @Criteria
     private String lastName;
 
-    @Criteria
-    private String companyName;
+    @Criteria(reference = "industry", sourceAlias = "c")
+    private String ids;
 
 }

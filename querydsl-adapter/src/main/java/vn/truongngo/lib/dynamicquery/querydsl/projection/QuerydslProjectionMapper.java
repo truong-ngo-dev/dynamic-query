@@ -24,7 +24,6 @@ public class QuerydslProjectionMapper {
      * Maps a {@link Tuple} result from QueryDSL to a projection instance based on the given {@link ProjectionDescriptor}.
      *
      * @param tuple      the QueryDSL tuple containing query results
-     * @param descriptor the descriptor containing projection metadata
      * @param <P>        the type of the projection class
      * @return an instance of the projection class with fields populated from the tuple
      */

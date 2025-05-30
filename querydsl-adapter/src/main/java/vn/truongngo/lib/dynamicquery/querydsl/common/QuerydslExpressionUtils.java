@@ -193,8 +193,19 @@ public class QuerydslExpressionUtils {
      */
     public static <C> Predicate comparison(ComparisonPredicate expression, Visitor<Expression<?>, C> visitor, C context) {
         Expression<?> left = expression.getLeft().accept(visitor, context);
-        Expression<?> right = expression.getRight() != null ? expression.getRight().accept(visitor, context) : null;
         Operator operator = expression.getOperator();
+        Expression<?> right;
+        if (operator.equals(Operator.LIKE) || operator.equals(Operator.NOT_LIKE)) {
+            if ((expression.getRight() instanceof ConstantExpression constant)) {
+                String value = "%" + constant.getValue().toString() + "%";
+                right = Expressions.constant(value);
+            } else {
+                right = expression.getRight().accept(visitor, context);
+            }
+        } else {
+            right = expression.getRight().accept(visitor, context);
+        }
+
         return switch (operator) {
             case EQUAL -> Expressions.predicate(Ops.EQ, left, right);
             case NOT_EQUAL -> Expressions.predicate(Ops.NE, left, right);
