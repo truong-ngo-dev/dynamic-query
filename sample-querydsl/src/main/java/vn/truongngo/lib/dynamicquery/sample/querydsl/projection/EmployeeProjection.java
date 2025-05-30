@@ -3,6 +3,7 @@ package vn.truongngo.lib.dynamicquery.sample.querydsl.projection;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import vn.truongngo.lib.dynamicquery.projection.annotation.Column;
+import vn.truongngo.lib.dynamicquery.projection.annotation.Expression;
 import vn.truongngo.lib.dynamicquery.projection.annotation.Join;
 import vn.truongngo.lib.dynamicquery.projection.annotation.Projection;
 import vn.truongngo.lib.dynamicquery.sample.querydsl.entity.Company;
@@ -21,4 +22,6 @@ public class EmployeeProjection {
     private String companyName;
     @Column(from = "c")
     private String industry;
+    @Expression(value = "CASE WHEN c.industry IS NULL THEN 'Unknown' ELSE c.industry END")
+    private String ids;
 }

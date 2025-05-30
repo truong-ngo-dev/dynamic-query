@@ -154,7 +154,7 @@ public interface ExpressionParser {
      * @return the parsed predicate
      */
     default Predicate parsePredicate(Expression expression, QueryMetadata context) {
-        if (JSqlUtils.isLogical((BinaryExpression) expression)) return parseLogical((BinaryExpression) expression, context);
+        if (JSqlUtils.isLogical(expression)) return parseLogical((BinaryExpression) expression, context);
         return parseComparison(expression, context);
     }
 

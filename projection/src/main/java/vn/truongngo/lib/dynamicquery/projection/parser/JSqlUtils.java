@@ -82,7 +82,7 @@ public class JSqlUtils {
      * @param expr the binary expression to check
      * @return {@code true} if the expression is a logical condition, {@code false} otherwise
      */
-    public static boolean isLogical(BinaryExpression expr) {
+    public static boolean isLogical(Expression expr) {
         return expr instanceof AndExpression ||
                expr instanceof OrExpression;
     }

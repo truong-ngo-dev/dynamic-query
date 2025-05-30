@@ -203,7 +203,7 @@ public class QuerydslExpressionUtils {
                 right = expression.getRight().accept(visitor, context);
             }
         } else {
-            right = expression.getRight().accept(visitor, context);
+            right = expression.getRight() == null ? null : expression.getRight().accept(visitor, context);
         }
 
         return switch (operator) {
